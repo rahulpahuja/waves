@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,6 +51,54 @@ fun ProfileSettingsScreen(
     val marketingUpdates by viewModel.marketingUpdates.collectAsState()
     val autoApproveBookings by viewModel.autoApproveBookings.collectAsState()
 
+    ProfileSettingsContent(
+        displayName = displayName,
+        email = email,
+        phone = phone,
+        bio = bio,
+        faceIdLogin = faceIdLogin,
+        newBookingRequests = newBookingRequests,
+        lowAttendance = lowAttendance,
+        marketingUpdates = marketingUpdates,
+        autoApproveBookings = autoApproveBookings,
+        onNavigateBack = onNavigateBack,
+        onLogout = onLogout,
+        onDisplayNameChange = { viewModel.onDisplayNameChange(it) },
+        onEmailChange = { viewModel.onEmailChange(it) },
+        onPhoneChange = { viewModel.onPhoneChange(it) },
+        onBioChange = { viewModel.onBioChange(it) },
+        onFaceIdLoginChange = { viewModel.onFaceIdLoginChange(it) },
+        onNewBookingRequestsChange = { viewModel.onNewBookingRequestsChange(it) },
+        onLowAttendanceChange = { viewModel.onLowAttendanceChange(it) },
+        onMarketingUpdatesChange = { viewModel.onMarketingUpdatesChange(it) },
+        onAutoApproveBookingsChange = { viewModel.onAutoApproveBookingsChange(it) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProfileSettingsContent(
+    displayName: String,
+    email: String,
+    phone: String,
+    bio: String,
+    faceIdLogin: Boolean,
+    newBookingRequests: Boolean,
+    lowAttendance: Boolean,
+    marketingUpdates: Boolean,
+    autoApproveBookings: Boolean,
+    onNavigateBack: () -> Unit,
+    onLogout: () -> Unit,
+    onDisplayNameChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
+    onPhoneChange: (String) -> Unit,
+    onBioChange: (String) -> Unit,
+    onFaceIdLoginChange: (Boolean) -> Unit,
+    onNewBookingRequestsChange: (Boolean) -> Unit,
+    onLowAttendanceChange: (Boolean) -> Unit,
+    onMarketingUpdatesChange: (Boolean) -> Unit,
+    onAutoApproveBookingsChange: (Boolean) -> Unit
+) {
     Scaffold(
         containerColor = Color(0xFF10141D),
         topBar = {
@@ -140,9 +189,9 @@ fun ProfileSettingsScreen(
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("PERSONAL INFO", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 
-                SimpleTextField("Display Name", displayName) { viewModel.onDisplayNameChange(it) }
-                SimpleTextField("Email", email) { viewModel.onEmailChange(it) }
-                SimpleTextField("Phone", phone) { viewModel.onPhoneChange(it) }
+                SimpleTextField("Display Name", displayName) { onDisplayNameChange(it) }
+                SimpleTextField("Email", email) { onEmailChange(it) }
+                SimpleTextField("Phone", phone) { onPhoneChange(it) }
                 
                 // Bio Field (Multi-line)
                 Column {
@@ -150,7 +199,7 @@ fun ProfileSettingsScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     TextField(
                         value = bio,
-                        onValueChange = { viewModel.onBioChange(it) },
+                        onValueChange = onBioChange,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(100.dp)
@@ -201,7 +250,7 @@ fun ProfileSettingsScreen(
                      subtitle = null,
                      checked = faceIdLogin,
                      icon = Icons.Filled.Face,
-                     onCheckedChange = { viewModel.onFaceIdLoginChange(it) }
+                     onCheckedChange = onFaceIdLoginChange
                  )
             }
 
@@ -214,21 +263,21 @@ fun ProfileSettingsScreen(
                     subtitle = "Notify when a student books a slot",
                     checked = newBookingRequests,
                     icon = Icons.Filled.DateRange,
-                    onCheckedChange = { viewModel.onNewBookingRequestsChange(it) }
+                    onCheckedChange = onNewBookingRequestsChange
                 )
                 NotificationToggleItem(
                     title = "Low Attendance",
                     subtitle = "Alert if class is under 50% capacity",
                     checked = lowAttendance,
                     icon = Icons.Filled.Warning,
-                    onCheckedChange = { viewModel.onLowAttendanceChange(it) }
+                    onCheckedChange = onLowAttendanceChange
                 )
                 NotificationToggleItem(
                     title = "Marketing Updates",
                     subtitle = "News about app features",
                     checked = marketingUpdates,
                     icon = Icons.Filled.Campaign,
-                    onCheckedChange = { viewModel.onMarketingUpdatesChange(it) }
+                    onCheckedChange = onMarketingUpdatesChange
                 )
             }
             
@@ -271,10 +320,37 @@ fun ProfileSettingsScreen(
                     subtitle = null,
                     checked = autoApproveBookings,
                     icon = Icons.Filled.CheckCircle,
-                    onCheckedChange = { viewModel.onAutoApproveBookingsChange(it) }
+                    onCheckedChange = onAutoApproveBookingsChange
                 )
             }
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProfileSettingsScreenPreview() {
+    ProfileSettingsContent(
+        displayName = "Marcus Vance",
+        email = "marcus@waves.com",
+        phone = "+1 555 0123",
+        bio = "Senior Instructor at Beat Academy.",
+        faceIdLogin = true,
+        newBookingRequests = true,
+        lowAttendance = false,
+        marketingUpdates = true,
+        autoApproveBookings = false,
+        onNavigateBack = {},
+        onLogout = {},
+        onDisplayNameChange = {},
+        onEmailChange = {},
+        onPhoneChange = {},
+        onBioChange = {},
+        onFaceIdLoginChange = {},
+        onNewBookingRequestsChange = {},
+        onLowAttendanceChange = {},
+        onMarketingUpdatesChange = {},
+        onAutoApproveBookingsChange = {}
+    )
 }

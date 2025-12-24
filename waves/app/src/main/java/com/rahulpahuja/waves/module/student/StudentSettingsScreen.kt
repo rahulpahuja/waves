@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -46,6 +47,46 @@ fun StudentSettingsScreen(
     val feeDueAlerts by viewModel.feeDueAlerts.collectAsState()
     val announcements by viewModel.announcements.collectAsState()
 
+    StudentSettingsContent(
+        fullName = fullName,
+        email = email,
+        phone = phone,
+        pushNotifications = pushNotifications,
+        classReminders = classReminders,
+        feeDueAlerts = feeDueAlerts,
+        announcements = announcements,
+        onNavigateBack = onNavigateBack,
+        onLogout = onLogout,
+        onFullNameChange = { viewModel.onFullNameChange(it) },
+        onEmailChange = { viewModel.onEmailChange(it) },
+        onPhoneChange = { viewModel.onPhoneChange(it) },
+        onPushNotificationsChange = { viewModel.onPushNotificationsChange(it) },
+        onClassRemindersChange = { viewModel.onClassRemindersChange(it) },
+        onFeeDueAlertsChange = { viewModel.onFeeDueAlertsChange(it) },
+        onAnnouncementsChange = { viewModel.onAnnouncementsChange(it) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StudentSettingsContent(
+    fullName: String,
+    email: String,
+    phone: String,
+    pushNotifications: Boolean,
+    classReminders: Boolean,
+    feeDueAlerts: Boolean,
+    announcements: Boolean,
+    onNavigateBack: () -> Unit,
+    onLogout: () -> Unit,
+    onFullNameChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
+    onPhoneChange: (String) -> Unit,
+    onPushNotificationsChange: (Boolean) -> Unit,
+    onClassRemindersChange: (Boolean) -> Unit,
+    onFeeDueAlertsChange: (Boolean) -> Unit,
+    onAnnouncementsChange: (Boolean) -> Unit
+) {
     Scaffold(
         containerColor = Color(0xFF10141D),
         topBar = {
@@ -130,9 +171,9 @@ fun StudentSettingsScreen(
                 Text("Personal Information", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 
                 // Using existing CustomTextField or reimplementing simple version
-                SimpleTextField("Full Name", fullName) { viewModel.onFullNameChange(it) }
-                SimpleTextField("Email Address", email) { viewModel.onEmailChange(it) }
-                SimpleTextField("Phone Number", phone) { viewModel.onPhoneChange(it) }
+                SimpleTextField("Full Name", fullName, onFullNameChange)
+                SimpleTextField("Email Address", email, onEmailChange)
+                SimpleTextField("Phone Number", phone, onPhoneChange)
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -204,28 +245,28 @@ fun StudentSettingsScreen(
                     subtitle = null,
                     checked = pushNotifications,
                     icon = Icons.Filled.Notifications,
-                    onCheckedChange = { viewModel.onPushNotificationsChange(it) }
+                    onCheckedChange = onPushNotificationsChange
                 )
                 NotificationToggleItem(
                     title = "Class Reminders",
                     subtitle = "Alerts 1 hour before start",
                     checked = classReminders,
                     icon = Icons.Filled.DateRange,
-                    onCheckedChange = { viewModel.onClassRemindersChange(it) }
+                    onCheckedChange = onClassRemindersChange
                 )
                 NotificationToggleItem(
                     title = "Fee Due Alerts",
                     subtitle = null,
                     checked = feeDueAlerts,
                     icon = Icons.Filled.Payment,
-                    onCheckedChange = { viewModel.onFeeDueAlertsChange(it) }
+                    onCheckedChange = onFeeDueAlertsChange
                 )
                 NotificationToggleItem(
                     title = "Announcements",
                     subtitle = "New courses and school news",
                     checked = announcements,
                     icon = Icons.Filled.Campaign,
-                    onCheckedChange = { viewModel.onAnnouncementsChange(it) }
+                    onCheckedChange = onAnnouncementsChange
                 )
             }
             Spacer(modifier = Modifier.height(32.dp))
@@ -306,4 +347,27 @@ fun NotificationToggleItem(
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun StudentSettingsScreenPreview() {
+    StudentSettingsContent(
+        fullName = "Alex Rivera",
+        email = "alex.rivera@example.com",
+        phone = "+1 555 012-3456",
+        pushNotifications = true,
+        classReminders = true,
+        feeDueAlerts = true,
+        announcements = false,
+        onNavigateBack = {},
+        onLogout = {},
+        onFullNameChange = {},
+        onEmailChange = {},
+        onPhoneChange = {},
+        onPushNotificationsChange = {},
+        onClassRemindersChange = {},
+        onFeeDueAlertsChange = {},
+        onAnnouncementsChange = {}
+    )
 }

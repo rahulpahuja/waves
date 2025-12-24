@@ -234,7 +234,7 @@ fun BookingItem(booking: Booking) {
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(
-            modifier = Modifier.intrinsicHeight
+            modifier = Modifier.height(IntrinsicSize.Min)
         ) {
             // Status Strip
             Box(

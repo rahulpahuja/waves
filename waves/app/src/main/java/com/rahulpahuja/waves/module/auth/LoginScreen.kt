@@ -1,6 +1,5 @@
 package com.rahulpahuja.waves.module.auth
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -18,11 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -40,6 +39,32 @@ fun LoginScreen(
     val password by viewModel.password.collectAsState()
     val passwordVisible by viewModel.passwordVisible.collectAsState()
 
+    LoginScreenContent(
+        email = email,
+        password = password,
+        passwordVisible = passwordVisible,
+        onLoginClick = onLoginClick,
+        onForgotPasswordClick = onForgotPasswordClick,
+        onSignUpClick = onSignUpClick,
+        onEmailChange = { viewModel.onEmailChange(it) },
+        onPasswordChange = { viewModel.onPasswordChange(it) },
+        onPasswordVisibilityToggle = { viewModel.onPasswordVisibilityToggle() }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LoginScreenContent(
+    email: String,
+    password: String,
+    passwordVisible: Boolean,
+    onLoginClick: () -> Unit,
+    onForgotPasswordClick: () -> Unit,
+    onSignUpClick: () -> Unit,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onPasswordVisibilityToggle: () -> Unit
+) {
     Scaffold(
         containerColor = Color(0xFF10141D)
     ) { paddingValues ->
@@ -85,7 +110,7 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 TextField(
                     value = email,
-                    onValueChange = { viewModel.onEmailChange(it) },
+                    onValueChange = onEmailChange,
                     placeholder = { Text("producer@example.com", color = Color.Gray) },
                     leadingIcon = { Icon(Icons.Filled.Email, contentDescription = null, tint = Color.Gray) },
                     modifier = Modifier
@@ -109,11 +134,11 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 TextField(
                     value = password,
-                    onValueChange = { viewModel.onPasswordChange(it) },
+                    onValueChange = onPasswordChange,
                     placeholder = { Text("........", color = Color.Gray) },
                     leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null, tint = Color.Gray) },
                     trailingIcon = {
-                        IconButton(onClick = { viewModel.onPasswordVisibilityToggle() }) {
+                        IconButton(onClick = onPasswordVisibilityToggle) {
                             Icon(
                                 if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
                                 contentDescription = null,
@@ -193,4 +218,20 @@ fun LoginScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    LoginScreenContent(
+        email = "",
+        password = "",
+        passwordVisible = false,
+        onLoginClick = {},
+        onForgotPasswordClick = {},
+        onSignUpClick = {},
+        onEmailChange = {},
+        onPasswordChange = {},
+        onPasswordVisibilityToggle = {}
+    )
 }
