@@ -29,14 +29,12 @@ import com.rahulpahuja.waves.module.auth.ForgotPasswordScreen
 import com.rahulpahuja.waves.module.auth.LoginScreen
 import com.rahulpahuja.waves.module.chat.ChatScreen
 import com.rahulpahuja.waves.module.gallery.MediaGalleryScreen
-import com.rahulpahuja.waves.module.onboarding.AllSetScreen
-import com.rahulpahuja.waves.module.onboarding.CreatePersonaScreen
-import com.rahulpahuja.waves.module.onboarding.TrackProgressScreen
-import com.rahulpahuja.waves.module.onboarding.WelcomeScreen
+import com.rahulpahuja.waves.module.onboarding.* 
 import com.rahulpahuja.waves.module.radar.ArtistRadarScreen
 import com.rahulpahuja.waves.module.radar.PublicArtistProfileScreen
 import com.rahulpahuja.waves.module.schedule.ManageBookingsScreen
 import com.rahulpahuja.waves.module.schedule.StudioScheduleScreen
+import com.rahulpahuja.waves.module.splash.SplashScreen
 import com.rahulpahuja.waves.module.student.StudentDashboardScreen
 import com.rahulpahuja.waves.module.student.StudentSettingsScreen
 import com.rahulpahuja.waves.ui.components.NotificationsScreen
@@ -69,8 +67,11 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController, 
-        startDestination = Screen.Login.route
+        startDestination = Screen.Splash.route
     ) {
+        composable(Screen.Splash.route) {
+            SplashScreen(navController = navController)
+        }
 
         // Onboarding
         composable(Screen.Welcome.route) {
@@ -98,13 +99,40 @@ fun AppNavigation() {
                 }
             })
         }
+        composable(Screen.WelcomeToTheBooth.route) {
+            WelcomeToTheBoothScreen(onStartManagingClick = { navController.navigate(Screen.ManageStudentLifecycle.route) })
+        }
+        composable(Screen.ManageStudentLifecycle.route) {
+            ManageStudentLifecycleScreen(
+                onNextClick = { navController.navigate(Screen.ProfileSetup.route) },
+                onSkipClick = { navController.navigate(Screen.AdminDashboard.route) }
+            )
+        }
+        composable(Screen.ProfileSetup.route) {
+            ProfileSetupScreen(
+                onContinueClick = { navController.navigate(Screen.AdminWelcome.route) },
+                onSkipClick = { navController.navigate(Screen.AdminDashboard.route) }
+            )
+        }
+        composable(Screen.AdminWelcome.route) {
+            AdminWelcomeScreen(
+                onEnterDashboardClick = { navController.navigate(Screen.AdminDashboard.route) },
+                onViewProfileClick = { navController.navigate(Screen.ArtistProfile.route) }
+            )
+        }
 
         // Auth
         composable(Screen.Login.route) {
             LoginScreen(
-                onLoginClick = {
-                    navController.navigate(Screen.Welcome.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
+                onLoginClick = { isAdmin ->
+                    if (isAdmin) {
+                        navController.navigate(Screen.AdminDashboard.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
+                    } else {
+                        navController.navigate(Screen.Welcome.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
                     }
                 },
                 onForgotPasswordClick = { navController.navigate(Screen.ForgotPassword.route) },
@@ -131,7 +159,7 @@ fun AppNavigation() {
 
         // Admin Module
         composable(Screen.AdminDashboard.route) {
-            AdminDashboardScreen()
+            AdminDashboardScreen(navController)
         }
         composable(Screen.AdminSettings.route) {
             AdminSettingsScreen(
@@ -176,14 +204,7 @@ fun AppNavigation() {
 
         // Student Module
         composable(Screen.StudentDashboard.route) {
-            StudentDashboardScreen(
-                onNavigateToPaymentHistory = { navController.navigate(Screen.PaymentHistory.route) },
-                onNavigateToArtistProfile = { navController.navigate(Screen.ArtistProfile.route) },
-                onNavigateToNotifications = { navController.navigate(Screen.Notifications.route) },
-                onNavigateToSchedule = { navController.navigate(Screen.StudioSchedule.route) },
-                onNavigateToLibrary = { navController.navigate(Screen.MediaGallery.route) },
-                onNavigateToProfile = { navController.navigate(Screen.StudentSettings.route) }
-            )
+            StudentDashboardScreen(navController = navController)
         }
         composable(Screen.StudentSettings.route) {
             StudentSettingsScreen(
@@ -248,9 +269,7 @@ fun AppNavigation() {
 
         // Radar / Public
         composable(Screen.ArtistRadar.route) {
-            ArtistRadarScreen(
-//                onDismiss = { navController.popBackStack() }
-            )
+            ArtistRadarScreen()
         }
         composable(Screen.PublicArtistProfile.route) {
             PublicArtistProfileScreen(

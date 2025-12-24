@@ -69,7 +69,7 @@ fun NewCashEntryScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("Processing fee", color = Color.Gray)
-                    Text("$0.00", color = Color.White)
+                    Text("₹0.00", color = Color.White)
                 }
                 Button(
                     onClick = { /* Handle Log Transaction */ },
@@ -118,7 +118,7 @@ fun NewCashEntryScreen(
                 Text("AMOUNT RECEIVED", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("$", color = Color.Gray, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+                    Text("₹", color = Color.Gray, fontSize = 32.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.width(8.dp))
                     BasicTextField(
                         value = if (amount.isEmpty()) "0.00" else amount,

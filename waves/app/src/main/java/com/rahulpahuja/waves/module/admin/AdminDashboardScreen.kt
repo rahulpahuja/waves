@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -22,7 +21,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Notifications
@@ -54,58 +52,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.rahulpahuja.waves.R
+import com.rahulpahuja.waves.ui.navigation.Screen
 
 @Composable
 fun AdminDashboardScreen(
+    navController: NavController,
     viewModel: AdminDashboardViewModel = hiltViewModel()
 ) {
-    val state by viewModel.uiState.collectAsState()
-    val backgroundColor = Color(0xFF10141D)
-
-    Scaffold(
-        bottomBar = { AdminBottomBar() },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { /*TODO*/ },
-                containerColor = Color(0xFF2962FF),
-                contentColor = Color.White,
-                shape = CircleShape
-            ) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_content_description))
-            }
-        },
-        containerColor = backgroundColor
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            item { Spacer(modifier = Modifier.height(16.dp)) }
-            item { HeaderSection() }
-            item { OverviewSection(state) }
-            item { ManageSchoolSection() }
-            item { UpcomingSessionsSection(state.sessions) }
-            item { Spacer(modifier = Modifier.height(80.dp)) } // Bottom padding for FAB/Nav
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AdminDashboardPreview() {
-    // We can't preview with hiltViewModel() easily without wrapping or mocking.
-    // For preview purposes, we would ideally extract the content to a separate stateless composable
-    // or use a mock ViewModel. Since I cannot create a mock ViewModel here easily without more context,
-    // I will comment out the actual screen preview or show a placeholder.
-    // However, the user asked to "add them". I'll wrap the content in a stateless composable for preview if possible.
-    // Or I'll just add the @Preview to the main composable, which might crash if it uses Hilt.
-    
-    // Better approach: Extract stateless content.
-    AdminDashboardContent(AdminDashboardUiState())
+    // This now delegates to the main admin navigation
+    AdminNavigation(navController = navController)
 }
 
 @Composable
@@ -113,7 +71,6 @@ fun AdminDashboardContent(state: AdminDashboardUiState) {
      val backgroundColor = Color(0xFF10141D)
 
     Scaffold(
-        bottomBar = { AdminBottomBar() },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { /*TODO*/ },
@@ -174,7 +131,7 @@ fun HeaderSection() {
                 Text(
                     text = stringResource(R.string.default_user_name),
                     color = Color.White,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight =  FontWeight.Bold,
                     fontSize = 18.sp
                 )
             }
@@ -500,53 +457,59 @@ fun SessionItem(session: Session) {
 }
 
 @Composable
-fun AdminBottomBar() {
+fun AdminBottomBar(
+    navController: NavController
+) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    val items = listOf(
+        Screen.AdminDashboard,
+        Screen.StudioSchedule,
+        Screen.Students,
+        Screen.AdminSettings
+    )
+
     NavigationBar(
         containerColor = Color(0xFF10141D),
         contentColor = Color.White
     ) {
-        NavigationBarItem(
-            selected = true,
-            onClick = { /*TODO*/ },
-            icon = { Icon(Icons.Default.Home, contentDescription = stringResource(R.string.home_nav)) },
-            label = { Text(stringResource(R.string.home_nav)) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color(0xFF2962FF),
-                selectedTextColor = Color(0xFF2962FF),
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
-                indicatorColor = Color.Transparent
+        items.forEach { screen ->
+            NavigationBarItem(
+                selected = currentRoute == screen.route,
+                onClick = {
+                    navController.navigate(screen.route) {
+                        popUpTo(navController.graph.startDestinationId)
+                        launchSingleTop = true
+                    }
+                },
+                icon = {
+                    val icon = when(screen) {
+                        Screen.AdminDashboard -> Icons.Default.Home
+                        Screen.StudioSchedule -> Icons.Default.CalendarToday
+                        Screen.Students -> Icons.Default.School
+                        Screen.AdminSettings -> Icons.Default.Settings
+                        else -> Icons.Default.Home
+                    }
+                    Icon(icon, contentDescription = screen.route)
+                },
+                label = {
+                    val label = when(screen) {
+                        Screen.AdminDashboard -> stringResource(R.string.home_nav)
+                        Screen.StudioSchedule -> stringResource(R.string.calendar_nav)
+                        Screen.Students -> stringResource(R.string.students_nav)
+                        Screen.AdminSettings -> stringResource(R.string.settings_title)
+                        else -> ""
+                    }
+                    Text(label)
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color(0xFF2962FF),
+                    selectedTextColor = Color(0xFF2962FF),
+                    unselectedIconColor = Color.Gray,
+                    unselectedTextColor = Color.Gray,
+                    indicatorColor = Color.Transparent
+                )
             )
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { /*TODO*/ },
-            icon = { Icon(Icons.Default.CalendarToday, contentDescription = stringResource(R.string.calendar_nav)) },
-            label = { Text(stringResource(R.string.calendar_nav)) },
-            colors = NavigationBarItemDefaults.colors(
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray
-            )
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { /*TODO*/ },
-            icon = { Icon(Icons.Default.School, contentDescription = stringResource(R.string.students_nav)) },
-            label = { Text(stringResource(R.string.students_nav)) },
-            colors = NavigationBarItemDefaults.colors(
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray
-            )
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { /*TODO*/ },
-            icon = { Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings_title)) },
-            label = { Text(stringResource(R.string.settings_title)) },
-            colors = NavigationBarItemDefaults.colors(
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray
-            )
-        )
+        }
     }
 }
