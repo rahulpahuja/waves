@@ -23,11 +23,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,6 +44,28 @@ fun SettingsScreen(
     val language by viewModel.language.collectAsState()
     val notifications by viewModel.notifications.collectAsState()
 
+    SettingsScreenContent(
+        darkMode = darkMode,
+        language = language,
+        notifications = notifications,
+        onNavigateBack = onNavigateBack,
+        onLogout = onLogout,
+        onDarkModeChange = { viewModel.onDarkModeChange(it) },
+        onNotificationsChange = { viewModel.onNotificationsChange(it) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsScreenContent(
+    darkMode: Boolean,
+    language: String,
+    notifications: Boolean,
+    onNavigateBack: () -> Unit,
+    onLogout: () -> Unit,
+    onDarkModeChange: (Boolean) -> Unit,
+    onNotificationsChange: (Boolean) -> Unit
+) {
     Scaffold(
         containerColor = Color(0xFF10141D),
         topBar = {
@@ -83,7 +105,7 @@ fun SettingsScreen(
                     icon = Icons.Filled.DarkMode,
                     iconColor = Color(0xFF2962FF),
                     checked = darkMode,
-                    onCheckedChange = { viewModel.onDarkModeChange(it) }
+                    onCheckedChange = onDarkModeChange
                 )
                 
                 SettingsNavigationItem(
@@ -99,7 +121,7 @@ fun SettingsScreen(
                     icon = Icons.Filled.Notifications,
                     iconColor = Color(0xFFE91E63),
                     checked = notifications,
-                    onCheckedChange = { viewModel.onNotificationsChange(it) }
+                    onCheckedChange = onNotificationsChange
                 )
             }
             
@@ -191,4 +213,18 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SettingsScreenPreview() {
+    SettingsScreenContent(
+        darkMode = false,
+        language = "English",
+        notifications = true,
+        onNavigateBack = {},
+        onLogout = {},
+        onDarkModeChange = {},
+        onNotificationsChange = {}
+    )
 }

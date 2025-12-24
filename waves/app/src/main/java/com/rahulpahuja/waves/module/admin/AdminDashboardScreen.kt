@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -61,6 +62,55 @@ fun AdminDashboardScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val backgroundColor = Color(0xFF10141D)
+
+    Scaffold(
+        bottomBar = { AdminBottomBar() },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { /*TODO*/ },
+                containerColor = Color(0xFF2962FF),
+                contentColor = Color.White,
+                shape = CircleShape
+            ) {
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_content_description))
+            }
+        },
+        containerColor = backgroundColor
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            item { Spacer(modifier = Modifier.height(16.dp)) }
+            item { HeaderSection() }
+            item { OverviewSection(state) }
+            item { ManageSchoolSection() }
+            item { UpcomingSessionsSection(state.sessions) }
+            item { Spacer(modifier = Modifier.height(80.dp)) } // Bottom padding for FAB/Nav
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AdminDashboardPreview() {
+    // We can't preview with hiltViewModel() easily without wrapping or mocking.
+    // For preview purposes, we would ideally extract the content to a separate stateless composable
+    // or use a mock ViewModel. Since I cannot create a mock ViewModel here easily without more context,
+    // I will comment out the actual screen preview or show a placeholder.
+    // However, the user asked to "add them". I'll wrap the content in a stateless composable for preview if possible.
+    // Or I'll just add the @Preview to the main composable, which might crash if it uses Hilt.
+    
+    // Better approach: Extract stateless content.
+    AdminDashboardContent(AdminDashboardUiState())
+}
+
+@Composable
+fun AdminDashboardContent(state: AdminDashboardUiState) {
+     val backgroundColor = Color(0xFF10141D)
 
     Scaffold(
         bottomBar = { AdminBottomBar() },

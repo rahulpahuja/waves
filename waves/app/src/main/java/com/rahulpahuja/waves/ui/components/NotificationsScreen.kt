@@ -13,13 +13,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material.icons.automirrored.filled.Message
 
 data class NotificationItem(
     val id: String,
@@ -43,7 +42,7 @@ enum class NotificationType {
 
 @Composable
 fun NotificationsScreen(
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit = {}
 ) {
     var selectedFilter by remember { mutableStateOf("All") }
     val filters = listOf("All", "Classes", "Payments", "Studio")
@@ -280,4 +279,10 @@ fun NotificationItemView(notification: NotificationItem) {
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NotificationsScreenPreview() {
+    NotificationsScreen()
 }

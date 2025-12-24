@@ -214,7 +214,7 @@ fun SettingsToggleItem(
                 modifier = Modifier
                     .size(32.dp)
                     // .background(iconColor.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
-                contentAlignment = Alignment.Center
+                ,contentAlignment = Alignment.Center
             ) {
                 Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(20.dp))
             }
@@ -260,7 +260,7 @@ fun SettingsNavigationItem(
                 modifier = Modifier
                     .size(32.dp)
                     //.background(iconColor.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
-                contentAlignment = Alignment.Center
+                ,contentAlignment = Alignment.Center
             ) {
                 Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(20.dp))
             }
