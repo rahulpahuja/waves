@@ -66,7 +66,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Screen.Login.route) {
+
+    NavHost(
+        navController = navController, 
+        startDestination = Screen.Login.route
+    ) {
 
         // Onboarding
         composable(Screen.Welcome.route) {
@@ -210,7 +214,10 @@ fun AppNavigation() {
         }
         composable(Screen.MediaGallery.route) {
             MediaGalleryScreen(
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToHome = { navController.navigate(Screen.StudentDashboard.route) },
+                onNavigateToSchedule = { navController.navigate(Screen.StudioSchedule.route) },
+                onNavigateToProfile = { navController.navigate(Screen.StudentSettings.route) }
             )
         }
         composable(Screen.Attendance.route) {

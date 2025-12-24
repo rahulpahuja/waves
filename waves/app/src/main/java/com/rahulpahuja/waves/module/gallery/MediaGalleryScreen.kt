@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -32,7 +33,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun MediaGalleryScreen(
     viewModel: MediaGalleryViewModel = hiltViewModel(),
-    onNavigateBack: () -> Boolean
+    onNavigateBack: () -> Boolean, // Kept for compatibility but not used in bottom bar
+    onNavigateToHome: () -> Unit,
+    onNavigateToSchedule: () -> Unit,
+    onNavigateToProfile: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
     val backgroundColor = Color(0xFF10141D)
@@ -60,7 +64,13 @@ fun MediaGalleryScreen(
                 )
             }
         },
-        bottomBar = { GalleryBottomBar() }
+        bottomBar = { 
+            GalleryBottomBar(
+                onNavigateToHome = onNavigateToHome,
+                onNavigateToSchedule = onNavigateToSchedule,
+                onNavigateToProfile = onNavigateToProfile
+            ) 
+        }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -125,7 +135,6 @@ fun MediaGalleryScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 
                 // Using a Column of Rows to simulate a grid within LazyColumn
-                // Since LazyVerticalGrid cannot be nested directly in LazyColumn without fixed height
                 val chunkedUploads = state.recentUploads.chunked(2)
                 chunkedUploads.forEach { rowItems ->
                     Row(
@@ -137,7 +146,6 @@ fun MediaGalleryScreen(
                                 UploadCard(upload)
                             }
                         }
-                        // Fill empty space if odd number of items
                         if (rowItems.size < 2) {
                             Spacer(modifier = Modifier.weight(1f))
                         }
@@ -322,14 +330,18 @@ fun UploadCard(upload: MediaUpload) {
 }
 
 @Composable
-fun GalleryBottomBar() {
+fun GalleryBottomBar(
+    onNavigateToHome: () -> Unit,
+    onNavigateToSchedule: () -> Unit,
+    onNavigateToProfile: () -> Unit
+) {
     NavigationBar(
         containerColor = Color(0xFF10141D),
         contentColor = Color.White
     ) {
         NavigationBarItem(
             selected = false,
-            onClick = { /*TODO*/ },
+            onClick = onNavigateToHome,
             icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
             label = { Text("Home") },
             colors = NavigationBarItemDefaults.colors(
@@ -339,9 +351,9 @@ fun GalleryBottomBar() {
         )
         NavigationBarItem(
             selected = false,
-            onClick = { /*TODO*/ },
-            icon = { Icon(Icons.Filled.CalendarToday, contentDescription = "Courses") },
-            label = { Text("Courses") },
+            onClick = onNavigateToSchedule,
+            icon = { Icon(Icons.Filled.CalendarToday, contentDescription = "Schedule") },
+            label = { Text("Schedule") },
             colors = NavigationBarItemDefaults.colors(
                 unselectedIconColor = Color.Gray,
                 unselectedTextColor = Color.Gray
@@ -349,9 +361,9 @@ fun GalleryBottomBar() {
         )
         NavigationBarItem(
             selected = true,
-            onClick = { /*TODO*/ },
-            icon = { Icon(Icons.Filled.Folder, contentDescription = "Gallery") },
-            label = { Text("Gallery") },
+            onClick = { /* Stay on Library/Gallery */ },
+            icon = { Icon(Icons.Filled.LibraryMusic, contentDescription = "Library") },
+            label = { Text("Library") },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = Color(0xFF2962FF),
                 selectedTextColor = Color(0xFF2962FF),
@@ -362,17 +374,7 @@ fun GalleryBottomBar() {
         )
         NavigationBarItem(
             selected = false,
-            onClick = { /*TODO*/ },
-            icon = { Icon(Icons.Filled.CalendarToday, contentDescription = "Schedule") },
-            label = { Text("Schedule") },
-            colors = NavigationBarItemDefaults.colors(
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray
-            )
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = { /*TODO*/ },
+            onClick = onNavigateToProfile,
             icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
             label = { Text("Profile") },
             colors = NavigationBarItemDefaults.colors(

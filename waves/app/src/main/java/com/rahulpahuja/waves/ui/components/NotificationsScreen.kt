@@ -19,6 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
+import com.rahulpahuja.waves.util.NotificationHelper
 
 data class NotificationItem(
     val id: String,
@@ -46,6 +48,7 @@ fun NotificationsScreen(
 ) {
     var selectedFilter by remember { mutableStateOf("All") }
     val filters = listOf("All", "Classes", "Payments", "Studio")
+    val context = LocalContext.current
 
     // Mock Data
     val newNotifications = listOf(
@@ -141,6 +144,17 @@ fun NotificationsScreen(
                     }
                 }
             }
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = {
+                    NotificationHelper.sendNotification(context, "Test Notification", "This is a test notification from the app.")
+                },
+                containerColor = Color(0xFF2962FF),
+                contentColor = Color.White,
+                icon = { Icon(Icons.Filled.Notifications, "Send Notification") },
+                text = { Text("Send Test Notification") }
+            )
         }
     ) { paddingValues ->
         LazyColumn(
@@ -198,7 +212,7 @@ fun NotificationItemView(notification: NotificationItem) {
         NotificationType.MESSAGE -> Color(0xFF2962FF)
         NotificationType.SYSTEM -> Color.Gray
     }
-    
+
     val iconBgColor = iconColor.copy(alpha = 0.1f)
 
     Row(

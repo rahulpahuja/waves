@@ -30,7 +30,7 @@ import com.rahulpahuja.waves.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit,
+    onLoginClick: (Boolean) -> Unit,
     onForgotPasswordClick: () -> Unit,
     onSignUpClick: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
@@ -43,7 +43,7 @@ fun LoginScreen(
         email = email,
         password = password,
         passwordVisible = passwordVisible,
-        onLoginClick = onLoginClick,
+        onLoginClick = { onLoginClick(email.contains("admin", ignoreCase = true)) },
         onForgotPasswordClick = onForgotPasswordClick,
         onSignUpClick = onSignUpClick,
         onEmailChange = { viewModel.onEmailChange(it) },
@@ -111,7 +111,7 @@ fun LoginScreenContent(
                 TextField(
                     value = email,
                     onValueChange = onEmailChange,
-                    placeholder = { Text("producer@example.com", color = Color.Gray) },
+                    placeholder = { Text("producer@example.com or admin@example.com", color = Color.Gray) },
                     leadingIcon = { Icon(Icons.Filled.Email, contentDescription = null, tint = Color.Gray) },
                     modifier = Modifier
                         .fillMaxWidth()
