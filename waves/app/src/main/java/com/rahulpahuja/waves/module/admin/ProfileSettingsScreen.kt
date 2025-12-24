@@ -8,12 +8,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -192,16 +196,40 @@ fun ProfileSettingsScreen(
                     }
                 }
 
-                 NotificationToggleItem("Face ID Login", null, faceIdLogin) { viewModel.onFaceIdLoginChange(it) }
+                 NotificationToggleItem(
+                     title = "Face ID Login",
+                     subtitle = null,
+                     checked = faceIdLogin,
+                     icon = Icons.Filled.Face,
+                     onCheckedChange = { viewModel.onFaceIdLoginChange(it) }
+                 )
             }
 
             // Notifications
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("NOTIFICATIONS", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 
-                NotificationToggleItem("New Booking Requests", "Notify when a student books a slot", newBookingRequests) { viewModel.onNewBookingRequestsChange(it) }
-                NotificationToggleItem("Low Attendance", "Alert if class is under 50% capacity", lowAttendance) { viewModel.onLowAttendanceChange(it) }
-                NotificationToggleItem("Marketing Updates", "News about app features", marketingUpdates) { viewModel.onMarketingUpdatesChange(it) }
+                NotificationToggleItem(
+                    title = "New Booking Requests",
+                    subtitle = "Notify when a student books a slot",
+                    checked = newBookingRequests,
+                    icon = Icons.Filled.DateRange,
+                    onCheckedChange = { viewModel.onNewBookingRequestsChange(it) }
+                )
+                NotificationToggleItem(
+                    title = "Low Attendance",
+                    subtitle = "Alert if class is under 50% capacity",
+                    checked = lowAttendance,
+                    icon = Icons.Filled.Warning,
+                    onCheckedChange = { viewModel.onLowAttendanceChange(it) }
+                )
+                NotificationToggleItem(
+                    title = "Marketing Updates",
+                    subtitle = "News about app features",
+                    checked = marketingUpdates,
+                    icon = Icons.Filled.Campaign,
+                    onCheckedChange = { viewModel.onMarketingUpdatesChange(it) }
+                )
             }
             
             // School Defaults
@@ -238,7 +266,13 @@ fun ProfileSettingsScreen(
                     }
                 }
                 
-                NotificationToggleItem("Auto-Approve Bookings", null, autoApproveBookings) { viewModel.onAutoApproveBookingsChange(it) }
+                NotificationToggleItem(
+                    title = "Auto-Approve Bookings",
+                    subtitle = null,
+                    checked = autoApproveBookings,
+                    icon = Icons.Filled.CheckCircle,
+                    onCheckedChange = { viewModel.onAutoApproveBookingsChange(it) }
+                )
             }
             Spacer(modifier = Modifier.height(32.dp))
         }
