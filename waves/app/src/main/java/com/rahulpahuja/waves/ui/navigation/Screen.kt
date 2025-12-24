@@ -6,6 +6,12 @@ sealed class Screen(val route: String) {
     object Home : Screen("home")
     object Notifications : Screen("notifications")
     
+    // Onboarding
+    object Welcome : Screen("welcome")
+    object TrackProgress : Screen("track_progress")
+    object CreatePersona : Screen("create_persona")
+    object AllSet : Screen("all_set")
+    
     // Admin Module
     object AdminDashboard : Screen("admin_dashboard")
     object AdminSettings : Screen("admin_settings")
