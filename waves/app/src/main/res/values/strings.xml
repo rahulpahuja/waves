@@ -39,4 +39,15 @@
     <string name="home_nav">Home</string>
     <string name="calendar_nav">Calendar</string>
     <string name="students_nav">Students</string>
+    
+    <!-- Notification & Alert Strings -->
+    <string name="fee_due_title">Fee Due</string>
+    <string name="fee_due_warning">Don\'t lose access to your course materials.</string>
+    <string name="view_payment_history">View Payment History</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="low_attendance_title">Low Attendance Warning</string>
+    <string name="current_status">CURRENT STATUS</string>
+    <string name="needs_attention">Needs Attention</string>
+    <string name="view_attendance_record">View Attendance Record</string>
+    <string name="target_label">Target: %s</string>
 </resources>
