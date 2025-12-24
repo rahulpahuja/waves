@@ -26,7 +26,7 @@ class ArtistRadarViewModel @Inject constructor() : ViewModel() {
                     Gig(
                         id = "1",
                         title = "Techno Bunker Night",
-                        artist = "DJ Kicks",
+                        artist = "DJ Mandy",
                         location = "The Warehouse, Berlin",
                         time = "23:00 - 01:00",
                         tags = listOf("Acid Techno"),

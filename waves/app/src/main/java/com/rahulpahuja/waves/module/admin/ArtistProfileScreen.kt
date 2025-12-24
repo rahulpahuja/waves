@@ -37,7 +37,7 @@ fun ArtistProfileScreen(
     onNavigateBack: () -> Unit,
     viewModel: ArtistProfileViewModel = hiltViewModel()
 ) {
-    var stageName by remember { mutableStateOf("DJ Kicks") }
+    var stageName by remember { mutableStateOf("DJ Mandy") }
     var artistBio by remember { mutableStateOf("Electronic music enthusiast specializing in Deep House and Techno. Building atmospheres that move the soul and the feet.") }
     
     // Social Links

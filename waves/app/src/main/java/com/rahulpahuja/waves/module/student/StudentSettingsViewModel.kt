@@ -10,10 +10,10 @@ import javax.inject.Inject
 @HiltViewModel
 class StudentSettingsViewModel @Inject constructor() : ViewModel() {
 
-    private val _fullName = MutableStateFlow("Alex Rivera")
+    private val _fullName = MutableStateFlow("DJ Mandy")
     val fullName: StateFlow<String> = _fullName.asStateFlow()
 
-    private val _email = MutableStateFlow("alex.rivera@example.com")
+    private val _email = MutableStateFlow("dj.mandy@gmail.com")
     val email: StateFlow<String> = _email.asStateFlow()
 
     private val _phone = MutableStateFlow("+1 (555) 012-3456")

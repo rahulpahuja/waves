@@ -42,7 +42,7 @@ fun SplashScreen(navController: NavController) {
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "BEATMASTER",
+                text = "WAVES ACADEMY",
                 color = Color.White,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold

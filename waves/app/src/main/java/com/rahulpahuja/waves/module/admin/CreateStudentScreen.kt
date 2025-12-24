@@ -145,7 +145,7 @@ fun CreateStudentScreen(
                     value = fullName,
                     onValueChange = { fullName = it },
                     label = "Full Name",
-                    placeholder = "e.g. Alex Rivera",
+                    placeholder = "e.g. DJ Mandy",
                     icon = Icons.Default.Person
                 )
 

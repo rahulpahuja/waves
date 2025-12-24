@@ -23,7 +23,7 @@ class StudentDashboardViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             // Simulate data loading
             _uiState.value = StudentDashboardUiState(
-                userName = "DJ Kicks",
+                userName = "DJ Mandy",
                 currentCourse = CourseProgress(
                     title = "Music Production 101",
                     progressPercentage = 0.75f,

@@ -162,7 +162,7 @@ fun StudentSettingsContent(
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
-                Text("Alex Rivera", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text("DJ Mandy", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Text("Student Member since 2023", color = Color.Gray, fontSize = 12.sp)
             }
 
@@ -353,8 +353,8 @@ fun NotificationToggleItem(
 @Composable
 fun StudentSettingsScreenPreview() {
     StudentSettingsContent(
-        fullName = "Alex Rivera",
-        email = "alex.rivera@example.com",
+        fullName = "DJ Mandy",
+        email = "dj.mandy@gmail.com",
         phone = "+1 555 012-3456",
         pushNotifications = true,
         classReminders = true,
