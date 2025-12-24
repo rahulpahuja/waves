@@ -29,6 +29,9 @@ fun StudentDashboardScreen(
     onNavigateToPaymentHistory: () -> Unit,
     onNavigateToArtistProfile: () -> Unit,
     onNavigateToNotifications: () -> Unit,
+    onNavigateToSchedule: () -> Unit,
+    onNavigateToLibrary: () -> Unit,
+    onNavigateToProfile: () -> Unit,
     viewModel: StudentDashboardViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -36,7 +39,13 @@ fun StudentDashboardScreen(
 
     Scaffold(
         containerColor = backgroundColor,
-        bottomBar = { StudentBottomBar() }
+        bottomBar = { 
+            StudentBottomBar(
+                onNavigateToSchedule = onNavigateToSchedule,
+                onNavigateToLibrary = onNavigateToLibrary,
+                onNavigateToProfile = onNavigateToProfile
+            ) 
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -78,7 +87,7 @@ fun StudentDashboardScreen(
                         )
                     }
                     Spacer(modifier = Modifier.width(16.dp))
-                    Box {
+                    Box(modifier = Modifier.clickable(onClick = onNavigateToProfile)) {
                         Box(
                             modifier = Modifier
                                 .size(48.dp)
@@ -231,7 +240,7 @@ fun StudentDashboardScreen(
                         title = "Book Lab",
                         icon = Icons.Filled.Event,
                         iconColor = Color(0xFF2962FF),
-                        onClick = { /* Book Lab */ }
+                        onClick = onNavigateToSchedule
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -248,7 +257,7 @@ fun StudentDashboardScreen(
                         title = "Resources",
                         icon = Icons.Filled.Folder,
                         iconColor = Color(0xFFE65100),
-                        onClick = { /* Resources */ }
+                        onClick = onNavigateToLibrary
                     )
                 }
             }
@@ -329,14 +338,18 @@ fun QuickActionCard(
 }
 
 @Composable
-fun StudentBottomBar() {
+fun StudentBottomBar(
+    onNavigateToSchedule: () -> Unit,
+    onNavigateToLibrary: () -> Unit,
+    onNavigateToProfile: () -> Unit
+) {
     NavigationBar(
         containerColor = Color(0xFF10141D),
         contentColor = Color.White
     ) {
         NavigationBarItem(
             selected = true,
-            onClick = { /*TODO*/ },
+            onClick = { /* Stay on Home */ },
             icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
             label = { Text("Home") },
             colors = NavigationBarItemDefaults.colors(
@@ -349,7 +362,7 @@ fun StudentBottomBar() {
         )
         NavigationBarItem(
             selected = false,
-            onClick = { /*TODO*/ },
+            onClick = onNavigateToSchedule,
             icon = { Icon(Icons.Filled.CalendarToday, contentDescription = "Schedule") },
             label = { Text("Schedule") },
             colors = NavigationBarItemDefaults.colors(
@@ -359,7 +372,7 @@ fun StudentBottomBar() {
         )
         NavigationBarItem(
             selected = false,
-            onClick = { /*TODO*/ },
+            onClick = onNavigateToLibrary,
             icon = { Icon(Icons.Filled.LibraryMusic, contentDescription = "Library") },
             label = { Text("Library") },
             colors = NavigationBarItemDefaults.colors(
@@ -369,7 +382,7 @@ fun StudentBottomBar() {
         )
         NavigationBarItem(
             selected = false,
-            onClick = { /*TODO*/ },
+            onClick = onNavigateToProfile,
             icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
             label = { Text("Profile") },
             colors = NavigationBarItemDefaults.colors(

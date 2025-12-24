@@ -88,7 +88,7 @@ fun AppNavigation() {
             )
         }
         composable(Screen.AllSet.route) {
-            AllSetScrgeen(onStartLearningClick = {
+            AllSetScreen(onStartLearningClick = {
                 navController.navigate(Screen.StudentDashboard.route) {
                     popUpTo(Screen.Welcome.route) { inclusive = true }
                 }
@@ -175,7 +175,10 @@ fun AppNavigation() {
             StudentDashboardScreen(
                 onNavigateToPaymentHistory = { navController.navigate(Screen.PaymentHistory.route) },
                 onNavigateToArtistProfile = { navController.navigate(Screen.ArtistProfile.route) },
-                onNavigateToNotifications = { navController.navigate(Screen.Notifications.route) }
+                onNavigateToNotifications = { navController.navigate(Screen.Notifications.route) },
+                onNavigateToSchedule = { navController.navigate(Screen.StudioSchedule.route) },
+                onNavigateToLibrary = { navController.navigate(Screen.MediaGallery.route) },
+                onNavigateToProfile = { navController.navigate(Screen.StudentSettings.route) }
             )
         }
         composable(Screen.StudentSettings.route) {
