@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "328777568396",
+    "project_id": "waves-629fa",
+    "storage_bucket": "waves-629fa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:328777568396:android:1f5be90fe79a838cd6eba9",
+        "android_client_info": {
+          "package_name": "com.rahulpahuja.waves"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBV7P0_aEdR8ts2A0iGU5tQ9qq96jrgiLk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
