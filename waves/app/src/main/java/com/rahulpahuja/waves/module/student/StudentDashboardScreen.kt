@@ -28,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 fun StudentDashboardScreen(
     onNavigateToPaymentHistory: () -> Unit,
     onNavigateToArtistProfile: () -> Unit,
+    onNavigateToNotifications: () -> Unit,
     viewModel: StudentDashboardViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -58,22 +59,42 @@ fun StudentDashboardScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                     Text("Hey, ${state.userName}", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                 }
-                Box {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFE0C9A6)), // Placeholder color
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Filled.Person, contentDescription = null, tint = Color.White)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(modifier = Modifier.clickable(onClick = onNavigateToNotifications)) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFF1E232F)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Color.White)
+                        }
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .background(Color(0xFF2962FF), CircleShape)
+                                .align(Alignment.TopEnd)
+                        )
                     }
-                    Box(
-                        modifier = Modifier
-                            .size(12.dp)
-                            .background(Color(0xFF00E676), CircleShape)
-                            .align(Alignment.BottomEnd)
-                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Box {
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFE0C9A6)), // Placeholder color
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Filled.Person, contentDescription = null, tint = Color.White)
+                        }
+                        Box(
+                            modifier = Modifier
+                                .size(12.dp)
+                                .background(Color(0xFF00E676), CircleShape)
+                                .align(Alignment.BottomEnd)
+                        )
+                    }
                 }
             }
 
@@ -235,7 +256,7 @@ fun StudentDashboardScreen(
             // Notification
             state.notification?.let { notification ->
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().clickable(onClick = onNavigateToNotifications),
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
                     shape = RoundedCornerShape(12.dp),
                     border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha = 0.2f))
