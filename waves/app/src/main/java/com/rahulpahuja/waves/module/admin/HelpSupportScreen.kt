@@ -1,12 +1,14 @@
 package com.rahulpahuja.waves.module.admin
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Email
@@ -24,12 +26,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HelpSupportScreen(onNavigateBack: () -> Boolean) {
+fun HelpSupportScreen(onNavigateBack: () -> Unit) {
     var searchQuery by remember { mutableStateOf("") }
 
     Scaffold(
-        containerColor = Color(0xFF10141D)
+        containerColor = Color(0xFF10141D),
+        topBar = {
+            TopAppBar(
+                title = { Text("Help & Support", color = Color.White, fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
+            )
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -39,16 +57,8 @@ fun HelpSupportScreen(onNavigateBack: () -> Boolean) {
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             
-            // Header
-            Text(
-                text = "Help & Support",
-                color = Color.White,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
-
             // Search Bar
             TextField(
                 value = searchQuery,
@@ -98,7 +108,7 @@ fun HelpSupportScreen(onNavigateBack: () -> Boolean) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text("Guides & Tutorials", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Text("View all", color = Color(0xFF2962FF), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    Text("View all", color = Color(0xFF2962FF), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.clickable { /* TODO */ })
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -157,7 +167,7 @@ fun SupportCard(
     iconTint: Color
 ) {
     Card(
-        modifier = modifier.height(120.dp),
+        modifier = modifier.height(120.dp).clickable { /* TODO */ },
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
         shape = RoundedCornerShape(16.dp)
     ) {
@@ -190,7 +200,7 @@ fun GuideCard(
     iconColor: Color
 ) {
     Card(
-        modifier = modifier.height(120.dp),
+        modifier = modifier.height(120.dp).clickable { /* TODO */ },
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
         shape = RoundedCornerShape(16.dp)
     ) {
@@ -219,7 +229,7 @@ fun GuideCard(
 @Composable
 fun FAQItem(question: String) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable { /* TODO */ },
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
         shape = RoundedCornerShape(12.dp)
     ) {
