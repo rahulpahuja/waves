@@ -48,10 +48,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.rahulpahuja.waves.R
 
 @Composable
 fun AdminDashboardScreen(
@@ -69,7 +71,7 @@ fun AdminDashboardScreen(
                 contentColor = Color.White,
                 shape = CircleShape
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_content_description))
             }
         },
         containerColor = backgroundColor
@@ -108,19 +110,19 @@ fun HeaderSection() {
             ) {
                 Icon(
                     imageVector = Icons.Default.Person,
-                    contentDescription = "Profile",
+                    contentDescription = stringResource(R.string.profile_content_description),
                     tint = Color.White
                 )
             }
             Spacer(modifier = Modifier.width(12.dp))
             Column {
                 Text(
-                    text = "Welcome back,",
+                    text = stringResource(R.string.welcome_back),
                     color = Color.Gray,
                     fontSize = 12.sp
                 )
                 Text(
-                    text = "Marcus DJ",
+                    text = stringResource(R.string.default_user_name),
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
@@ -130,7 +132,7 @@ fun HeaderSection() {
         IconButton(onClick = { /*TODO*/ }) {
             Icon(
                 imageVector = Icons.Default.Notifications,
-                contentDescription = "Notifications",
+                contentDescription = stringResource(R.string.notifications_content_description),
                 tint = Color.White
             )
         }
@@ -146,13 +148,13 @@ fun OverviewSection(state: AdminDashboardUiState) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Overview",
+                text = stringResource(R.string.overview_title),
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
             Text(
-                text = "View Report",
+                text = stringResource(R.string.view_report),
                 color = Color(0xFF2962FF),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold
@@ -165,7 +167,7 @@ fun OverviewSection(state: AdminDashboardUiState) {
         ) {
             OverviewCard(
                 modifier = Modifier.weight(1f),
-                title = "STUDENTS",
+                title = stringResource(R.string.students_title),
                 value = "${state.studentCount}",
                 icon = Icons.Default.Person,
                 growth = "${state.studentGrowth}%",
@@ -173,7 +175,7 @@ fun OverviewSection(state: AdminDashboardUiState) {
             )
             OverviewCard(
                 modifier = Modifier.weight(1f),
-                title = "REVENUE",
+                title = stringResource(R.string.revenue_title),
                 value = "$${state.revenue}k",
                 icon = Icons.Default.AttachMoney,
                 growth = "${state.revenueGrowth}%",
@@ -249,7 +251,7 @@ fun OverviewCard(
 fun ManageSchoolSection() {
     Column {
         Text(
-            text = "Manage School",
+            text = stringResource(R.string.manage_school_title),
             color = Color.White,
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp
@@ -259,16 +261,16 @@ fun ManageSchoolSection() {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 ManageCard(
                     modifier = Modifier.weight(1f),
-                    title = "Enrollment",
-                    subtitle = "Manage students",
+                    title = stringResource(R.string.enrollment_title),
+                    subtitle = stringResource(R.string.manage_students_subtitle),
                     icon = Icons.Default.Person,
                     colorStart = Color(0xFF4A3423), // Dark Brownish
                     colorEnd = Color(0xFF2C1E14)
                 )
                 ManageCard(
                     modifier = Modifier.weight(1f),
-                    title = "Attendance",
-                    subtitle = "Track check-ins",
+                    title = stringResource(R.string.attendance_title),
+                    subtitle = stringResource(R.string.track_checkins_subtitle),
                     icon = Icons.Default.DateRange,
                     colorStart = Color(0xFF3E4A59), // Blueish Grey
                     colorEnd = Color(0xFF242A33)
@@ -277,16 +279,16 @@ fun ManageSchoolSection() {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 ManageCard(
                     modifier = Modifier.weight(1f),
-                    title = "Finances",
-                    subtitle = "Logs & Payments",
+                    title = stringResource(R.string.finances_title),
+                    subtitle = stringResource(R.string.logs_payments_subtitle),
                     icon = Icons.Default.AttachMoney,
                     colorStart = Color(0xFF2E3B3B), // Greenish Grey
                     colorEnd = Color(0xFF1B2424)
                 )
                 ManageCard(
                     modifier = Modifier.weight(1f),
-                    title = "Media",
-                    subtitle = "School Gallery",
+                    title = stringResource(R.string.media_title),
+                    subtitle = stringResource(R.string.school_gallery_subtitle),
                     icon = Icons.Default.Image,
                     colorStart = Color(0xFF2B3A42), // Dark Slate
                     colorEnd = Color(0xFF192226)
@@ -366,13 +368,13 @@ fun UpcomingSessionsSection(sessions: List<Session>) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Upcoming Sessions",
+                text = stringResource(R.string.upcoming_sessions_title),
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
             Text(
-                text = "See All",
+                text = stringResource(R.string.see_all),
                 color = Color(0xFF2962FF),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold
@@ -404,7 +406,7 @@ fun SessionItem(session: Session) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "TODAY",
+                    text = stringResource(R.string.today_label),
                     color = Color.Gray,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold
@@ -439,7 +441,7 @@ fun SessionItem(session: Session) {
             }
             Icon(
                 imageVector = androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Details",
+                contentDescription = stringResource(R.string.details_content_description),
                 tint = Color.Gray,
                 modifier = Modifier.size(16.dp)
             )
@@ -456,8 +458,8 @@ fun AdminBottomBar() {
         NavigationBarItem(
             selected = true,
             onClick = { /*TODO*/ },
-            icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-            label = { Text("Home") },
+            icon = { Icon(Icons.Default.Home, contentDescription = stringResource(R.string.home_nav)) },
+            label = { Text(stringResource(R.string.home_nav)) },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = Color(0xFF2962FF),
                 selectedTextColor = Color(0xFF2962FF),
@@ -469,8 +471,8 @@ fun AdminBottomBar() {
         NavigationBarItem(
             selected = false,
             onClick = { /*TODO*/ },
-            icon = { Icon(Icons.Default.CalendarToday, contentDescription = "Calendar") },
-            label = { Text("Calendar") },
+            icon = { Icon(Icons.Default.CalendarToday, contentDescription = stringResource(R.string.calendar_nav)) },
+            label = { Text(stringResource(R.string.calendar_nav)) },
             colors = NavigationBarItemDefaults.colors(
                 unselectedIconColor = Color.Gray,
                 unselectedTextColor = Color.Gray
@@ -479,8 +481,8 @@ fun AdminBottomBar() {
         NavigationBarItem(
             selected = false,
             onClick = { /*TODO*/ },
-            icon = { Icon(Icons.Default.School, contentDescription = "Students") },
-            label = { Text("Students") },
+            icon = { Icon(Icons.Default.School, contentDescription = stringResource(R.string.students_nav)) },
+            label = { Text(stringResource(R.string.students_nav)) },
             colors = NavigationBarItemDefaults.colors(
                 unselectedIconColor = Color.Gray,
                 unselectedTextColor = Color.Gray
@@ -489,8 +491,8 @@ fun AdminBottomBar() {
         NavigationBarItem(
             selected = false,
             onClick = { /*TODO*/ },
-            icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-            label = { Text("Settings") },
+            icon = { Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings_title)) },
+            label = { Text(stringResource(R.string.settings_title)) },
             colors = NavigationBarItemDefaults.colors(
                 unselectedIconColor = Color.Gray,
                 unselectedTextColor = Color.Gray

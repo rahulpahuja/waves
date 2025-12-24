@@ -26,10 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.rahulpahuja.waves.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,12 +50,12 @@ fun SettingsScreen(
             TopAppBar(
                 title = { 
                     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Text("Settings", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.settings_title), color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back_content_description), tint = Color.White)
                     }
                 },
                 actions = { Spacer(modifier = Modifier.width(48.dp)) },
@@ -74,10 +76,10 @@ fun SettingsScreen(
             
             // Preferences
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("PREFERENCES", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.preferences_section_title), color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 
                 SettingsToggleItem(
-                    title = "Dark Mode",
+                    title = stringResource(R.string.dark_mode_title),
                     icon = Icons.Filled.DarkMode,
                     iconColor = Color(0xFF2962FF),
                     checked = darkMode,
@@ -85,7 +87,7 @@ fun SettingsScreen(
                 )
                 
                 SettingsNavigationItem(
-                    title = "Language",
+                    title = stringResource(R.string.language_title),
                     value = language,
                     icon = Icons.Filled.Language,
                     iconColor = Color(0xFF00E676),
@@ -93,7 +95,7 @@ fun SettingsScreen(
                 )
                 
                 SettingsToggleItem(
-                    title = "Notifications",
+                    title = stringResource(R.string.notifications_title),
                     icon = Icons.Filled.Notifications,
                     iconColor = Color(0xFFE91E63),
                     checked = notifications,
@@ -103,24 +105,24 @@ fun SettingsScreen(
             
             // Support
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("SUPPORT", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.support_section_title), color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 
                 SettingsNavigationItem(
-                    title = "Help Center",
+                    title = stringResource(R.string.help_center_title),
                     icon = Icons.Filled.Help,
                     iconColor = Color(0xFF2962FF),
                     onClick = { /* TODO */ }
                 )
                 
                 SettingsNavigationItem(
-                    title = "Report a Bug",
+                    title = stringResource(R.string.report_bug_title),
                     icon = Icons.Filled.ReportProblem,
                     iconColor = Color(0xFFFFC107),
                     onClick = { /* TODO */ }
                 )
                 
                 SettingsNavigationItem(
-                    title = "Contact Us",
+                    title = stringResource(R.string.contact_us_title),
                     icon = Icons.Filled.Email,
                     iconColor = Color(0xFF9C27B0),
                     onClick = { /* TODO */ }
@@ -129,7 +131,7 @@ fun SettingsScreen(
             
             // Account
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("ACCOUNT", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.account_section_title), color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 
                 Card(
                     modifier = Modifier.fillMaxWidth().clickable(onClick = onLogout),
@@ -151,7 +153,7 @@ fun SettingsScreen(
                             Icon(Icons.Filled.Logout, contentDescription = null, tint = Color(0xFF607D8B), modifier = Modifier.size(20.dp))
                         }
                         Spacer(modifier = Modifier.width(16.dp))
-                        Text("Log Out", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.logout_title), color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                     }
                 }
                 
@@ -175,14 +177,14 @@ fun SettingsScreen(
                             Icon(Icons.Filled.Delete, contentDescription = null, tint = Color.Red, modifier = Modifier.size(20.dp))
                         }
                         Spacer(modifier = Modifier.width(16.dp))
-                        Text("Delete Account", color = Color.Red, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.delete_account_title), color = Color.Red, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                     }
                 }
             }
             
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Version 2.4.1 (Build 8902)",
+                text = stringResource(R.string.version_info),
                 color = Color.Gray,
                 fontSize = 12.sp
             )

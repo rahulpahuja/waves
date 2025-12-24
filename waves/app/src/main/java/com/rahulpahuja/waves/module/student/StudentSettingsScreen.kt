@@ -8,12 +8,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Payment
+import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -22,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -196,10 +199,34 @@ fun StudentSettingsScreen(
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("Notifications", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 
-                NotificationToggleItem("Push Notifications", null, pushNotifications) { viewModel.onPushNotificationsChange(it) }
-                NotificationToggleItem("Class Reminders", "Alerts 1 hour before start", classReminders) { viewModel.onClassRemindersChange(it) }
-                NotificationToggleItem("Fee Due Alerts", null, feeDueAlerts) { viewModel.onFeeDueAlertsChange(it) }
-                NotificationToggleItem("Announcements", "New courses and school news", announcements) { viewModel.onAnnouncementsChange(it) }
+                NotificationToggleItem(
+                    title = "Push Notifications",
+                    subtitle = null,
+                    checked = pushNotifications,
+                    icon = Icons.Filled.Notifications,
+                    onCheckedChange = { viewModel.onPushNotificationsChange(it) }
+                )
+                NotificationToggleItem(
+                    title = "Class Reminders",
+                    subtitle = "Alerts 1 hour before start",
+                    checked = classReminders,
+                    icon = Icons.Filled.DateRange,
+                    onCheckedChange = { viewModel.onClassRemindersChange(it) }
+                )
+                NotificationToggleItem(
+                    title = "Fee Due Alerts",
+                    subtitle = null,
+                    checked = feeDueAlerts,
+                    icon = Icons.Filled.Payment,
+                    onCheckedChange = { viewModel.onFeeDueAlertsChange(it) }
+                )
+                NotificationToggleItem(
+                    title = "Announcements",
+                    subtitle = "New courses and school news",
+                    checked = announcements,
+                    icon = Icons.Filled.Campaign,
+                    onCheckedChange = { viewModel.onAnnouncementsChange(it) }
+                )
             }
             Spacer(modifier = Modifier.height(32.dp))
         }
@@ -234,6 +261,7 @@ fun NotificationToggleItem(
     title: String,
     subtitle: String?,
     checked: Boolean,
+    icon: ImageVector,
     onCheckedChange: (Boolean) -> Unit
 ) {
     Card(
@@ -247,17 +275,11 @@ fun NotificationToggleItem(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icon Placeholder based on title (optional logic)
-            val icon = when {
-                title.contains("Push") -> Icons.Filled.Notifications
-                else -> Icons.Filled.Notifications // Default
-            }
             
             Box(
                 modifier = Modifier
-                    .size(32.dp)
-//                    .background(Color.Gray.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
-                ,contentAlignment = Alignment.Center
+                    .size(32.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Icon(icon, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
             }
