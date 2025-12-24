@@ -1,6 +1,7 @@
 package com.rahulpahuja.waves.module.admin
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -67,7 +68,10 @@ fun AdminDashboardScreen(
 }
 
 @Composable
-fun AdminDashboardContent(state: AdminDashboardUiState) {
+fun AdminDashboardContent(
+    navController: NavController,
+    state: AdminDashboardUiState
+) {
      val backgroundColor = Color(0xFF10141D)
 
     Scaffold(
@@ -93,7 +97,7 @@ fun AdminDashboardContent(state: AdminDashboardUiState) {
             item { Spacer(modifier = Modifier.height(16.dp)) }
             item { HeaderSection() }
             item { OverviewSection(state) }
-            item { ManageSchoolSection() }
+            item { ManageSchoolSection(navController) }
             item { UpcomingSessionsSection(state.sessions) }
             item { Spacer(modifier = Modifier.height(80.dp)) } // Bottom padding for FAB/Nav
         }
@@ -131,7 +135,7 @@ fun HeaderSection() {
                 Text(
                     text = stringResource(R.string.default_user_name),
                     color = Color.White,
-                    fontWeight =  FontWeight.Bold,
+                    fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
                 )
             }
@@ -183,7 +187,7 @@ fun OverviewSection(state: AdminDashboardUiState) {
             OverviewCard(
                 modifier = Modifier.weight(1f),
                 title = stringResource(R.string.revenue_title),
-                value = "$${state.revenue}k",
+                value = "₹${state.revenue}k",
                 icon = Icons.Default.AttachMoney,
                 growth = "${state.revenueGrowth}%",
                 iconColor = Color(0xFF00E676)
@@ -255,7 +259,7 @@ fun OverviewCard(
 }
 
 @Composable
-fun ManageSchoolSection() {
+fun ManageSchoolSection(navController: NavController) {
     Column {
         Text(
             text = stringResource(R.string.manage_school_title),
@@ -272,7 +276,8 @@ fun ManageSchoolSection() {
                     subtitle = stringResource(R.string.manage_students_subtitle),
                     icon = Icons.Default.Person,
                     colorStart = Color(0xFF4A3423), // Dark Brownish
-                    colorEnd = Color(0xFF2C1E14)
+                    colorEnd = Color(0xFF2C1E14),
+                    onClick = { navController.navigate(Screen.Students.route) }
                 )
                 ManageCard(
                     modifier = Modifier.weight(1f),
@@ -280,7 +285,8 @@ fun ManageSchoolSection() {
                     subtitle = stringResource(R.string.track_checkins_subtitle),
                     icon = Icons.Default.DateRange,
                     colorStart = Color(0xFF3E4A59), // Blueish Grey
-                    colorEnd = Color(0xFF242A33)
+                    colorEnd = Color(0xFF242A33),
+                    onClick = { navController.navigate(Screen.Attendance.route) }
                 )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -290,7 +296,8 @@ fun ManageSchoolSection() {
                     subtitle = stringResource(R.string.logs_payments_subtitle),
                     icon = Icons.Default.AttachMoney,
                     colorStart = Color(0xFF2E3B3B), // Greenish Grey
-                    colorEnd = Color(0xFF1B2424)
+                    colorEnd = Color(0xFF1B2424),
+                    onClick = { navController.navigate(Screen.NewCashEntry.route) }
                 )
                 ManageCard(
                     modifier = Modifier.weight(1f),
@@ -298,7 +305,8 @@ fun ManageSchoolSection() {
                     subtitle = stringResource(R.string.school_gallery_subtitle),
                     icon = Icons.Default.Image,
                     colorStart = Color(0xFF2B3A42), // Dark Slate
-                    colorEnd = Color(0xFF192226)
+                    colorEnd = Color(0xFF192226),
+                    onClick = { navController.navigate(Screen.MediaGallery.route) }
                 )
             }
         }
@@ -312,10 +320,13 @@ fun ManageCard(
     subtitle: String,
     icon: ImageVector,
     colorStart: Color,
-    colorEnd: Color
+    colorEnd: Color,
+    onClick: () -> Unit
 ) {
     Card(
-        modifier = modifier.height(110.dp),
+        modifier = modifier
+            .height(110.dp)
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
