@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.sp
 fun CreatePersonaScreen(
     onContinueClick: () -> Unit,
     onLaterClick: () -> Unit,
-    onNavigateBack: () -> Boolean
+    onNavigateBack: () -> Unit
 ) {
     var stageName by remember { mutableStateOf("") }
     var bio by remember { mutableStateOf("") }
@@ -35,7 +35,7 @@ fun CreatePersonaScreen(
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton(onClick = { onNavigateBack() }) {
+                    IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
@@ -44,15 +44,11 @@ fun CreatePersonaScreen(
                     }
                 },
                 actions = {
-                    Text(
-                        text = "Do it later",
-                        color = Color.Gray,
-                        modifier = Modifier
-                            .clickable(onClick = onLaterClick)
-                            .padding(horizontal = 16.dp)
-                    )
+                    TextButton(onClick = onLaterClick) {
+                        Text("Do it later", color = Color.Gray)
+                    }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         }
     ) { paddingValues ->
@@ -163,12 +159,8 @@ fun CreatePersonaScreen(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun CreatePersonaScreenPreview() {
-    CreatePersonaScreen(
-        onContinueClick = {},
-        onLaterClick = {},
-        onNavigateBack = { true }
-    )
+    CreatePersonaScreen(onContinueClick = {}, onLaterClick = {}, onNavigateBack = {})
 }

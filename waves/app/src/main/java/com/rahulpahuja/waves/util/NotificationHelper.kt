@@ -15,13 +15,12 @@ object NotificationHelper {
 
     private const val CHANNEL_ID = "waves_channel_default"
     private const val CHANNEL_NAME = "Waves Notifications"
-    private const val NOTIFICATION_ID = 0
 
     fun sendNotification(context: Context, title: String, message: String) {
         val intent = Intent(context, MainActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         }
-
+        
         val pendingIntent = PendingIntent.getActivity(
             context, 0, intent,
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
@@ -29,7 +28,7 @@ object NotificationHelper {
 
         val channelId = CHANNEL_ID
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-
+        
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_launcher_foreground) // Ensure this resource exists or use a default one
             .setContentTitle(title)
@@ -46,11 +45,12 @@ object NotificationHelper {
             val channel = NotificationChannel(
                 channelId,
                 CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_HIGH
             )
             notificationManager.createNotificationChannel(channel)
         }
 
-        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
+        val notificationId = System.currentTimeMillis().toInt()
+        notificationManager.notify(notificationId, notificationBuilder.build())
     }
 }

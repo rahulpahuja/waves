@@ -63,7 +63,6 @@ fun AdminDashboardScreen(
     navController: NavController,
     viewModel: AdminDashboardViewModel = hiltViewModel()
 ) {
-    // This now delegates to the main admin navigation
     AdminNavigation(navController = navController)
 }
 
