@@ -69,7 +69,9 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             if (emailValue == SUPERADMIN_EMAIL) {
-                loginAsSuperAdmin(emailValue, passwordValue)
+                // If password is empty, try with the default one
+                val finalPassword = if (passwordValue.isEmpty()) SUPERADMIN_PASSWORD else passwordValue
+                loginAsSuperAdmin(emailValue, finalPassword)
             } else {
                 loginWithEmailPassword(emailValue, passwordValue)
             }
@@ -199,6 +201,7 @@ class LoginViewModel @Inject constructor(
 
     companion object {
         private const val SUPERADMIN_EMAIL = "superadmin@waves.com"
+        private const val SUPERADMIN_PASSWORD = "admin123"
     }
 
     fun logout(onComplete: () -> Unit = {}) {
