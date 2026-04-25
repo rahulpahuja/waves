@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -103,11 +104,22 @@ fun AppNavigation() {
             RoleSelectionScreen(navController = navController)
         }
         composable(Screen.WaitingApproval.route) {
-            WaitingApprovalScreen(onLogout = {
-                navController.navigate(Screen.Login.route) {
-                    popUpTo(0)
+            val loginViewModel: LoginViewModel = hiltViewModel()
+            WaitingApprovalScreen(
+                onLogout = {
+                    loginViewModel.logout {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0)
+                        }
+                    }
+                },
+                onApproved = { isAdmin ->
+                    val destination = if (isAdmin) Screen.AdminDashboard.route else Screen.Welcome.route
+                    navController.navigate(destination) {
+                        popUpTo(Screen.WaitingApproval.route) { inclusive = true }
+                    }
                 }
-            })
+            )
         }
         composable(Screen.PendingApprovals.route) {
             PendingApprovalsScreen(onNavigateBack = { navController.popBackStack() })
@@ -197,21 +209,27 @@ fun AppNavigation() {
             AttendanceScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(Screen.Settings.route) {
+            val loginViewModel: LoginViewModel = hiltViewModel()
             SettingsScreen(
                 onNavigateBack = { navController.popBackStack() },
                 onLogout = {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(0)
+                    loginViewModel.logout {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0)
+                        }
                     }
                 }
             )
         }
         composable(Screen.ProfileSettings.route) {
+            val loginViewModel: LoginViewModel = hiltViewModel()
             ProfileSettingsScreen(
                 onNavigateBack = { navController.popBackStack() },
                 onLogout = {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(0)
+                    loginViewModel.logout {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0)
+                        }
                     }
                 }
             )

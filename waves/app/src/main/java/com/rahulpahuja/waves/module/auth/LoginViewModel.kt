@@ -54,6 +54,37 @@ class LoginViewModel @Inject constructor(
         signInWithCredential(credential)
     }
 
+    fun onLoginClick() {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            try {
+                // If you want to support email/password login, implement here.
+                // For now, let's just log it.
+                Log.d("LoginViewModel", "Email login attempted for: ${_email.value}")
+                // Placeholder: If you want to bypass for testing
+                // handleExistingUser(existingUser) ...
+                _authState.value = AuthState.Error("Email/Password login not implemented. Please use Google.")
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error(e.message ?: "Login failed")
+            }
+        }
+    }
+
+    fun logout(onComplete: () -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                auth.signOut()
+                _authState.value = AuthState.Idle
+                currentUserInfo = null
+                _email.value = ""
+                _password.value = ""
+                onComplete()
+            } catch (e: Exception) {
+                Log.e("LoginViewModel", "Logout failed", e)
+            }
+        }
+    }
+
     private fun signInWithCredential(credential: AuthCredential) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
@@ -66,13 +97,27 @@ class LoginViewModel @Inject constructor(
                     val existingUser = repository.getUser(firebaseUser.uid)
                     if (existingUser == null) {
                         Log.d("LoginViewModel", "New user detected, redirecting to role selection")
+                        
+                        // SUPER ADMIN BYPASS: If email is the designated superadmin, approve immediately
+                        val isSuperAdmin = firebaseUser.email == "superadmin@waves.com"
+                        
                         currentUserInfo = FirestoreUser(
                             uid = firebaseUser.uid,
                             email = firebaseUser.email ?: "",
                             displayName = firebaseUser.displayName ?: "",
-                            photoUrl = firebaseUser.photoUrl?.toString() ?: ""
+                            photoUrl = firebaseUser.photoUrl?.toString() ?: "",
+                            role = if (isSuperAdmin) "admin" else "",
+                            status = if (isSuperAdmin) "APPROVED" else "PENDING"
                         )
-                        _authState.value = AuthState.NeedsRoleSelection
+                        
+                        if (isSuperAdmin) {
+                            Log.d("LoginViewModel", "Super Admin detected, auto-approving...")
+                            repository.saveUser(currentUserInfo!!)
+                            _authState.value = AuthState.Success(isAdmin = true)
+                        } else {
+                            // Explicitly set state to trigger navigation in LoginScreen
+                            _authState.value = AuthState.NeedsRoleSelection
+                        }
                     } else {
                         Log.d("LoginViewModel", "Existing user found, checking status: ${existingUser.status}")
                         handleExistingUser(existingUser)
@@ -118,13 +163,36 @@ class LoginViewModel @Inject constructor(
     }
 
     fun selectRole(role: String) {
-        val user = currentUserInfo?.copy(role = role, status = "PENDING") ?: return
+        Log.d("LoginViewModel", "selectRole called with: $role")
+        
+        // Ensure we have user info, if not try to get it from current firebase user
+        if (currentUserInfo == null) {
+            val firebaseUser = auth.currentUser
+            if (firebaseUser != null) {
+                currentUserInfo = FirestoreUser(
+                    uid = firebaseUser.uid,
+                    email = firebaseUser.email ?: "",
+                    displayName = firebaseUser.displayName ?: "",
+                    photoUrl = firebaseUser.photoUrl?.toString() ?: ""
+                )
+            }
+        }
+
+        val user = currentUserInfo?.copy(role = role, status = "PENDING") ?: run {
+            Log.e("LoginViewModel", "selectRole failed: currentUserInfo is null and no firebase user")
+            _authState.value = AuthState.Error("Session expired. Please log in again.")
+            return
+        }
+
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             try {
+                Log.d("LoginViewModel", "Saving user to repository: $user")
                 repository.saveUser(user)
+                Log.d("LoginViewModel", "User saved successfully, updating authState to PendingApproval")
                 _authState.value = AuthState.PendingApproval
             } catch (e: Exception) {
+                Log.e("LoginViewModel", "Failed to save user role: ${e.message}", e)
                 _authState.value = AuthState.Error(e.message ?: "Failed to save user role")
             }
         }

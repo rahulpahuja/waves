@@ -33,7 +33,9 @@ fun RoleSelectionScreen(
     val authState by viewModel.authState.collectAsState()
 
     LaunchedEffect(authState) {
+        android.util.Log.d("RoleSelectionScreen", "Current AuthState: $authState")
         if (authState is AuthState.PendingApproval) {
+            android.util.Log.d("RoleSelectionScreen", "Navigating to WaitingApproval")
             navController.navigate(Screen.WaitingApproval.route) {
                 popUpTo(Screen.RoleSelection.route) { inclusive = true }
             }

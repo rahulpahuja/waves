@@ -70,14 +70,18 @@ fun LoginScreen(
     }
 
     LaunchedEffect(authState) {
+        Log.d("LoginScreen", "Current AuthState: $authState")
         when (authState) {
             is AuthState.Success -> {
+                Log.d("LoginScreen", "Navigating to Home/AdminDashboard")
                 onLoginClick((authState as AuthState.Success).isAdmin)
             }
             is AuthState.NeedsRoleSelection -> {
+                Log.d("LoginScreen", "Navigating to RoleSelection")
                 navController.navigate(Screen.RoleSelection.route)
             }
             is AuthState.PendingApproval -> {
+                Log.d("LoginScreen", "Navigating to WaitingApproval")
                 navController.navigate(Screen.WaitingApproval.route)
             }
             is AuthState.Error -> {
@@ -92,14 +96,22 @@ fun LoginScreen(
         email = email,
         password = password,
         passwordVisible = passwordVisible,
-        onLoginClick = { onLoginClick(email.contains("admin", ignoreCase = true)) },
+        onLoginClick = { 
+            // Trigger actual login logic if you have email/password auth
+            // For now, if you only have Google, this could be a placeholder or actual logic
+            viewModel.onLoginClick()
+        },
         onGoogleLoginClick = {
             val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(context.getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build()
             val googleSignInClient = GoogleSignIn.getClient(context, gso)
-            launcher.launch(googleSignInClient.signInIntent)
+            
+            // Sign out of Google to force account picker
+            googleSignInClient.signOut().addOnCompleteListener {
+                launcher.launch(googleSignInClient.signInIntent)
+            }
         },
         onForgotPasswordClick = onForgotPasswordClick,
         onSignUpClick = onSignUpClick,

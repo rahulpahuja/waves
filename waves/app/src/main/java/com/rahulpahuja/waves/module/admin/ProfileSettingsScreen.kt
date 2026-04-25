@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.rahulpahuja.waves.module.student.SimpleTextField
 import com.rahulpahuja.waves.module.student.NotificationToggleItem
 
@@ -43,6 +44,9 @@ fun ProfileSettingsScreen(
 ) {
     val displayName by viewModel.displayName.collectAsState()
     val email by viewModel.email.collectAsState()
+    val photoUrl by viewModel.photoUrl.collectAsState()
+    val role by viewModel.role.collectAsState()
+    val status by viewModel.status.collectAsState()
     val phone by viewModel.phone.collectAsState()
     val bio by viewModel.bio.collectAsState()
     val faceIdLogin by viewModel.faceIdLogin.collectAsState()
@@ -50,10 +54,14 @@ fun ProfileSettingsScreen(
     val lowAttendance by viewModel.lowAttendance.collectAsState()
     val marketingUpdates by viewModel.marketingUpdates.collectAsState()
     val autoApproveBookings by viewModel.autoApproveBookings.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     ProfileSettingsContent(
         displayName = displayName,
         email = email,
+        photoUrl = photoUrl,
+        role = role,
+        status = status,
         phone = phone,
         bio = bio,
         faceIdLogin = faceIdLogin,
@@ -61,8 +69,10 @@ fun ProfileSettingsScreen(
         lowAttendance = lowAttendance,
         marketingUpdates = marketingUpdates,
         autoApproveBookings = autoApproveBookings,
+        isLoading = isLoading,
         onNavigateBack = onNavigateBack,
         onLogout = onLogout,
+        onSaveProfile = { viewModel.saveProfile() },
         onDisplayNameChange = { viewModel.onDisplayNameChange(it) },
         onEmailChange = { viewModel.onEmailChange(it) },
         onPhoneChange = { viewModel.onPhoneChange(it) },
@@ -80,6 +90,9 @@ fun ProfileSettingsScreen(
 fun ProfileSettingsContent(
     displayName: String,
     email: String,
+    photoUrl: String,
+    role: String,
+    status: String,
     phone: String,
     bio: String,
     faceIdLogin: Boolean,
@@ -87,8 +100,10 @@ fun ProfileSettingsContent(
     lowAttendance: Boolean,
     marketingUpdates: Boolean,
     autoApproveBookings: Boolean,
+    isLoading: Boolean,
     onNavigateBack: () -> Unit,
     onLogout: () -> Unit,
+    onSaveProfile: () -> Unit,
     onDisplayNameChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
     onPhoneChange: (String) -> Unit,
@@ -114,7 +129,7 @@ fun ProfileSettingsContent(
                     }
                 },
                 actions = {
-                    TextButton(onClick = { /* Done/Save */ }) {
+                    TextButton(onClick = onSaveProfile) {
                         Text("Done", color = Color(0xFF2962FF), fontWeight = FontWeight.Bold)
                     }
                 },
@@ -130,14 +145,19 @@ fun ProfileSettingsContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(
-                    onClick = { /* Save Changes */ },
+                    onClick = onSaveProfile,
+                    enabled = !isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)),
                     shape = RoundedCornerShape(28.dp)
                 ) {
-                    Text("Save Changes", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    if (isLoading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text("Save Changes", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 TextButton(onClick = onLogout) {
@@ -160,15 +180,24 @@ fun ProfileSettingsContent(
             // Profile Header
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(contentAlignment = Alignment.BottomEnd) {
-                    Box(
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(CircleShape)
-                            .background(Color.Gray.copy(alpha = 0.3f)), // Placeholder image
-                        contentAlignment = Alignment.Center
-                    ) {
-                         // Image(painter = painterResource(id = R.drawable.profile_pic), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-                         Icon(Icons.Filled.Person, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(64.dp))
+                    if (photoUrl.isNotEmpty()) {
+                        AsyncImage(
+                            model = photoUrl,
+                            contentDescription = "Profile Picture",
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(CircleShape)
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(CircleShape)
+                                .background(Color.Gray.copy(alpha = 0.3f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Filled.Person, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(64.dp))
+                        }
                     }
                     Box(
                         modifier = Modifier
@@ -181,8 +210,8 @@ fun ProfileSettingsContent(
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
-                Text("Marcus 'DJ Spin' Vance", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Text("Admin / Senior Instructor", color = Color.Gray, fontSize = 12.sp)
+                Text(displayName, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text("${role.replaceFirstChar { it.uppercase() }} / $status", color = Color.Gray, fontSize = 12.sp)
             }
 
             // Personal Info
@@ -334,6 +363,9 @@ fun ProfileSettingsScreenPreview() {
     ProfileSettingsContent(
         displayName = "Marcus Vance",
         email = "marcus@waves.com",
+        photoUrl = "",
+        role = "admin",
+        status = "APPROVED",
         phone = "+1 555 0123",
         bio = "Senior Instructor at Beat Academy.",
         faceIdLogin = true,
@@ -341,8 +373,10 @@ fun ProfileSettingsScreenPreview() {
         lowAttendance = false,
         marketingUpdates = true,
         autoApproveBookings = false,
+        isLoading = false,
         onNavigateBack = {},
         onLogout = {},
+        onSaveProfile = {},
         onDisplayNameChange = {},
         onEmailChange = {},
         onPhoneChange = {},
