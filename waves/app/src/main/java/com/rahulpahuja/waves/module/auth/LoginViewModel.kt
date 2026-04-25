@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.rahulpahuja.waves.data.remote.FirestoreRepository
@@ -68,10 +69,12 @@ class LoginViewModel @Inject constructor(
             try {
                 Log.d("LoginViewModel", "Attempting email login for: $emailValue")
                 
-                // Try to sign in. If user doesn't exist, try to create them (for the Super Admin)
+                // Try to sign in. If the superadmin account genuinely doesn't exist yet, create it.
+                // Only create if the error is "user not found" — not for wrong-password or
+                // email-already-linked-to-another-provider errors.
                 val result = try {
                     auth.signInWithEmailAndPassword(emailValue, passwordValue).await()
-                } catch (e: Exception) {
+                } catch (e: FirebaseAuthInvalidUserException) {
                     if (emailValue == "superadmin@waves.com") {
                         Log.d("LoginViewModel", "Superadmin not found, creating account...")
                         auth.createUserWithEmailAndPassword(emailValue, passwordValue).await()
