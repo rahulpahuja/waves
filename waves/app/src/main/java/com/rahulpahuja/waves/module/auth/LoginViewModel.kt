@@ -55,16 +55,61 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onLoginClick() {
+        val emailValue = _email.value
+        val passwordValue = _password.value
+
+        if (emailValue.isEmpty() || passwordValue.isEmpty()) {
+            _authState.value = AuthState.Error("Please enter email and password")
+            return
+        }
+
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             try {
-                // If you want to support email/password login, implement here.
-                // For now, let's just log it.
-                Log.d("LoginViewModel", "Email login attempted for: ${_email.value}")
-                // Placeholder: If you want to bypass for testing
-                // handleExistingUser(existingUser) ...
-                _authState.value = AuthState.Error("Email/Password login not implemented. Please use Google.")
+                Log.d("LoginViewModel", "Attempting email login for: $emailValue")
+                
+                // Try to sign in. If user doesn't exist, try to create them (for the Super Admin)
+                val result = try {
+                    auth.signInWithEmailAndPassword(emailValue, passwordValue).await()
+                } catch (e: Exception) {
+                    if (emailValue == "superadmin@waves.com") {
+                        Log.d("LoginViewModel", "Superadmin not found, creating account...")
+                        auth.createUserWithEmailAndPassword(emailValue, passwordValue).await()
+                    } else {
+                        throw e
+                    }
+                }
+
+                val firebaseUser = result.user
+                if (firebaseUser != null) {
+                    Log.d("LoginViewModel", "Email Auth Success: ${firebaseUser.uid}")
+                    val existingUser = repository.getUser(firebaseUser.uid)
+                    
+                    if (existingUser == null) {
+                        val isSuperAdmin = firebaseUser.email == "superadmin@waves.com"
+                        Log.d("LoginViewModel", "New email user. Superadmin: $isSuperAdmin")
+                        
+                        currentUserInfo = FirestoreUser(
+                            uid = firebaseUser.uid,
+                            email = firebaseUser.email ?: "",
+                            displayName = if (isSuperAdmin) "Super Admin" else "New User",
+                            photoUrl = "",
+                            role = if (isSuperAdmin) "admin" else "",
+                            status = if (isSuperAdmin) "APPROVED" else "PENDING"
+                        )
+                        
+                        if (isSuperAdmin) {
+                            repository.saveUser(currentUserInfo!!)
+                            _authState.value = AuthState.Success(isAdmin = true)
+                        } else {
+                            _authState.value = AuthState.NeedsRoleSelection
+                        }
+                    } else {
+                        handleExistingUser(existingUser)
+                    }
+                }
             } catch (e: Exception) {
+                Log.e("LoginViewModel", "Login error", e)
                 _authState.value = AuthState.Error(e.message ?: "Login failed")
             }
         }
