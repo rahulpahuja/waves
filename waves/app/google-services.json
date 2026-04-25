@@ -12,7 +12,12 @@
           "package_name": "com.rahulpahuja.waves"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "328777568396-9s57i9ieumakop1296g87njce6t94oo7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBV7P0_aEdR8ts2A0iGU5tQ9qq96jrgiLk"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "328777568396-9s57i9ieumakop1296g87njce6t94oo7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
