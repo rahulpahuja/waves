@@ -36,11 +36,31 @@ fun AdminNavigation(navController: NavController) {
             composable(Screen.AdminDashboard.route) {
                 AdminDashboardContent(
                     navController = navController,
+                    onNavigateToStudents = {
+                        adminNavController.navigate(Screen.Students.route) {
+                            popUpTo(adminNavController.graph.startDestinationId)
+                            launchSingleTop = true
+                        }
+                    },
+                    onNavigateToSettings = {
+                        adminNavController.navigate(Screen.AdminSettings.route) {
+                            popUpTo(adminNavController.graph.startDestinationId)
+                            launchSingleTop = true
+                        }
+                    },
+                    onNavigateToNotifications = {
+                        navController.navigate(Screen.Notifications.route)
+                    },
                     state = adminDashboardUiState
-                ) 
+                )
             }
             composable(Screen.StudioSchedule.route) {
-                StudioScheduleScreen(onNavigateBack = { adminNavController.popBackStack() })
+                StudioScheduleScreen(onNavigateBack = {
+                    adminNavController.navigate(Screen.AdminDashboard.route) {
+                        popUpTo(adminNavController.graph.startDestinationId)
+                        launchSingleTop = true
+                    }
+                })
             }
             composable(Screen.Students.route) {
                 StudentsScreen(onAddStudentClick = { navController.navigate(Screen.CreateStudent.route) })

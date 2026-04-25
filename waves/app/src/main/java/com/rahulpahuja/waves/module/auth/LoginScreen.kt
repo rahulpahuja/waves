@@ -1,5 +1,7 @@
 package com.rahulpahuja.waves.module.auth
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -10,13 +12,12 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -25,11 +26,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.rahulpahuja.waves.R
+import com.rahulpahuja.waves.ui.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
+    navController: NavController,
     onLoginClick: (Boolean) -> Unit,
     onForgotPasswordClick: () -> Unit,
     onSignUpClick: () -> Unit,
@@ -38,12 +45,54 @@ fun LoginScreen(
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val passwordVisible by viewModel.passwordVisible.collectAsState()
+    val authState by viewModel.authState.collectAsState()
+    val context = LocalContext.current
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            account?.idToken?.let { token ->
+                viewModel.signInWithGoogle(token)
+            }
+        } catch (e: ApiException) {
+            // Handle error
+        }
+    }
+
+    LaunchedEffect(authState) {
+        when (authState) {
+            is AuthState.Success -> {
+                onLoginClick((authState as AuthState.Success).isAdmin)
+            }
+            is AuthState.NeedsRoleSelection -> {
+                navController.navigate(Screen.RoleSelection.route)
+            }
+            is AuthState.PendingApproval -> {
+                navController.navigate(Screen.WaitingApproval.route)
+            }
+            is AuthState.Error -> {
+                // Show toast or snackbar
+            }
+            else -> {}
+        }
+    }
 
     LoginScreenContent(
         email = email,
         password = password,
         passwordVisible = passwordVisible,
         onLoginClick = { onLoginClick(email.contains("admin", ignoreCase = true)) },
+        onGoogleLoginClick = {
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(context.getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build()
+            val googleSignInClient = GoogleSignIn.getClient(context, gso)
+            launcher.launch(googleSignInClient.signInIntent)
+        },
         onForgotPasswordClick = onForgotPasswordClick,
         onSignUpClick = onSignUpClick,
         onEmailChange = { viewModel.onEmailChange(it) },
@@ -59,6 +108,7 @@ fun LoginScreenContent(
     password: String,
     passwordVisible: Boolean,
     onLoginClick: () -> Unit,
+    onGoogleLoginClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     onSignUpClick: () -> Unit,
     onEmailChange: (String) -> Unit,
@@ -194,7 +244,7 @@ fun LoginScreenContent(
             Spacer(modifier = Modifier.height(24.dp))
             
             OutlinedButton(
-                onClick = { /* Google Login */ },
+                onClick = onGoogleLoginClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -228,6 +278,7 @@ fun LoginScreenPreview() {
         password = "",
         passwordVisible = false,
         onLoginClick = {},
+        onGoogleLoginClick = {},
         onForgotPasswordClick = {},
         onSignUpClick = {},
         onEmailChange = {},

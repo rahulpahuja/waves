@@ -170,10 +170,29 @@ fun StudentSettingsContent(
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("Personal Information", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 
-                // Using existing CustomTextField or reimplementing simple version
-                SimpleTextField("Full Name", fullName, onFullNameChange)
-                SimpleTextField("Email Address", email, onEmailChange)
-                SimpleTextField("Phone Number", phone, onPhoneChange)
+                CustomTextField(
+                    value = fullName,
+                    onValueChange = onFullNameChange,
+                    label = "Full Name",
+                    placeholder = "Full Name",
+                    icon = Icons.Filled.Person
+                )
+                
+                CustomTextField(
+                    value = email,
+                    onValueChange = onEmailChange,
+                    label = "Email Address",
+                    placeholder = "Email Address",
+                    icon = Icons.Filled.Person // or Email if available
+                )
+
+                CustomTextField(
+                    value = phone,
+                    onValueChange = onPhoneChange,
+                    label = "Phone Number",
+                    placeholder = "Phone Number",
+                    icon = Icons.Filled.Person // or Phone if available
+                )
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),

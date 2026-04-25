@@ -33,7 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun MediaGalleryScreen(
     viewModel: MediaGalleryViewModel = hiltViewModel(),
-    onNavigateBack: () -> Boolean, // Kept for compatibility but not used in bottom bar
+    onNavigateBack: () -> Unit,
     onNavigateToHome: () -> Unit,
     onNavigateToSchedule: () -> Unit,
     onNavigateToProfile: () -> Unit
@@ -41,41 +41,35 @@ fun MediaGalleryScreen(
     val state by viewModel.uiState.collectAsState()
     val backgroundColor = Color(0xFF10141D)
 
-    Scaffold(
-        containerColor = backgroundColor,
-        topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Media Gallery",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search",
-                    tint = Color.White
-                )
-            }
-        },
-        bottomBar = { 
-            GalleryBottomBar(
-                onNavigateToHome = onNavigateToHome,
-                onNavigateToSchedule = onNavigateToSchedule,
-                onNavigateToProfile = onNavigateToProfile
-            ) 
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundColor)
+    ) {
+        // Custom Top Bar
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Media Gallery",
+                color = Color.White,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search",
+                tint = Color.White
+            )
         }
-    ) { paddingValues ->
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
@@ -326,61 +320,5 @@ fun UploadCard(upload: MediaUpload) {
                 fontSize = 10.sp
             )
         }
-    }
-}
-
-@Composable
-fun GalleryBottomBar(
-    onNavigateToHome: () -> Unit,
-    onNavigateToSchedule: () -> Unit,
-    onNavigateToProfile: () -> Unit
-) {
-    NavigationBar(
-        containerColor = Color(0xFF10141D),
-        contentColor = Color.White
-    ) {
-        NavigationBarItem(
-            selected = false,
-            onClick = onNavigateToHome,
-            icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
-            label = { Text("Home") },
-            colors = NavigationBarItemDefaults.colors(
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray
-            )
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = onNavigateToSchedule,
-            icon = { Icon(Icons.Filled.CalendarToday, contentDescription = "Schedule") },
-            label = { Text("Schedule") },
-            colors = NavigationBarItemDefaults.colors(
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray
-            )
-        )
-        NavigationBarItem(
-            selected = true,
-            onClick = { /* Stay on Library/Gallery */ },
-            icon = { Icon(Icons.Filled.LibraryMusic, contentDescription = "Library") },
-            label = { Text("Library") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color(0xFF2962FF),
-                selectedTextColor = Color(0xFF2962FF),
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
-                indicatorColor = Color.Transparent
-            )
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = onNavigateToProfile,
-            icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
-            label = { Text("Profile") },
-            colors = NavigationBarItemDefaults.colors(
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray
-            )
-        )
     }
 }

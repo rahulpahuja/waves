@@ -18,31 +18,17 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.rahulpahuja.waves.module.admin.AdminDashboardScreen
-import com.rahulpahuja.waves.module.admin.AdminSettingsScreen
-import com.rahulpahuja.waves.module.admin.ArtistProfileScreen
-import com.rahulpahuja.waves.module.admin.AttendanceScreen
-import com.rahulpahuja.waves.module.admin.CreateSessionScreen
-import com.rahulpahuja.waves.module.admin.CreateStudentScreen
-import com.rahulpahuja.waves.module.admin.HelpSupportScreen
-import com.rahulpahuja.waves.module.admin.NewCashEntryScreen
-import com.rahulpahuja.waves.module.admin.PaymentHistoryScreen
-import com.rahulpahuja.waves.module.admin.ProfileSettingsScreen
-import com.rahulpahuja.waves.module.admin.SettingsScreen
-import com.rahulpahuja.waves.module.admin.StudentsScreen
-import com.rahulpahuja.waves.module.auth.ForgotPasswordScreen
-import com.rahulpahuja.waves.module.auth.LoginScreen
+import com.rahulpahuja.waves.module.admin.*
+import com.rahulpahuja.waves.module.auth.*
 import com.rahulpahuja.waves.module.chat.ChatScreen
 import com.rahulpahuja.waves.module.gallery.MediaGalleryScreen
 import com.rahulpahuja.waves.module.onboarding.* 
-import com.rahulpahuja.waves.module.onboarding.AllSetScreen
 import com.rahulpahuja.waves.module.radar.ArtistRadarScreen
 import com.rahulpahuja.waves.module.radar.PublicArtistProfileScreen
 import com.rahulpahuja.waves.module.schedule.ManageBookingsScreen
 import com.rahulpahuja.waves.module.schedule.StudioScheduleScreen
 import com.rahulpahuja.waves.module.splash.SplashScreen
-import com.rahulpahuja.waves.module.student.StudentDashboardScreen
-import com.rahulpahuja.waves.module.student.StudentSettingsScreen
+import com.rahulpahuja.waves.module.student.StudentNavigation
 import com.rahulpahuja.waves.ui.components.NotificationsScreen
 import com.rahulpahuja.waves.ui.home.HomeScreen
 import com.rahulpahuja.waves.ui.navigation.Screen
@@ -56,14 +42,7 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            // Permission is granted. Continue the action or workflow in your
-            // app.
-        } else {
-            // Explain to the user that the feature is unavailable because the
-            // feature requires a permission that the user has denied. At the
-            // same time, respect the user's decision. Don't link to system
-            // settings in an effort to convince the user to change their
-            // decision.
+            // Permission is granted.
         }
     }
 
@@ -84,19 +63,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun askNotificationPermission() {
-        // This is only necessary for API level 33+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
                 PackageManager.PERMISSION_GRANTED
             ) {
-                // FCM SDK (and your app) can post notifications.
-            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-                // TODO: display an educational UI explaining to the user the features that will be enabled
-                //       by granting the POST_NOTIFICATION permission. This UI should provide the user
-                //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
-                //       If the user selects "No thanks," allow the user to continue without notifications.
-            } else {
-                // Directly ask for the permission
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
@@ -115,6 +85,34 @@ fun AppNavigation() {
             SplashScreen(navController = navController)
         }
 
+        // Auth & Approval Flow
+        composable(Screen.Login.route) {
+            LoginScreen(
+                navController = navController,
+                onLoginClick = { isAdmin ->
+                    val destination = if (isAdmin) Screen.AdminDashboard.route else Screen.Welcome.route
+                    navController.navigate(destination) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                },
+                onForgotPasswordClick = { navController.navigate(Screen.ForgotPassword.route) },
+                onSignUpClick = { /* TODO: Navigate to Sign Up */ }
+            )
+        }
+        composable(Screen.RoleSelection.route) {
+            RoleSelectionScreen()
+        }
+        composable(Screen.WaitingApproval.route) {
+            WaitingApprovalScreen(onLogout = {
+                navController.navigate(Screen.Login.route) {
+                    popUpTo(0)
+                }
+            })
+        }
+        composable(Screen.PendingApprovals.route) {
+            PendingApprovalsScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
         // Onboarding
         composable(Screen.Welcome.route) {
             WelcomeScreen(onGetStartedClick = { navController.navigate(Screen.TrackProgress.route) })
@@ -129,9 +127,7 @@ fun AppNavigation() {
             CreatePersonaScreen(
                 onContinueClick = { navController.navigate(Screen.AllSet.route) },
                 onLaterClick = { navController.navigate(Screen.StudentDashboard.route) },
-                onNavigateBack = { 
-                    navController.popBackStack() 
-                }
+                onNavigateBack = { navController.popBackStack() }
             )
         }
         composable(Screen.AllSet.route) {
@@ -140,51 +136,6 @@ fun AppNavigation() {
                     popUpTo(Screen.Welcome.route) { inclusive = true }
                 }
             })
-        }
-        composable(Screen.WelcomeToTheBooth.route) {
-            WelcomeToTheBoothScreen(onStartManagingClick = { navController.navigate(Screen.ManageStudentLifecycle.route) })
-        }
-        composable(Screen.ManageStudentLifecycle.route) {
-            ManageStudentLifecycleScreen(
-                onNextClick = { navController.navigate(Screen.ProfileSetup.route) },
-                onSkipClick = { navController.navigate(Screen.AdminDashboard.route) }
-            )
-        }
-        composable(Screen.ProfileSetup.route) {
-            ProfileSetupScreen(
-                onContinueClick = { navController.navigate(Screen.AdminWelcome.route) },
-                onSkipClick = { navController.navigate(Screen.AdminDashboard.route) }
-            )
-        }
-        composable(Screen.AdminWelcome.route) {
-            AdminWelcomeScreen(
-                onEnterDashboardClick = { navController.navigate(Screen.AdminDashboard.route) },
-                onViewProfileClick = { navController.navigate(Screen.ArtistProfile.route) }
-            )
-        }
-
-        // Auth
-        composable(Screen.Login.route) {
-            LoginScreen(
-                onLoginClick = { isAdmin ->
-                    if (isAdmin) {
-                        navController.navigate(Screen.AdminDashboard.route) {
-                            popUpTo(Screen.Login.route) { inclusive = true }
-                        }
-                    } else {
-                        navController.navigate(Screen.Welcome.route) {
-                            popUpTo(Screen.Login.route) { inclusive = true }
-                        }
-                    }
-                },
-                onForgotPasswordClick = { navController.navigate(Screen.ForgotPassword.route) },
-                onSignUpClick = { /* TODO: Navigate to Sign Up */ }
-            )
-        }
-        composable(Screen.ForgotPassword.route) {
-            ForgotPasswordScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
         }
 
         // Home (Generic)
@@ -203,29 +154,8 @@ fun AppNavigation() {
         composable(Screen.AdminDashboard.route) {
             AdminDashboardScreen(navController)
         }
-        composable(Screen.AdminSettings.route) {
-            AdminSettingsScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onLogout =  { navController.popBackStack() },
-                onArtistProfileClick = { navController.navigate(Screen.ArtistProfile.route) }
-            )
-
-        }
-        composable(Screen.Students.route) {
-            StudentsScreen(
-                onAddStudentClick = { navController.navigate(Screen.CreateStudent.route) }
-            )
-        }
-        composable(Screen.CreateStudent.route) {
-            CreateStudentScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onCompleteEnrollment = { navController.popBackStack() }
-            )
-        }
         composable(Screen.NewCashEntry.route) {
-            NewCashEntryScreen(
-                onDismiss = { navController.popBackStack() }
-            )
+            NewCashEntryScreen(onDismiss = { navController.popBackStack() })
         }
         composable(Screen.CreateSession.route) {
             CreateSessionScreen(
@@ -234,46 +164,26 @@ fun AppNavigation() {
             )
         }
         composable(Screen.ManageBookings.route) {
-            ManageBookingsScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            ManageBookingsScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(Screen.HelpSupport.route) {
-            HelpSupportScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            HelpSupportScreen(onNavigateBack = { navController.popBackStack() })
         }
 
         // Student Module
         composable(Screen.StudentDashboard.route) {
-            StudentDashboardScreen(navController = navController)
-        }
-        composable(Screen.StudentSettings.route) {
-            StudentSettingsScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onLogout = {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(0) // Clear backstack
-                    }
-                }
-            )
+            StudentNavigation(navController = navController)
         }
         composable(Screen.PaymentHistory.route) {
-            PaymentHistoryScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            PaymentHistoryScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(Screen.ArtistProfile.route) {
-            ArtistProfileScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            ArtistProfileScreen(onNavigateBack = { navController.popBackStack() })
         }
 
         // Shared / Common
         composable(Screen.Chat.route) {
-            ChatScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            ChatScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(Screen.MediaGallery.route) {
             MediaGalleryScreen(
@@ -284,9 +194,7 @@ fun AppNavigation() {
             )
         }
         composable(Screen.Attendance.route) {
-            AttendanceScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            AttendanceScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(Screen.Settings.route) {
             SettingsScreen(
@@ -314,24 +222,12 @@ fun AppNavigation() {
             ArtistRadarScreen()
         }
         composable(Screen.PublicArtistProfile.route) {
-            PublicArtistProfileScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            PublicArtistProfileScreen(onNavigateBack = { navController.popBackStack() })
         }
 
         // Schedule
         composable(Screen.StudioSchedule.route) {
-            StudioScheduleScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            StudioScheduleScreen(onNavigateBack = { navController.popBackStack() })
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    WavesTheme {
-        AppNavigation()
     }
 }

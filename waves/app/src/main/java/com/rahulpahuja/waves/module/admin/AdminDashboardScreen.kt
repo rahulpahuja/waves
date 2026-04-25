@@ -69,6 +69,9 @@ fun AdminDashboardScreen(
 @Composable
 fun AdminDashboardContent(
     navController: NavController,
+    onNavigateToStudents: () -> Unit,
+    onNavigateToSettings: () -> Unit,
+    onNavigateToNotifications: () -> Unit,
     state: AdminDashboardUiState
 ) {
      val backgroundColor = Color(0xFF10141D)
@@ -94,9 +97,9 @@ fun AdminDashboardContent(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             item { Spacer(modifier = Modifier.height(16.dp)) }
-            item { HeaderSection() }
+            item { HeaderSection(onProfileClick = onNavigateToSettings, onNotificationsClick = onNavigateToNotifications) }
             item { OverviewSection(state) }
-            item { ManageSchoolSection(navController) }
+            item { ManageSchoolSection(navController = navController, onStudentsClick = onNavigateToStudents) }
             item { UpcomingSessionsSection(state.sessions) }
             item { Spacer(modifier = Modifier.height(80.dp)) } // Bottom padding for FAB/Nav
         }
@@ -104,13 +107,16 @@ fun AdminDashboardContent(
 }
 
 @Composable
-fun HeaderSection() {
+fun HeaderSection(onProfileClick: () -> Unit, onNotificationsClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable(onClick = onProfileClick)
+        ) {
             Box(
                 modifier = Modifier
                     .size(48.dp)
@@ -139,7 +145,7 @@ fun HeaderSection() {
                 )
             }
         }
-        IconButton(onClick = { /*TODO*/ }) {
+        IconButton(onClick = onNotificationsClick) {
             Icon(
                 imageVector = Icons.Default.Notifications,
                 contentDescription = stringResource(R.string.notifications_content_description),
@@ -258,7 +264,7 @@ fun OverviewCard(
 }
 
 @Composable
-fun ManageSchoolSection(navController: NavController) {
+fun ManageSchoolSection(navController: NavController, onStudentsClick: () -> Unit) {
     Column {
         Text(
             text = stringResource(R.string.manage_school_title),
@@ -276,7 +282,7 @@ fun ManageSchoolSection(navController: NavController) {
                     icon = Icons.Default.Person,
                     colorStart = Color(0xFF4A3423), // Dark Brownish
                     colorEnd = Color(0xFF2C1E14),
-                    onClick = { navController.navigate(Screen.Students.route) }
+                    onClick = onStudentsClick
                 )
                 ManageCard(
                     modifier = Modifier.weight(1f),
