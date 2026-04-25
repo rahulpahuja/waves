@@ -99,7 +99,13 @@ fun AdminDashboardContent(
             item { Spacer(modifier = Modifier.height(16.dp)) }
             item { HeaderSection(onProfileClick = onNavigateToSettings, onNotificationsClick = onNavigateToNotifications) }
             item { OverviewSection(state) }
-            item { ManageSchoolSection(navController = navController, onStudentsClick = onNavigateToStudents) }
+            item { 
+                ManageSchoolSection(
+                    navController = navController, 
+                    onStudentsClick = onNavigateToStudents,
+                    onApprovalsClick = { navController.navigate(Screen.PendingApprovals.route) }
+                ) 
+            }
             item { UpcomingSessionsSection(state.sessions) }
             item { Spacer(modifier = Modifier.height(80.dp)) } // Bottom padding for FAB/Nav
         }
@@ -264,7 +270,7 @@ fun OverviewCard(
 }
 
 @Composable
-fun ManageSchoolSection(navController: NavController, onStudentsClick: () -> Unit) {
+fun ManageSchoolSection(navController: NavController, onStudentsClick: () -> Unit, onApprovalsClick: () -> Unit) {
     Column {
         Text(
             text = stringResource(R.string.manage_school_title),
@@ -277,13 +283,24 @@ fun ManageSchoolSection(navController: NavController, onStudentsClick: () -> Uni
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 ManageCard(
                     modifier = Modifier.weight(1f),
+                    title = "Approvals",
+                    subtitle = "Manage new requests",
+                    icon = Icons.Default.Person,
+                    colorStart = Color(0xFF1B3A4B),
+                    colorEnd = Color(0xFF0D1B2A),
+                    onClick = onApprovalsClick
+                )
+                ManageCard(
+                    modifier = Modifier.weight(1f),
                     title = stringResource(R.string.enrollment_title),
                     subtitle = stringResource(R.string.manage_students_subtitle),
-                    icon = Icons.Default.Person,
+                    icon = Icons.Default.School,
                     colorStart = Color(0xFF4A3423), // Dark Brownish
                     colorEnd = Color(0xFF2C1E14),
                     onClick = onStudentsClick
                 )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 ManageCard(
                     modifier = Modifier.weight(1f),
                     title = stringResource(R.string.attendance_title),
@@ -293,8 +310,6 @@ fun ManageSchoolSection(navController: NavController, onStudentsClick: () -> Uni
                     colorEnd = Color(0xFF242A33),
                     onClick = { navController.navigate(Screen.Attendance.route) }
                 )
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 ManageCard(
                     modifier = Modifier.weight(1f),
                     title = stringResource(R.string.finances_title),
@@ -304,6 +319,8 @@ fun ManageSchoolSection(navController: NavController, onStudentsClick: () -> Uni
                     colorEnd = Color(0xFF1B2424),
                     onClick = { navController.navigate(Screen.NewCashEntry.route) }
                 )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 ManageCard(
                     modifier = Modifier.weight(1f),
                     title = stringResource(R.string.media_title),
@@ -313,6 +330,7 @@ fun ManageSchoolSection(navController: NavController, onStudentsClick: () -> Uni
                     colorEnd = Color(0xFF192226),
                     onClick = { navController.navigate(Screen.MediaGallery.route) }
                 )
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }

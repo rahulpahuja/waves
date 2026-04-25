@@ -96,9 +96,8 @@ fun LoginScreen(
         email = email,
         password = password,
         passwordVisible = passwordVisible,
+        isLoading = authState is AuthState.Loading,
         onLoginClick = { 
-            // Trigger actual login logic if you have email/password auth
-            // For now, if you only have Google, this could be a placeholder or actual logic
             viewModel.onLoginClick()
         },
         onGoogleLoginClick = {
@@ -127,6 +126,7 @@ fun LoginScreenContent(
     email: String,
     password: String,
     passwordVisible: Boolean,
+    isLoading: Boolean,
     onLoginClick: () -> Unit,
     onGoogleLoginClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
@@ -244,13 +244,22 @@ fun LoginScreenContent(
             
             Button(
                 onClick = onLoginClick,
+                enabled = !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Log In", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Log In", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
             }
             
             Spacer(modifier = Modifier.height(24.dp))
@@ -297,6 +306,7 @@ fun LoginScreenPreview() {
         email = "",
         password = "",
         passwordVisible = false,
+        isLoading = false,
         onLoginClick = {},
         onGoogleLoginClick = {},
         onForgotPasswordClick = {},

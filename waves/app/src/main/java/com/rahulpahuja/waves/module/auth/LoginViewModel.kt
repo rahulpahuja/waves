@@ -110,7 +110,13 @@ class LoginViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "Login error", e)
-                _authState.value = AuthState.Error(e.message ?: "Login failed")
+                val errorMessage = when {
+                    e.message?.contains("operation is not allowed", ignoreCase = true) == true -> {
+                        "Email/Password login is not enabled in Firebase. Please enable it in the Firebase Console."
+                    }
+                    else -> e.message ?: "Login failed"
+                }
+                _authState.value = AuthState.Error(errorMessage)
             }
         }
     }
