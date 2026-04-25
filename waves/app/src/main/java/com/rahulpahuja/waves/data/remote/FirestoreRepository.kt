@@ -75,6 +75,16 @@ class FirestoreRepository @Inject constructor(
         firestore.collection("users").document(uid).update("status", status).await()
     }
 
+    suspend fun getUserByEmail(email: String): FirestoreUser? {
+        return firestore.collection("users")
+            .whereEqualTo("email", email)
+            .limit(1)
+            .get()
+            .await()
+            .toObjects(FirestoreUser::class.java)
+            .firstOrNull()
+    }
+
     fun getMessages(chatId: String): Flow<List<FirestoreMessage>> = callbackFlow {
         val subscription = firestore.collection("chats").document(chatId)
             .collection("messages")

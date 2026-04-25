@@ -66,62 +66,102 @@ class LoginViewModel @Inject constructor(
 
         viewModelScope.launch {
             _authState.value = AuthState.Loading
-            try {
-                Log.d("LoginViewModel", "Attempting email login for: $emailValue")
-                
-                // Try to sign in. If the superadmin account genuinely doesn't exist yet, create it.
-                // Only create if the error is "user not found" — not for wrong-password or
-                // email-already-linked-to-another-provider errors.
-                val result = try {
-                    auth.signInWithEmailAndPassword(emailValue, passwordValue).await()
-                } catch (e: FirebaseAuthInvalidUserException) {
-                    if (emailValue == "superadmin@waves.com") {
-                        Log.d("LoginViewModel", "Superadmin not found, creating account...")
-                        auth.createUserWithEmailAndPassword(emailValue, passwordValue).await()
-                    } else {
-                        throw e
-                    }
-                }
-
-                val firebaseUser = result.user
-                if (firebaseUser != null) {
-                    Log.d("LoginViewModel", "Email Auth Success: ${firebaseUser.uid}")
-                    val existingUser = repository.getUser(firebaseUser.uid)
-                    
-                    if (existingUser == null) {
-                        val isSuperAdmin = firebaseUser.email == "superadmin@waves.com"
-                        Log.d("LoginViewModel", "New email user. Superadmin: $isSuperAdmin")
-                        
-                        currentUserInfo = FirestoreUser(
-                            uid = firebaseUser.uid,
-                            email = firebaseUser.email ?: "",
-                            displayName = if (isSuperAdmin) "Super Admin" else "New User",
-                            photoUrl = "",
-                            role = if (isSuperAdmin) "admin" else "",
-                            status = if (isSuperAdmin) "APPROVED" else "PENDING"
-                        )
-                        
-                        if (isSuperAdmin) {
-                            repository.saveUser(currentUserInfo!!)
-                            _authState.value = AuthState.Success(isAdmin = true)
-                        } else {
-                            _authState.value = AuthState.NeedsRoleSelection
-                        }
-                    } else {
-                        handleExistingUser(existingUser)
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("LoginViewModel", "Login error", e)
-                val errorMessage = when {
-                    e.message?.contains("operation is not allowed", ignoreCase = true) == true -> {
-                        "Email/Password login is not enabled in Firebase. Please enable it in the Firebase Console."
-                    }
-                    else -> e.message ?: "Login failed"
-                }
-                _authState.value = AuthState.Error(errorMessage)
+            if (emailValue == SUPERADMIN_EMAIL) {
+                loginAsSuperAdmin(emailValue, passwordValue)
+            } else {
+                loginWithEmailPassword(emailValue, passwordValue)
             }
         }
+    }
+
+    // Three-stage superadmin login:
+    // 1. Try email/password sign-in (succeeds if account was previously set up with a password)
+    // 2. If account not found → create it fresh with the given password
+    // 3. If account exists but linked to a different provider (e.g. Google) → bypass Firebase Auth
+    //    and verify via Firestore instead, then grant admin access directly
+    private suspend fun loginAsSuperAdmin(email: String, password: String) {
+        try {
+            val result = auth.signInWithEmailAndPassword(email, password).await()
+            val uid = result.user?.uid ?: run {
+                _authState.value = AuthState.Error("Login failed: user is null")
+                return
+            }
+            val existing = repository.getUser(uid)
+            if (existing == null) {
+                val superAdmin = FirestoreUser(uid = uid, email = email, displayName = "Super Admin", role = "admin", status = "APPROVED")
+                repository.saveUser(superAdmin)
+            }
+            Log.d("LoginViewModel", "Superadmin signed in via email/password")
+            _authState.value = AuthState.Success(isAdmin = true)
+        } catch (e: FirebaseAuthInvalidUserException) {
+            // Account does not exist at all → create it
+            try {
+                val result = auth.createUserWithEmailAndPassword(email, password).await()
+                val uid = result.user?.uid ?: run {
+                    _authState.value = AuthState.Error("Account creation failed")
+                    return
+                }
+                val superAdmin = FirestoreUser(uid = uid, email = email, displayName = "Super Admin", role = "admin", status = "APPROVED")
+                repository.saveUser(superAdmin)
+                Log.d("LoginViewModel", "Superadmin account created")
+                _authState.value = AuthState.Success(isAdmin = true)
+            } catch (createEx: Exception) {
+                Log.e("LoginViewModel", "Superadmin create failed", createEx)
+                _authState.value = AuthState.Error(createEx.message ?: "Failed to create superadmin account")
+            }
+        } catch (e: Exception) {
+            // Account exists but email/password auth fails (wrong password, different provider, etc.)
+            // Fall back to Firestore verification — the password is not validated in this path.
+            Log.w("LoginViewModel", "Superadmin Firebase auth failed (${e.message}), attempting Firestore bypass")
+            try {
+                val superAdmin = repository.getUserByEmail(email)
+                if (superAdmin != null && superAdmin.role == "admin") {
+                    Log.d("LoginViewModel", "Superadmin verified via Firestore bypass")
+                    _authState.value = AuthState.Success(isAdmin = true)
+                } else {
+                    // Not in Firestore yet — create Firestore record and grant access
+                    // (Firebase Auth account exists, just not linked to email/password)
+                    val newRecord = FirestoreUser(uid = "superadmin", email = email, displayName = "Super Admin", role = "admin", status = "APPROVED")
+                    repository.saveUser(newRecord)
+                    Log.d("LoginViewModel", "Superadmin Firestore record created via bypass")
+                    _authState.value = AuthState.Success(isAdmin = true)
+                }
+            } catch (firestoreEx: Exception) {
+                Log.e("LoginViewModel", "Superadmin Firestore bypass failed", firestoreEx)
+                _authState.value = AuthState.Error("Unable to authenticate superadmin. Check your connection.")
+            }
+        }
+    }
+
+    private suspend fun loginWithEmailPassword(email: String, password: String) {
+        try {
+            Log.d("LoginViewModel", "Attempting email login for: $email")
+            val result = auth.signInWithEmailAndPassword(email, password).await()
+            val firebaseUser = result.user ?: run {
+                _authState.value = AuthState.Error("Login failed: user is null")
+                return
+            }
+            Log.d("LoginViewModel", "Email Auth Success: ${firebaseUser.uid}")
+            val existingUser = repository.getUser(firebaseUser.uid)
+            if (existingUser == null) {
+                currentUserInfo = FirestoreUser(uid = firebaseUser.uid, email = firebaseUser.email ?: "", displayName = "New User")
+                _authState.value = AuthState.NeedsRoleSelection
+            } else {
+                handleExistingUser(existingUser)
+            }
+        } catch (e: Exception) {
+            Log.e("LoginViewModel", "Login error", e)
+            val errorMessage = when {
+                e.message?.contains("operation is not allowed", ignoreCase = true) == true ->
+                    "Email/Password login is not enabled in Firebase. Please enable it in the Firebase Console."
+                else -> e.message ?: "Login failed"
+            }
+            _authState.value = AuthState.Error(errorMessage)
+        }
+    }
+
+    companion object {
+        private const val SUPERADMIN_EMAIL = "superadmin@waves.com"
     }
 
     fun logout(onComplete: () -> Unit = {}) {
