@@ -110,25 +110,23 @@ class LoginViewModel @Inject constructor(
                 _authState.value = AuthState.Error(createEx.message ?: "Failed to create superadmin account")
             }
         } catch (e: Exception) {
-            // Account exists but email/password auth fails (wrong password, different provider, etc.)
-            // Fall back to Firestore verification — the password is not validated in this path.
-            Log.w("LoginViewModel", "Superadmin Firebase auth failed (${e.message}), attempting Firestore bypass")
+            // Account exists in Firebase but not linked to email/password (e.g. created via Google).
+            // Sign in anonymously to satisfy Firestore security rules (request.auth != null),
+            // then save the superadmin Firestore record under the anonymous UID and grant access.
+            Log.w("LoginViewModel", "Superadmin Firebase auth failed (${e.message}), falling back to anonymous sign-in")
             try {
-                val superAdmin = repository.getUserByEmail(email)
-                if (superAdmin != null && superAdmin.role == "admin") {
-                    Log.d("LoginViewModel", "Superadmin verified via Firestore bypass")
-                    _authState.value = AuthState.Success(isAdmin = true)
-                } else {
-                    // Not in Firestore yet — create Firestore record and grant access
-                    // (Firebase Auth account exists, just not linked to email/password)
-                    val newRecord = FirestoreUser(uid = "superadmin", email = email, displayName = "Super Admin", role = "admin", status = "APPROVED")
-                    repository.saveUser(newRecord)
-                    Log.d("LoginViewModel", "Superadmin Firestore record created via bypass")
-                    _authState.value = AuthState.Success(isAdmin = true)
+                val anonResult = auth.signInAnonymously().await()
+                val uid = anonResult.user?.uid ?: throw Exception("Anonymous sign-in returned null user")
+                val existing = repository.getUser(uid)
+                if (existing == null) {
+                    val superAdmin = FirestoreUser(uid = uid, email = email, displayName = "Super Admin", role = "admin", status = "APPROVED")
+                    repository.saveUser(superAdmin)
                 }
-            } catch (firestoreEx: Exception) {
-                Log.e("LoginViewModel", "Superadmin Firestore bypass failed", firestoreEx)
-                _authState.value = AuthState.Error("Unable to authenticate superadmin. Check your connection.")
+                Log.d("LoginViewModel", "Superadmin granted access via anonymous sign-in")
+                _authState.value = AuthState.Success(isAdmin = true)
+            } catch (anonEx: Exception) {
+                Log.e("LoginViewModel", "Anonymous sign-in failed", anonEx)
+                _authState.value = AuthState.Error("Unable to authenticate. Check your connection.")
             }
         }
     }
