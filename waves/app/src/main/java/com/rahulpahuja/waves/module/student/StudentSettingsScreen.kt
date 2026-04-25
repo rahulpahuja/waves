@@ -48,6 +48,7 @@ fun StudentSettingsScreen(
     val classReminders by viewModel.classReminders.collectAsState()
     val feeDueAlerts by viewModel.feeDueAlerts.collectAsState()
     val announcements by viewModel.announcements.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     StudentSettingsContent(
         fullName = fullName,
@@ -58,8 +59,10 @@ fun StudentSettingsScreen(
         classReminders = classReminders,
         feeDueAlerts = feeDueAlerts,
         announcements = announcements,
+        isLoading = isLoading,
         onNavigateBack = onNavigateBack,
         onLogout = onLogout,
+        onSaveProfile = { viewModel.saveProfile() },
         onFullNameChange = { viewModel.onFullNameChange(it) },
         onEmailChange = { viewModel.onEmailChange(it) },
         onPhoneChange = { viewModel.onPhoneChange(it) },
@@ -81,8 +84,10 @@ fun StudentSettingsContent(
     classReminders: Boolean,
     feeDueAlerts: Boolean,
     announcements: Boolean,
+    isLoading: Boolean = false,
     onNavigateBack: () -> Unit,
     onLogout: () -> Unit,
+    onSaveProfile: () -> Unit = {},
     onFullNameChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
     onPhoneChange: (String) -> Unit,
@@ -105,7 +110,11 @@ fun StudentSettingsContent(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
                 },
-                actions = { Spacer(modifier = Modifier.width(48.dp)) },
+                actions = { 
+                    TextButton(onClick = onSaveProfile) {
+                        Text("Done", color = Color(0xFF2962FF), fontWeight = FontWeight.Bold)
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
             )
         },
@@ -118,14 +127,19 @@ fun StudentSettingsContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(
-                    onClick = { /* Save Changes */ },
+                    onClick = onSaveProfile,
+                    enabled = !isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)),
                     shape = RoundedCornerShape(28.dp)
                 ) {
-                    Text("Save Changes", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    if (isLoading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text("Save Changes", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 TextButton(onClick = onLogout) {

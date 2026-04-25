@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.rahulpahuja.waves.data.remote.FirestoreRepository
+import com.rahulpahuja.waves.data.remote.FirestoreUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,6 +43,9 @@ class StudentSettingsViewModel @Inject constructor(
     private val _announcements = MutableStateFlow(false)
     val announcements: StateFlow<Boolean> = _announcements.asStateFlow()
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
     init {
         loadUserProfile()
     }
@@ -49,6 +53,7 @@ class StudentSettingsViewModel @Inject constructor(
     private fun loadUserProfile() {
         val currentUser = auth.currentUser ?: return
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 val user = repository.getUser(currentUser.uid)
                 user?.let {
@@ -58,6 +63,33 @@ class StudentSettingsViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 Log.e("StudentSettingsVM", "Error loading profile", e)
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun saveProfile() {
+        val currentUser = auth.currentUser ?: return
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                // Get existing user to preserve role/status
+                val existing = repository.getUser(currentUser.uid)
+                val updatedUser = FirestoreUser(
+                    uid = currentUser.uid,
+                    displayName = _fullName.value,
+                    email = _email.value,
+                    photoUrl = _photoUrl.value,
+                    role = existing?.role ?: "student",
+                    status = existing?.status ?: "PENDING"
+                )
+                repository.saveUser(updatedUser)
+                Log.d("StudentSettingsVM", "Profile updated successfully")
+            } catch (e: Exception) {
+                Log.e("StudentSettingsVM", "Error saving profile", e)
+            } finally {
+                _isLoading.value = false
             }
         }
     }

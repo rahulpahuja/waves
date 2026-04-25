@@ -56,8 +56,8 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onLoginClick() {
-        val emailValue = _email.value
-        val passwordValue = _password.value
+        val emailValue = _email.value.trim().lowercase()
+        val passwordValue = _password.value.trim()
 
         if (emailValue.isEmpty() || passwordValue.isEmpty()) {
             _authState.value = AuthState.Error("Please enter email and password")
@@ -81,6 +81,7 @@ class LoginViewModel @Inject constructor(
     //    and verify via Firestore instead, then grant admin access directly
     private suspend fun loginAsSuperAdmin(email: String, password: String) {
         try {
+            Log.d("LoginViewModel", "SuperAdmin login attempt: $email")
             val result = auth.signInWithEmailAndPassword(email, password).await()
             val uid = result.user?.uid ?: run {
                 _authState.value = AuthState.Error("Login failed: user is null")
@@ -91,48 +92,47 @@ class LoginViewModel @Inject constructor(
                 val superAdmin = FirestoreUser(uid = uid, email = email, displayName = "Super Admin", role = "admin", status = "APPROVED")
                 repository.saveUser(superAdmin)
             }
-            Log.d("LoginViewModel", "Superadmin signed in via email/password")
+            Log.d("LoginViewModel", "Superadmin signed in successfully")
             _authState.value = AuthState.Success(isAdmin = true)
-        } catch (e: FirebaseAuthInvalidUserException) {
-            // Account does not exist at all → create it
-            try {
-                val result = auth.createUserWithEmailAndPassword(email, password).await()
-                val uid = result.user?.uid ?: run {
-                    _authState.value = AuthState.Error("Account creation failed")
-                    return
+            } catch (e: Exception) {
+                Log.w("LoginViewModel", "Superadmin initial sign-in failed: ${e.message}")
+                
+                // Detailed check for Super Admin account collision
+                val providers = try {
+                    auth.fetchSignInMethodsForEmail(email).await().signInMethods ?: emptyList<String>()
+                } catch (fetchEx: Exception) {
+                    emptyList<String>()
                 }
-                val superAdmin = FirestoreUser(uid = uid, email = email, displayName = "Super Admin", role = "admin", status = "APPROVED")
-                repository.saveUser(superAdmin)
-                Log.d("LoginViewModel", "Superadmin account created")
-                _authState.value = AuthState.Success(isAdmin = true)
-            } catch (createEx: Exception) {
-                Log.e("LoginViewModel", "Superadmin create failed", createEx)
-                _authState.value = AuthState.Error(createEx.message ?: "Failed to create superadmin account")
-            }
-        } catch (e: Exception) {
-            // Account exists in Firebase but not linked to email/password (e.g. created via Google).
-            // Sign in anonymously first — this satisfies Firestore's `request.auth != null` rule
-            // so we can then query/write Firestore. Without a valid auth session, any Firestore
-            // access is denied with PERMISSION_DENIED regardless of what we query.
-            Log.w("LoginViewModel", "Superadmin Firebase auth failed (${e.message}), falling back to anonymous sign-in")
-            try {
-                val anonUid = auth.signInAnonymously().await().user?.uid
-                    ?: throw Exception("Anonymous sign-in returned null user")
 
-                // Now authenticated — look up the existing superadmin record by email to avoid
-                // creating a duplicate Firestore document on every bypass login.
-                val existing = repository.getUserByEmail(email)
-                if (existing == null) {
-                    val superAdmin = FirestoreUser(uid = anonUid, email = email, displayName = "Super Admin", role = "admin", status = "APPROVED")
-                    repository.saveUser(superAdmin)
+                if (providers.isEmpty()) {
+                    // Account truly does not exist → create it
+                    try {
+                        Log.d("LoginViewModel", "Superadmin account not found, creating...")
+                        val result = auth.createUserWithEmailAndPassword(email, password).await()
+                        val uid = result.user?.uid ?: run {
+                            _authState.value = AuthState.Error("Account creation failed")
+                            return
+                        }
+                        val superAdmin = FirestoreUser(uid = uid, email = email, displayName = "Super Admin", role = "admin", status = "APPROVED")
+                        repository.saveUser(superAdmin)
+                        Log.d("LoginViewModel", "Superadmin account created and approved")
+                        _authState.value = AuthState.Success(isAdmin = true)
+                    } catch (createEx: Exception) {
+                        Log.e("LoginViewModel", "Superadmin create failed", createEx)
+                        val errorMsg = if (createEx.message?.contains("already in use") == true) {
+                            "This email is already in use by a different login method (e.g. Google). Please use that method or delete the user from Firebase Console."
+                        } else {
+                            createEx.message ?: "Failed to create superadmin account"
+                        }
+                        _authState.value = AuthState.Error(errorMsg)
+                    }
+                } else {
+                    // Account exists, but sign-in failed (wrong password OR wrong provider)
+                    Log.e("LoginViewModel", "Superadmin collision: Account exists with providers: $providers")
+                    val providerMsg = if (providers.contains("google.com")) "Google" else "Password"
+                    _authState.value = AuthState.Error("Invalid password. This email is already registered using $providerMsg.")
                 }
-                Log.d("LoginViewModel", "Superadmin granted access via anonymous sign-in")
-                _authState.value = AuthState.Success(isAdmin = true)
-            } catch (anonEx: Exception) {
-                Log.e("LoginViewModel", "Anonymous sign-in failed", anonEx)
-                _authState.value = AuthState.Error("Unable to authenticate. Check your connection.")
             }
-        }
     }
 
     private suspend fun loginWithEmailPassword(email: String, password: String) {
@@ -233,6 +233,10 @@ class LoginViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "Firebase Auth Exception: ${e.message}", e)
                 val errorMessage = when {
+                    e.message?.contains("collision", ignoreCase = true) == true || 
+                    e.message?.contains("already-in-use", ignoreCase = true) == true -> {
+                        "This email is already linked to a different login method (e.g. Password vs Google). Please use the original method you signed up with."
+                    }
                     e is FirebaseFirestoreException && e.code == FirebaseFirestoreException.Code.PERMISSION_DENIED -> {
                         "Cloud Firestore API is not enabled. Please enable it in the Firebase Console."
                     }
