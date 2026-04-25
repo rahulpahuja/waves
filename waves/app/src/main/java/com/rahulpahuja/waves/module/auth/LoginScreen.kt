@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
@@ -208,12 +209,19 @@ fun LoginScreenContent(
                     placeholder = { Text("........", color = Color.Gray) },
                     leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null, tint = Color.Gray) },
                     trailingIcon = {
-                        IconButton(onClick = onPasswordVisibilityToggle) {
-                            Icon(
-                                if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                contentDescription = null,
-                                tint = Color.Gray
-                            )
+                        Row {
+                            if (password.isNotEmpty()) {
+                                IconButton(onClick = { onPasswordChange("") }) {
+                                    Icon(Icons.Filled.Close, contentDescription = "Clear password", tint = Color.Gray)
+                                }
+                            }
+                            IconButton(onClick = onPasswordVisibilityToggle) {
+                                Icon(
+                                    if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                    contentDescription = null,
+                                    tint = Color.Gray
+                                )
+                            }
                         }
                     },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
