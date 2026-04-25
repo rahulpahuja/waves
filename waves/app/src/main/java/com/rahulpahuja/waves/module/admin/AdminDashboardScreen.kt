@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Notifications
@@ -313,7 +314,7 @@ fun ManageSchoolSection(navController: NavController, onStudentsClick: () -> Uni
                 ManageCard(
                     modifier = Modifier.weight(1f),
                     title = stringResource(R.string.finances_title),
-                    subtitle = stringResource(R.string.logs_payments_subtitle),
+                    subtitle = "Verify & Logs",
                     icon = Icons.Default.AttachMoney,
                     colorStart = Color(0xFF2E3B3B), // Greenish Grey
                     colorEnd = Color(0xFF1B2424),
@@ -323,6 +324,15 @@ fun ManageSchoolSection(navController: NavController, onStudentsClick: () -> Uni
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 ManageCard(
                     modifier = Modifier.weight(1f),
+                    title = "Verify Fees",
+                    subtitle = "Confirm receipts",
+                    icon = Icons.Default.CheckCircle,
+                    colorStart = Color(0xFF1E3C72),
+                    colorEnd = Color(0xFF2A5298),
+                    onClick = { navController.navigate("verify_payments") }
+                )
+                ManageCard(
+                    modifier = Modifier.weight(1f),
                     title = stringResource(R.string.media_title),
                     subtitle = stringResource(R.string.school_gallery_subtitle),
                     icon = Icons.Default.Image,
@@ -330,7 +340,6 @@ fun ManageSchoolSection(navController: NavController, onStudentsClick: () -> Uni
                     colorEnd = Color(0xFF192226),
                     onClick = { navController.navigate(Screen.MediaGallery.route) }
                 )
-                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }

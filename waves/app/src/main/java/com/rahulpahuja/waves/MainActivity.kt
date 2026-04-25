@@ -30,6 +30,7 @@ import com.rahulpahuja.waves.module.schedule.ManageBookingsScreen
 import com.rahulpahuja.waves.module.schedule.StudioScheduleScreen
 import com.rahulpahuja.waves.module.splash.SplashScreen
 import com.rahulpahuja.waves.module.student.StudentNavigation
+import com.rahulpahuja.waves.module.student.ReceiptScreen
 import com.rahulpahuja.waves.ui.components.NotificationsScreen
 import com.rahulpahuja.waves.ui.home.HomeScreen
 import com.rahulpahuja.waves.ui.navigation.Screen
@@ -177,6 +178,9 @@ fun AppNavigation() {
         }
         composable(Screen.ManageBookings.route) {
             ManageBookingsScreen(onNavigateBack = { navController.popBackStack() })
+        }
+        composable("verify_payments") {
+            VerifyPaymentsScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(Screen.HelpSupport.route) {
             HelpSupportScreen(onNavigateBack = { navController.popBackStack() })

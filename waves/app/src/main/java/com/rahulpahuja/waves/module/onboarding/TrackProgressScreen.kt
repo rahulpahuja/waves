@@ -18,6 +18,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
 
 @Composable
 fun TrackProgressScreen(
@@ -51,14 +53,20 @@ fun TrackProgressScreen(
         ) {
             Spacer(modifier = Modifier.weight(0.5f))
             
-            // Image Placeholder
-            Box(
+            // Themed Image Illustration
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1.5f)
-                    .background(Color.Black, RoundedCornerShape(16.dp))
-            ) { 
-                // Placeholder for waveform graphic
+                    .aspectRatio(1.5f),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F))
+            ) {
+                AsyncImage(
+                    model = "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1000&auto=format&fit=crop", // Music Production / Analytics theme
+                    contentDescription = "Growth Analytics Illustration",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
             }
 
             Spacer(modifier = Modifier.height(48.dp))

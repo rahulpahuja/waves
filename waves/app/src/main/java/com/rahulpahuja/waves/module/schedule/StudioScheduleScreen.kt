@@ -30,6 +30,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.rahulpahuja.waves.data.remote.BookingRequest
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,16 +64,6 @@ fun StudioScheduleScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { /* Add Booking */ },
-                containerColor = Color(0xFF2962FF),
-                contentColor = Color.White,
-                shape = CircleShape
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add")
-            }
         }
     ) { paddingValues ->
         Column(
@@ -101,21 +95,19 @@ fun StudioScheduleScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                     // Generating a few dates
                      val days = listOf("S", "M", "T", "W", "T", "F", "S")
-                     // Just static UI for demo
                      for (i in 0..6) {
                          Column(horizontalAlignment = Alignment.CenterHorizontally) {
                              Text(days[i], color = Color.Gray, fontSize = 12.sp)
                              Spacer(modifier = Modifier.height(8.dp))
-                             if (i == 3) { // Selected day (Wednesday)
+                             if (i == 3) {
                                  Box(
                                      modifier = Modifier
                                          .size(32.dp)
                                          .background(Color(0xFF2962FF), CircleShape),
                                      contentAlignment = Alignment.Center
                                  ) {
-                                     Text("5", color = Color.White, fontWeight = FontWeight.Bold)
+                                     Text("${state.selectedDate}", color = Color.White, fontWeight = FontWeight.Bold)
                                  }
                              } else {
                                  Text("${2 + i}", color = Color.White)
@@ -129,24 +121,26 @@ fun StudioScheduleScreen(
 
             // Available Slots
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Available Slots", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text("Available Slots (9 AM - 5 PM)", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 
                 state.availableSlots.forEach { slot ->
-                    SlotItem(slot)
+                    SlotItem(slot, onBook = { viewModel.requestBooking(slot) })
                 }
             }
 
             // My Bookings
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("My Bookings", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text("My Requests & History", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Box(
-                        modifier = Modifier
-                            .background(Color(0xFF2962FF), CircleShape)
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    ) {
-                        Text("3", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    if (state.myBookings.isNotEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .background(Color(0xFF2962FF), CircleShape)
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Text("${state.myBookings.size}", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
 
@@ -160,9 +154,9 @@ fun StudioScheduleScreen(
 }
 
 @Composable
-fun SlotItem(slot: Slot) {
+fun SlotItem(slot: Slot, onBook: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable { if(slot.isAvailable) onBook() },
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -189,8 +183,7 @@ fun SlotItem(slot: Slot) {
                     text = slot.title,
                     color = if(slot.isAvailable) Color.White else Color.Gray,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    style = if(!slot.isAvailable) androidx.compose.ui.text.TextStyle(textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough) else androidx.compose.ui.text.TextStyle()
+                    fontSize = 14.sp
                 )
                 Text(slot.subtitle, color = Color.Gray, fontSize = 12.sp)
             }
@@ -209,91 +202,50 @@ fun SlotItem(slot: Slot) {
 }
 
 @Composable
-fun BookingItem(booking: Booking) {
-    val statusColor = when (booking.status) {
-        BookingStatus.CONFIRMED -> Color(0xFF00E676) // Green (Confirming UI) - Though image uses Blue for Confirmed tag background
-        BookingStatus.PENDING -> Color(0xFFFFC107) // Yellow
-        BookingStatus.MISSED -> Color(0xFFE91E63) // Red
-    }
-    
-    val statusText = when (booking.status) {
-        BookingStatus.CONFIRMED -> "CONFIRMED"
-        BookingStatus.PENDING -> "PENDING"
-        BookingStatus.MISSED -> "MISSED"
-    }
-    
+fun BookingItem(booking: BookingRequest) {
     val accentColor = when (booking.status) {
-        BookingStatus.CONFIRMED -> Color(0xFF2962FF)
-        BookingStatus.PENDING -> Color(0xFFFFC107)
-        BookingStatus.MISSED -> Color(0xFFE91E63)
+        "APPROVED" -> Color(0xFF00E676)
+        "PENDING" -> Color(0xFFFFC107)
+        "REJECTED" -> Color(0xFFE91E63)
+        else -> Color.Gray
     }
+    
+    val dateTimeStr = SimpleDateFormat("MMM dd, hh:mm a", Locale.getDefault()).format(Date(booking.startTime))
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Row(
-            modifier = Modifier.height(IntrinsicSize.Min)
-        ) {
-            // Status Strip
-            Box(
-                modifier = Modifier
-                    .width(4.dp)
-                    .fillMaxHeight()
-                    .background(accentColor)
-            )
-            
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(16.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .background(accentColor.copy(alpha = 0.2f), RoundedCornerShape(4.dp))
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    ) {
-                        Text(statusText, color = accentColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(booking.dateTime, color = Color.Gray, fontSize = 12.sp)
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(booking.title, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(12.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(booking.location, color = Color.Gray, fontSize = 12.sp)
-                }
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Button(
-                    onClick = { /* Action based on status */ },
-                    modifier = Modifier.fillMaxWidth().height(36.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10141D)),
-                    shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(0.dp)
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .background(accentColor.copy(alpha = 0.2f), RoundedCornerShape(4.dp))
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
-                    val buttonText = when(booking.status) {
-                        BookingStatus.CONFIRMED -> "Details"
-                        BookingStatus.PENDING -> "Edit"
-                        BookingStatus.MISSED -> "Reschedule"
-                    }
-                    Text(buttonText, color = Color.White, fontSize = 12.sp)
+                    Text(booking.status, color = accentColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                 }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(dateTimeStr, color = Color.Gray, fontSize = 12.sp)
             }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(if(booking.type == "CHECKIN") "Live Check-in" else "Scheduled Session", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             
-            if (booking.status == BookingStatus.PENDING) {
-                 IconButton(
-                     onClick = { /* Cancel */ },
-                     modifier = Modifier.align(Alignment.CenterVertically).padding(end = 8.dp)
-                 ) {
-                     Icon(Icons.Filled.Close, contentDescription = "Cancel", tint = Color.Red, modifier = Modifier.size(16.dp))
-                 }
+            if (booking.status == "REJECTED" && !booking.rejectionReason.isNullOrEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Surface(
+                    color = Color.Red.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Reason: ${booking.rejectionReason}",
+                        color = Color(0xFFFF8A80),
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
             }
         }
     }

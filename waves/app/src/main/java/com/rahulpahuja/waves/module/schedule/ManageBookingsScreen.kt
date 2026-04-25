@@ -29,6 +29,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +40,43 @@ fun ManageBookingsScreen(
     viewModel: ManageBookingsViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    var showRejectionDialog by remember { mutableStateOf<String?>(null) }
+    var rejectionReason by remember { mutableStateOf("") }
+
+    if (showRejectionDialog != null) {
+        AlertDialog(
+            onDismissRequest = { showRejectionDialog = null },
+            title = { Text("Reject Request") },
+            text = {
+                Column {
+                    Text("Please provide a reason for rejection:")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = rejectionReason,
+                        onValueChange = { rejectionReason = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("e.g. Studio maintenance") }
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.rejectRequest(showRejectionDialog!!, rejectionReason)
+                        showRejectionDialog = null
+                        rejectionReason = ""
+                    }
+                ) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRejectionDialog = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
     Scaffold(
         containerColor = Color(0xFF10141D),
@@ -194,7 +234,7 @@ fun ManageBookingsScreen(
             state.pendingRequests.forEach { request ->
                 PendingRequestCard(request, 
                     onApprove = { viewModel.approveRequest(request.id) },
-                    onReject = { viewModel.rejectRequest(request.id) }
+                    onReject = { showRejectionDialog = request.id }
                 )
             }
 
@@ -226,7 +266,7 @@ fun LegendItem(text: String, color: Color) {
 
 @Composable
 fun PendingRequestCard(
-    request: BookingRequest,
+    request: BookingRequestUI,
     onApprove: () -> Unit,
     onReject: () -> Unit
 ) {

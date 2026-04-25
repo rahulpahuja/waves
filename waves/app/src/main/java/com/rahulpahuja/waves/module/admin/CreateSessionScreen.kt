@@ -22,14 +22,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateSessionScreen(
     onNavigateBack: () -> Unit,
-    onPublish: () -> Unit
+    onPublish: () -> Unit,
+    viewModel: CreateSessionViewModel = hiltViewModel()
 ) {
     var sessionName by remember { mutableStateOf("") }
+    var courseFee by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("DJing") }
     var startTime by remember { mutableStateOf("06:00 PM") }
     var endTime by remember { mutableStateOf("08:00 PM") }
@@ -52,8 +55,18 @@ fun CreateSessionScreen(
             )
         },
         bottomBar = {
+            val isLoading by viewModel.isLoading.collectAsState()
             Button(
-                onClick = onPublish,
+                onClick = {
+                    viewModel.publishCourse(
+                        name = sessionName,
+                        description = "Course in $selectedCategory",
+                        fee = courseFee.toDoubleOrNull() ?: 0.0,
+                        duration = 8,
+                        onComplete = onPublish
+                    )
+                },
+                enabled = !isLoading && sessionName.isNotEmpty() && courseFee.isNotEmpty(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
@@ -61,9 +74,13 @@ fun CreateSessionScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Publish Session", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.width(8.dp))
-                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+                if (isLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                } else {
+                    Text("Publish Session", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+                }
             }
         }
     ) { paddingValues ->
@@ -87,6 +104,29 @@ fun CreateSessionScreen(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
                         .background(Color(0xFF1E232F)),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFF1E232F),
+                        unfocusedContainerColor = Color(0xFF1E232F),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedTextColor = Color.White
+                    )
+                )
+            }
+
+            // Course Fee
+            Column {
+                Text("COURSE FEE (₹)", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    value = courseFee,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) courseFee = it },
+                    placeholder = { Text("e.g., 15000", color = Color.Gray) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFF1E232F)),
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF1E232F),
                         unfocusedContainerColor = Color(0xFF1E232F),

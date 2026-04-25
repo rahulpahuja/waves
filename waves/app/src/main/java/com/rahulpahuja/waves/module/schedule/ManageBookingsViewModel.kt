@@ -2,57 +2,73 @@ package com.rahulpahuja.waves.module.schedule
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rahulpahuja.waves.data.remote.FirestoreRepository
+import com.rahulpahuja.waves.data.remote.BookingRequest as FirestoreBookingRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
-class ManageBookingsViewModel @Inject constructor() : ViewModel() {
+class ManageBookingsViewModel @Inject constructor(
+    private val repository: FirestoreRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ManageBookingsUiState())
     val uiState: StateFlow<ManageBookingsUiState> = _uiState.asStateFlow()
 
     init {
-        loadBookings()
+        observeRequests()
     }
 
-    private fun loadBookings() {
+    private fun observeRequests() {
         viewModelScope.launch {
-            _uiState.value = ManageBookingsUiState(
-                date = "Thursday, Oct 5",
-                stats = "3 Slots Full • 2 Pending",
-                pendingRequests = listOf(
-                    BookingRequest("1", "Alex D.", "Intermediate • Mixing", "2:00 PM - 4:00 PM", "Studio B"),
-                    BookingRequest("2", "Marcus T.", "Advanced • Mastering", "10:00 AM @ Production Lab", "")
-                ),
-                confirmedSessions = listOf(
-                    ConfirmedSession("1", "Sarah J.", "DJ Booth 1", "5:00 PM", "2h duration"),
-                    ConfirmedSession("2", "Jen K.", "Studio A", "7:30 PM", "1h duration")
+            repository.getBookingRequests().collectLatest { requests ->
+                _uiState.value = _uiState.value.copy(
+                    pendingRequests = requests.map { it.toUiModel() }
                 )
-            )
+            }
         }
     }
 
     fun approveRequest(id: String) {
-        // Logic to approve
+        viewModelScope.launch {
+            repository.updateBookingStatus(id, "APPROVED")
+        }
     }
 
-    fun rejectRequest(id: String) {
-        // Logic to reject
+    fun rejectRequest(id: String, reason: String) {
+        viewModelScope.launch {
+            repository.updateBookingStatus(id, "REJECTED", rejectionReason = reason)
+        }
+    }
+
+    private fun FirestoreBookingRequest.toUiModel(): BookingRequestUI {
+        val timeStr = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date(this.startTime))
+        return BookingRequestUI(
+            id = this.id,
+            name = this.userName,
+            details = if (this.type == "CHECKIN") "Live Check-in" else "Scheduled Booking",
+            time = timeStr,
+            location = "Studio" // Default
+        )
     }
 }
 
 data class ManageBookingsUiState(
-    val date: String = "",
+    val date: String = SimpleDateFormat("EEEE, MMM dd", Locale.getDefault()).format(Date()),
     val stats: String = "",
-    val pendingRequests: List<BookingRequest> = emptyList(),
+    val pendingRequests: List<BookingRequestUI> = emptyList(),
     val confirmedSessions: List<ConfirmedSession> = emptyList()
 )
 
-data class BookingRequest(
+data class BookingRequestUI(
     val id: String,
     val name: String,
     val details: String,

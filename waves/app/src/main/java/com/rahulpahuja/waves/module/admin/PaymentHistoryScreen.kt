@@ -28,10 +28,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.rahulpahuja.waves.data.remote.FirestoreRepository
+import com.rahulpahuja.waves.data.remote.PaymentRecord
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -95,9 +103,9 @@ fun PaymentHistoryScreen(
                         verticalAlignment = Alignment.Top
                     ) {
                         Column {
-                            Text("TOTAL INVESTMENT", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text("TOTAL PAID", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("$4,500.00", color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+                            Text("₹${state.totalPaid}", color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)
                         }
                         Box(
                             modifier = Modifier
@@ -127,8 +135,8 @@ fun PaymentHistoryScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Current Semester Paid: 75%", color = Color.Gray, fontSize = 12.sp)
-                        Text("Outstanding: $1,500", color = Color(0xFF2962FF), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text("Financial Status: Verified", color = Color.Gray, fontSize = 12.sp)
+                        Text("Outstanding: ₹${state.totalDue}", color = Color(0xFFE91E63), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -164,7 +172,9 @@ fun PaymentHistoryScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(state.transactions) { transaction ->
-                    TransactionItem(transaction)
+                    TransactionItem(transaction) {
+                        // Navigate to receipt if paid
+                    }
                 }
             }
         }
@@ -187,9 +197,9 @@ fun FilterButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-fun TransactionItem(transaction: Transaction) {
+fun TransactionItem(transaction: Transaction, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -238,16 +248,48 @@ data class Transaction(
 )
 
 @HiltViewModel
-class PaymentHistoryViewModel @Inject constructor() : ViewModel() {
+class PaymentHistoryViewModel @Inject constructor(
+    private val auth: FirebaseAuth,
+    private val repository: FirestoreRepository
+) : ViewModel() {
     private val _uiState = MutableStateFlow(PaymentHistoryUiState())
     val uiState: StateFlow<PaymentHistoryUiState> = _uiState.asStateFlow()
+
+    init {
+        val uid = auth.currentUser?.uid ?: ""
+        viewModelScope.launch {
+            repository.getUserPayments(uid).collect { payments ->
+                _uiState.value = _uiState.value.copy(
+                    transactions = payments.map { it.toUiModel() },
+                    totalPaid = payments.filter { it.status == "PAID" }.sumOf { it.amount },
+                    totalDue = payments.filter { it.status == "PENDING" || it.status == "OVERDUE" }.sumOf { it.amount }
+                )
+            }
+        }
+    }
+
+    private fun PaymentRecord.toUiModel(): Transaction {
+        return Transaction(
+            title = "Course Payment",
+            date = SimpleDateFormat("MMM dd", Locale.getDefault()).format(Date(this.timestamp)),
+            id = this.id.takeLast(6).uppercase(),
+            amount = "₹${this.amount}",
+            icon = Icons.Filled.School,
+            iconColor = when(this.status) {
+                "PAID" -> Color(0xFF00E676)
+                "OVERDUE" -> Color(0xFFE91E63)
+                else -> Color(0xFFFFC107)
+            }
+        )
+    }
+
+    fun notifyAdminOfIssue() {
+        // Logic to ping admin
+    }
 }
 
 data class PaymentHistoryUiState(
-    val transactions: List<Transaction> = listOf(
-        Transaction("Advanced Mixing Course", "Oct 24", "#9938-AC", "$350.00", Icons.Filled.School, Color(0xFF2962FF)),
-        Transaction("Studio Rental (2hrs)", "Oct 10", "#8821-SR", "$50.00", Icons.Filled.Headphones, Color(0xFF9C27B0)),
-        Transaction("Semester 1 Tuition", "Sep 01", "#7745-TF", "$1,200.00", Icons.Filled.MusicNote, Color(0xFFE65100)),
-        Transaction("Masterclass Ticket", "Aug 15", "#6612-MT", "$75.00", Icons.Filled.ConfirmationNumber, Color(0xFFE91E63))
-    )
+    val transactions: List<Transaction> = emptyList(),
+    val totalPaid: Double = 0.0,
+    val totalDue: Double = 0.0
 )
