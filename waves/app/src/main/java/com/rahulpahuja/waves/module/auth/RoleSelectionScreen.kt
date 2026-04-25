@@ -9,6 +9,9 @@ import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,11 +22,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.rahulpahuja.waves.ui.navigation.Screen
 
 @Composable
 fun RoleSelectionScreen(
+    navController: NavController,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
+    val authState by viewModel.authState.collectAsState()
+
+    LaunchedEffect(authState) {
+        if (authState is AuthState.PendingApproval) {
+            navController.navigate(Screen.WaitingApproval.route) {
+                popUpTo(Screen.RoleSelection.route) { inclusive = true }
+            }
+        }
+    }
+
     Scaffold(
         containerColor = Color(0xFF10141D)
     ) { paddingValues ->

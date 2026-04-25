@@ -100,7 +100,7 @@ fun AppNavigation() {
             )
         }
         composable(Screen.RoleSelection.route) {
-            RoleSelectionScreen()
+            RoleSelectionScreen(navController = navController)
         }
         composable(Screen.WaitingApproval.route) {
             WaitingApprovalScreen(onLogout = {
