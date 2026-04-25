@@ -1,5 +1,6 @@
 package com.rahulpahuja.waves.module.auth
 
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -32,6 +33,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.rahulpahuja.waves.R
 import com.rahulpahuja.waves.ui.navigation.Screen
+import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,10 +57,15 @@ fun LoginScreen(
         try {
             val account = task.getResult(ApiException::class.java)
             account?.idToken?.let { token ->
+                Log.d("LoginScreen", "Google Sign-In Success, token found")
                 viewModel.signInWithGoogle(token)
+            } ?: run {
+                Log.e("LoginScreen", "Google Sign-In failed: ID Token is null")
+                Toast.makeText(context, "Google Sign-In failed: ID Token is null", Toast.LENGTH_SHORT).show()
             }
         } catch (e: ApiException) {
-            // Handle error
+            Log.e("LoginScreen", "Google Sign-In error code: ${e.statusCode}", e)
+            Toast.makeText(context, "Google Error: ${e.message} (Code: ${e.statusCode})", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -74,7 +81,8 @@ fun LoginScreen(
                 navController.navigate(Screen.WaitingApproval.route)
             }
             is AuthState.Error -> {
-                // Show toast or snackbar
+                Log.e("LoginScreen", "Auth Error: ${(authState as AuthState.Error).message}")
+                Toast.makeText(context, (authState as AuthState.Error).message, Toast.LENGTH_LONG).show()
             }
             else -> {}
         }

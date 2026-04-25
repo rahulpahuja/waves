@@ -50,5 +50,6 @@
     <string name="needs_attention">Needs Attention</string>
     <string name="view_attendance_record">View Attendance Record</string>
     <string name="target_label">Target: %s</string>
-    <string name="default_web_client_id">YOUR_WEB_CLIENT_ID.apps.googleusercontent.com</string>
+    <!-- IMPORTANT: Replace with your actual Web Client ID from Firebase Console -> Authentication -> Sign-in method -> Google -->
+    <string name="default_web_client_id">328777568396-9s57i9ieumakop1296g87njce6t94oo7.apps.googleusercontent.com</string>
 </resources>

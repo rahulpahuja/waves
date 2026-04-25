@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import android.util.Log
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -56,12 +57,14 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             try {
+                Log.d("LoginViewModel", "Signing in with Firebase credential...")
                 val result = auth.signInWithCredential(credential).await()
                 val firebaseUser = result.user
                 if (firebaseUser != null) {
+                    Log.d("LoginViewModel", "Firebase Auth Success: ${firebaseUser.uid}")
                     val existingUser = repository.getUser(firebaseUser.uid)
                     if (existingUser == null) {
-                        // New user, need to select role
+                        Log.d("LoginViewModel", "New user detected, redirecting to role selection")
                         currentUserInfo = FirestoreUser(
                             uid = firebaseUser.uid,
                             email = firebaseUser.email ?: "",
@@ -70,13 +73,15 @@ class LoginViewModel @Inject constructor(
                         )
                         _authState.value = AuthState.NeedsRoleSelection
                     } else {
-                        // Existing user, check status
+                        Log.d("LoginViewModel", "Existing user found, checking status: ${existingUser.status}")
                         handleExistingUser(existingUser)
                     }
                 } else {
+                    Log.e("LoginViewModel", "Firebase Auth failed: user is null")
                     _authState.value = AuthState.Error("Login failed: User is null")
                 }
             } catch (e: Exception) {
+                Log.e("LoginViewModel", "Firebase Auth Exception: ${e.message}", e)
                 _authState.value = AuthState.Error(e.message ?: "An unknown error occurred")
             }
         }
