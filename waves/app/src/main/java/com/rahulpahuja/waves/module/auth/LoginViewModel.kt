@@ -111,15 +111,19 @@ class LoginViewModel @Inject constructor(
             }
         } catch (e: Exception) {
             // Account exists in Firebase but not linked to email/password (e.g. created via Google).
-            // Sign in anonymously to satisfy Firestore security rules (request.auth != null),
-            // then save the superadmin Firestore record under the anonymous UID and grant access.
+            // Sign in anonymously first — this satisfies Firestore's `request.auth != null` rule
+            // so we can then query/write Firestore. Without a valid auth session, any Firestore
+            // access is denied with PERMISSION_DENIED regardless of what we query.
             Log.w("LoginViewModel", "Superadmin Firebase auth failed (${e.message}), falling back to anonymous sign-in")
             try {
-                val anonResult = auth.signInAnonymously().await()
-                val uid = anonResult.user?.uid ?: throw Exception("Anonymous sign-in returned null user")
-                val existing = repository.getUser(uid)
+                val anonUid = auth.signInAnonymously().await().user?.uid
+                    ?: throw Exception("Anonymous sign-in returned null user")
+
+                // Now authenticated — look up the existing superadmin record by email to avoid
+                // creating a duplicate Firestore document on every bypass login.
+                val existing = repository.getUserByEmail(email)
                 if (existing == null) {
-                    val superAdmin = FirestoreUser(uid = uid, email = email, displayName = "Super Admin", role = "admin", status = "APPROVED")
+                    val superAdmin = FirestoreUser(uid = anonUid, email = email, displayName = "Super Admin", role = "admin", status = "APPROVED")
                     repository.saveUser(superAdmin)
                 }
                 Log.d("LoginViewModel", "Superadmin granted access via anonymous sign-in")
