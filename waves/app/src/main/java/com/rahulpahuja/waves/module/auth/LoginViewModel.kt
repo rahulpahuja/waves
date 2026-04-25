@@ -171,6 +171,14 @@ class LoginViewModel @Inject constructor(
                         }
                     } else {
                         Log.d("LoginViewModel", "Existing user found, checking status: ${existingUser.status}")
+                        val refreshedUser = existingUser.copy(
+                            displayName = firebaseUser.displayName?.takeIf { it.isNotEmpty() } ?: existingUser.displayName,
+                            photoUrl = firebaseUser.photoUrl?.toString()?.takeIf { it.isNotEmpty() } ?: existingUser.photoUrl,
+                            email = firebaseUser.email?.takeIf { it.isNotEmpty() } ?: existingUser.email
+                        )
+                        if (refreshedUser != existingUser) {
+                            repository.saveUser(refreshedUser)
+                        }
                         handleExistingUser(existingUser)
                     }
                 } else {

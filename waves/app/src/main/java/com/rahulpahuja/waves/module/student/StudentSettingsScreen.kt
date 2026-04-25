@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.rahulpahuja.waves.module.admin.CustomTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,6 +43,7 @@ fun StudentSettingsScreen(
     val fullName by viewModel.fullName.collectAsState()
     val email by viewModel.email.collectAsState()
     val phone by viewModel.phone.collectAsState()
+    val photoUrl by viewModel.photoUrl.collectAsState()
     val pushNotifications by viewModel.pushNotifications.collectAsState()
     val classReminders by viewModel.classReminders.collectAsState()
     val feeDueAlerts by viewModel.feeDueAlerts.collectAsState()
@@ -51,6 +53,7 @@ fun StudentSettingsScreen(
         fullName = fullName,
         email = email,
         phone = phone,
+        photoUrl = photoUrl,
         pushNotifications = pushNotifications,
         classReminders = classReminders,
         feeDueAlerts = feeDueAlerts,
@@ -73,6 +76,7 @@ fun StudentSettingsContent(
     fullName: String,
     email: String,
     phone: String,
+    photoUrl: String = "",
     pushNotifications: Boolean,
     classReminders: Boolean,
     feeDueAlerts: Boolean,
@@ -142,14 +146,24 @@ fun StudentSettingsContent(
             // Profile Header
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(contentAlignment = Alignment.BottomEnd) {
-                    Box(
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(CircleShape)
-                            .background(Color.Gray.copy(alpha = 0.3f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Filled.Person, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(64.dp))
+                    if (photoUrl.isNotEmpty()) {
+                        AsyncImage(
+                            model = photoUrl,
+                            contentDescription = "Profile Picture",
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(CircleShape)
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(CircleShape)
+                                .background(Color.Gray.copy(alpha = 0.3f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Filled.Person, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(64.dp))
+                        }
                     }
                     Box(
                         modifier = Modifier
@@ -162,8 +176,8 @@ fun StudentSettingsContent(
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
-                Text("DJ Mandy", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Text("Student Member since 2023", color = Color.Gray, fontSize = 12.sp)
+                Text(fullName.ifEmpty { "Student" }, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text("Student", color = Color.Gray, fontSize = 12.sp)
             }
 
             // Personal Information

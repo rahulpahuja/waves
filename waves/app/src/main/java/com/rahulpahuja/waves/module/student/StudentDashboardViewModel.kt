@@ -1,7 +1,10 @@
 package com.rahulpahuja.waves.module.student
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.rahulpahuja.waves.data.remote.FirestoreRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,7 +13,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class StudentDashboardViewModel @Inject constructor() : ViewModel() {
+class StudentDashboardViewModel @Inject constructor(
+    private val auth: FirebaseAuth,
+    private val repository: FirestoreRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StudentDashboardUiState())
     val uiState: StateFlow<StudentDashboardUiState> = _uiState.asStateFlow()
@@ -21,9 +27,20 @@ class StudentDashboardViewModel @Inject constructor() : ViewModel() {
 
     private fun loadDashboardData() {
         viewModelScope.launch {
-            // Simulate data loading
+            val userName = try {
+                val currentUser = auth.currentUser
+                if (currentUser != null) {
+                    repository.getUser(currentUser.uid)?.displayName
+                        ?: currentUser.displayName
+                        ?: ""
+                } else ""
+            } catch (e: Exception) {
+                Log.e("StudentDashboardVM", "Error loading user", e)
+                auth.currentUser?.displayName ?: ""
+            }
+
             _uiState.value = StudentDashboardUiState(
-                userName = "DJ Mandy",
+                userName = userName,
                 currentCourse = CourseProgress(
                     title = "Music Production 101",
                     progressPercentage = 0.75f,
