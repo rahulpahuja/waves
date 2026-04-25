@@ -2,6 +2,9 @@ package com.rahulpahuja.waves.data.remote
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.Source
+import com.google.firebase.firestore.FirebaseFirestoreException
+import android.util.Log
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -34,7 +37,22 @@ class FirestoreRepository @Inject constructor(
     }
 
     suspend fun getUser(uid: String): FirestoreUser? {
-        return firestore.collection("users").document(uid).get().await().toObject(FirestoreUser::class.java)
+        return try {
+            // Default get() tries server, then cache if offline
+            firestore.collection("users").document(uid).get().await().toObject(FirestoreUser::class.java)
+        } catch (e: FirebaseFirestoreException) {
+            Log.w("FirestoreRepository", "Failed to get user from server: ${e.message}. Trying cache...")
+            try {
+                // Force cache read if server fails/is offline
+                firestore.collection("users").document(uid).get(Source.CACHE).await().toObject(FirestoreUser::class.java)
+            } catch (cacheEx: Exception) {
+                Log.e("FirestoreRepository", "Failed to get user from cache: ${cacheEx.message}")
+                throw e // Rethrow original exception if cache also fails
+            }
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "General error getting user: ${e.message}")
+            throw e
+        }
     }
 
     fun getPendingUsers(): Flow<List<FirestoreUser>> = callbackFlow {

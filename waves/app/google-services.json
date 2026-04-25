@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "328777568396-h2m76cpo0ih6h8pf0kmp76qqeai02pui.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rahulpahuja.waves",
+            "certificate_hash": "15247e2168e39deef540adc278e5271fd0f09cb7"
+          }
+        },
+        {
           "client_id": "328777568396-9s57i9ieumakop1296g87njce6t94oo7.apps.googleusercontent.com",
           "client_type": 3
         }

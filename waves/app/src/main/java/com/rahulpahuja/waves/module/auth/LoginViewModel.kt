@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.rahulpahuja.waves.data.remote.FirestoreRepository
 import com.rahulpahuja.waves.data.remote.FirestoreUser
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -82,7 +83,19 @@ class LoginViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "Firebase Auth Exception: ${e.message}", e)
-                _authState.value = AuthState.Error(e.message ?: "An unknown error occurred")
+                val errorMessage = when {
+                    e is FirebaseFirestoreException && e.code == FirebaseFirestoreException.Code.PERMISSION_DENIED -> {
+                        "Cloud Firestore API is not enabled. Please enable it in the Firebase Console."
+                    }
+                    e is FirebaseFirestoreException && e.code == FirebaseFirestoreException.Code.UNAVAILABLE -> {
+                        "You seem to be offline. Please check your internet connection."
+                    }
+                    e.message?.contains("offline", ignoreCase = true) == true -> {
+                        "You seem to be offline. Please check your internet connection."
+                    }
+                    else -> e.message ?: "An unknown error occurred"
+                }
+                _authState.value = AuthState.Error(errorMessage)
             }
         }
     }
