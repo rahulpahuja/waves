@@ -14,6 +14,9 @@ import com.rahulpahuja.waves.data.remote.FirestoreUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -25,6 +28,9 @@ class LoginViewModel @Inject constructor(
     private val auth: FirebaseAuth,
     private val repository: FirestoreRepository
 ) : ViewModel() {
+
+    private val _toastEvent = MutableSharedFlow<String>()
+    val toastEvent: SharedFlow<String> = _toastEvent.asSharedFlow()
 
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email.asStateFlow()
@@ -63,6 +69,7 @@ class LoginViewModel @Inject constructor(
 
         if (emailValue.isEmpty() || passwordValue.isEmpty()) {
             _authState.value = AuthState.Error("Please enter email and password")
+            viewModelScope.launch { _toastEvent.emit("Please enter email and password") }
             return
         }
 
@@ -97,6 +104,7 @@ class LoginViewModel @Inject constructor(
                 repository.saveUser(superAdmin)
             }
             Log.d("LoginViewModel", "Superadmin signed in successfully")
+            _toastEvent.emit("Superadmin access granted")
             _authState.value = AuthState.Success(isAdmin = true)
         } catch (e: Exception) {
             Log.w("LoginViewModel", "Superadmin initial sign-in failed, checking if creation is needed: ${e.message}")
@@ -117,14 +125,19 @@ class LoginViewModel @Inject constructor(
                 val superAdmin = FirestoreUser(uid = uid, email = email, displayName = "Super Admin", role = "admin", status = "APPROVED")
                 repository.saveUser(superAdmin)
                 Log.d("LoginViewModel", "Superadmin account created and approved")
+                _toastEvent.emit("Superadmin account initialized")
                 _authState.value = AuthState.Success(isAdmin = true)
             } catch (createEx: Exception) {
                 if ((createEx is FirebaseAuthUserCollisionException) || (createEx.message?.contains("already in use") == true)) {
                     Log.e("LoginViewModel", "Superadmin collision: Account exists")
-                    _authState.value = AuthState.Error("Invalid password. This email is already registered.")
+                    val msg = "Invalid password. This email is already registered."
+                    _toastEvent.emit(msg)
+                    _authState.value = AuthState.Error(msg)
                 } else {
                     Log.e("LoginViewModel", "Superadmin create failed", createEx)
-                    _authState.value = AuthState.Error(createEx.message ?: "Failed to authenticate superadmin")
+                    val msg = createEx.message ?: "Failed to authenticate superadmin"
+                    _toastEvent.emit(msg)
+                    _authState.value = AuthState.Error(msg)
                 }
             }
         }
@@ -157,6 +170,7 @@ class LoginViewModel @Inject constructor(
                 is FirebaseAuthInvalidUserException -> {
                     // This error occurs if the email is not registered.
                     // Instead of just failing, let's offer to create an account by trying to sign up.
+                    _toastEvent.emit("Email not found. Creating new account...")
                     signUpNewUser(email, password)
                     return
                 }
@@ -169,6 +183,7 @@ class LoginViewModel @Inject constructor(
                     }
                 }
             }
+            _toastEvent.emit(errorMessage)
             _authState.value = AuthState.Error(errorMessage)
         }
     }
@@ -182,6 +197,7 @@ class LoginViewModel @Inject constructor(
                 return
             }
             Log.d("LoginViewModel", "Sign up Success: ${firebaseUser.uid}")
+            _toastEvent.emit("Welcome back!")
             currentUserInfo = FirestoreUser(
                 uid = firebaseUser.uid, 
                 email = firebaseUser.email ?: email, 
@@ -195,6 +211,7 @@ class LoginViewModel @Inject constructor(
                 e.message?.contains("password", ignoreCase = true) == true -> "Password is too weak or invalid."
                 else -> e.message ?: "Sign up failed"
             }
+            _toastEvent.emit(errorMessage)
             _authState.value = AuthState.Error(errorMessage)
         }
     }
@@ -212,9 +229,11 @@ class LoginViewModel @Inject constructor(
                 currentUserInfo = null
                 _email.value = ""
                 _password.value = ""
+                _toastEvent.emit("Logged out")
                 onComplete()
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "Logout failed", e)
+                _toastEvent.emit("Logout failed")
             }
         }
     }
@@ -231,6 +250,7 @@ class LoginViewModel @Inject constructor(
                     val existingUser = repository.getUser(firebaseUser.uid)
                     if (existingUser == null) {
                         Log.d("LoginViewModel", "New user detected, redirecting to role selection")
+                        _toastEvent.emit("Account created with Google")
                         
                         // SUPER ADMIN BYPASS: If email is the designated superadmin, approve immediately
                         val isSuperAdmin = firebaseUser.email == SUPERADMIN_EMAIL
@@ -246,6 +266,7 @@ class LoginViewModel @Inject constructor(
                         
                         if (isSuperAdmin) {
                             Log.d("LoginViewModel", "Super Admin detected, auto-approving...")
+                            _toastEvent.emit("Superadmin access granted via Google")
                             repository.saveUser(currentUserInfo!!)
                             _authState.value = AuthState.Success(isAdmin = true)
                         } else {
@@ -254,6 +275,7 @@ class LoginViewModel @Inject constructor(
                         }
                     } else {
                         Log.d("LoginViewModel", "Existing user found, checking status: ${existingUser.status}")
+                        _toastEvent.emit("Welcome back, ${existingUser.displayName}")
                         val refreshedUser = existingUser.copy(
                             displayName = firebaseUser.displayName?.takeIf { it.isNotEmpty() } ?: existingUser.displayName,
                             photoUrl = firebaseUser.photoUrl?.toString()?.takeIf { it.isNotEmpty() } ?: existingUser.photoUrl,
@@ -286,6 +308,7 @@ class LoginViewModel @Inject constructor(
                     }
                     else -> e.message ?: "An unknown error occurred"
                 }
+                _toastEvent.emit(errorMessage)
                 _authState.value = AuthState.Error(errorMessage)
             }
         }
@@ -294,16 +317,22 @@ class LoginViewModel @Inject constructor(
     private fun handleExistingUser(user: FirestoreUser) {
         when (user.status) {
             "APPROVED" -> {
+                viewModelScope.launch { _toastEvent.emit("Login successful") }
                 _authState.value = AuthState.Success(isAdmin = user.role == "admin")
             }
             "PENDING" -> {
+                viewModelScope.launch { _toastEvent.emit("Account pending approval") }
                 _authState.value = AuthState.PendingApproval
             }
             "REJECTED" -> {
-                _authState.value = AuthState.Error("Your account has been rejected.")
+                val msg = "Your account has been rejected."
+                viewModelScope.launch { _toastEvent.emit(msg) }
+                _authState.value = AuthState.Error(msg)
             }
             else -> {
-                _authState.value = AuthState.Error("Invalid account status.")
+                val msg = "Invalid account status."
+                viewModelScope.launch { _toastEvent.emit(msg) }
+                _authState.value = AuthState.Error(msg)
             }
         }
     }
@@ -326,7 +355,9 @@ class LoginViewModel @Inject constructor(
 
         val user = currentUserInfo?.copy(role = role, status = "PENDING") ?: run {
             Log.e("LoginViewModel", "selectRole failed: currentUserInfo is null and no firebase user")
-            _authState.value = AuthState.Error("Session expired. Please log in again.")
+            val msg = "Session expired. Please log in again."
+            viewModelScope.launch { _toastEvent.emit(msg) }
+            _authState.value = AuthState.Error(msg)
             return
         }
 
@@ -336,10 +367,13 @@ class LoginViewModel @Inject constructor(
                 Log.d("LoginViewModel", "Saving user to repository: $user")
                 repository.saveUser(user)
                 Log.d("LoginViewModel", "User saved successfully, updating authState to PendingApproval")
+                _toastEvent.emit("Profile submitted for approval")
                 _authState.value = AuthState.PendingApproval
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "Failed to save user role: ${e.message}", e)
-                _authState.value = AuthState.Error(e.message ?: "Failed to save user role")
+                val msg = e.message ?: "Failed to save user role"
+                _toastEvent.emit(msg)
+                _authState.value = AuthState.Error(msg)
             }
         }
     }
