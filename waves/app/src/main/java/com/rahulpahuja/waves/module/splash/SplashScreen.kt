@@ -34,13 +34,42 @@ import com.rahulpahuja.waves.ui.navigation.Screen
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
+import androidx.compose.ui.tooling.preview.Preview
+import com.rahulpahuja.waves.ui.theme.WavesTheme
+
 @Composable
 fun SplashScreen(
     navController: NavController,
     viewModel: SplashViewModel = hiltViewModel()
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "disco")
     val destination by viewModel.destination.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.checkAuthState()
+        delay(4000) // Vibe check time
+        destination?.let { route ->
+            navController.navigate(route) {
+                popUpTo(Screen.Splash.route) { inclusive = true }
+            }
+        }
+    }
+
+    // Auto-navigate if state finishes after delay
+    LaunchedEffect(destination) {
+        if (destination != null) {
+            delay(500) // Ensure a minimum experience
+            navController.navigate(destination!!) {
+                popUpTo(Screen.Splash.route) { inclusive = true }
+            }
+        }
+    }
+
+    SplashContent()
+}
+
+@Composable
+fun SplashContent() {
+    val infiniteTransition = rememberInfiniteTransition(label = "disco")
 
     // Laser Rotation Animation
     val laserRotation by infiniteTransition.animateFloat(
@@ -94,26 +123,6 @@ fun SplashScreen(
         ),
         label = "ringsScale"
     )
-
-    LaunchedEffect(Unit) {
-        viewModel.checkAuthState()
-        delay(4000) // Vibe check time
-        destination?.let { route ->
-            navController.navigate(route) {
-                popUpTo(Screen.Splash.route) { inclusive = true }
-            }
-        }
-    }
-
-    // Auto-navigate if state finishes after delay
-    LaunchedEffect(destination) {
-        if (destination != null) {
-            delay(500) // Ensure a minimum experience
-            navController.navigate(destination!!) {
-                popUpTo(Screen.Splash.route) { inclusive = true }
-            }
-        }
-    }
 
     Box(
         modifier = Modifier
@@ -264,6 +273,14 @@ fun SplashScreen(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 32.dp)
         )
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+fun SplashPreview() {
+    WavesTheme {
+        SplashContent()
     }
 }
 

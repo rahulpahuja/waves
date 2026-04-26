@@ -38,7 +38,7 @@ fun ReceiptScreen(
     } ?: "N/A"
 
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text("Receipt", color = Color.White) },
@@ -52,7 +52,7 @@ fun ReceiptScreen(
                         Icon(Icons.Filled.Print, contentDescription = "Print", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
     ) { paddingValues ->
@@ -133,7 +133,7 @@ fun ReceiptScreen(
             Button(
                 onClick = { /* Download */ },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E232F)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(Icons.Filled.Download, contentDescription = null)

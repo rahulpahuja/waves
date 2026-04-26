@@ -1,5 +1,6 @@
 package com.rahulpahuja.waves.module.chat
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rahulpahuja.waves.data.remote.FirestoreMessage
@@ -8,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -37,10 +39,12 @@ class ChatViewModel @Inject constructor(
                 contactName = "Community Chat",
                 contactRole = "Group"
             )
-            repository.getMessages(chatId).collect { firestoreMessages ->
-                val messages = firestoreMessages.map { it.toMessage() }
-                _uiState.value = _uiState.value.copy(messages = messages)
-            }
+            repository.getMessages(chatId)
+                .catch { e -> Log.e("ChatViewModel", "Error collecting messages: ${e.message}", e) }
+                .collect { firestoreMessages ->
+                    val messages = firestoreMessages.map { it.toMessage() }
+                    _uiState.value = _uiState.value.copy(messages = messages)
+                }
         }
     }
 

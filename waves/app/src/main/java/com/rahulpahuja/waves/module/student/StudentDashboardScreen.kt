@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,8 +28,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.rahulpahuja.waves.ui.navigation.Screen
 
+import androidx.compose.ui.tooling.preview.Preview
+import com.rahulpahuja.waves.ui.theme.WavesTheme
+
 @Composable
-fun StudentDashboardContent(
+fun StudentDashboardScreen(
     navController: NavController,
     onNavigateToSchedule: () -> Unit,
     onNavigateToLibrary: () -> Unit,
@@ -36,7 +40,25 @@ fun StudentDashboardContent(
     viewModel: StudentDashboardViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
-    val backgroundColor = Color(0xFF10141D)
+    
+    StudentDashboardContent(
+        state = state,
+        navController = navController,
+        onNavigateToSchedule = onNavigateToSchedule,
+        onNavigateToLibrary = onNavigateToLibrary,
+        onNavigateToProfile = onNavigateToProfile
+    )
+}
+
+@Composable
+fun StudentDashboardContent(
+    state: StudentDashboardUiState,
+    navController: NavController,
+    onNavigateToSchedule: () -> Unit,
+    onNavigateToLibrary: () -> Unit,
+    onNavigateToProfile: () -> Unit
+) {
+    val backgroundColor = MaterialTheme.colorScheme.background
 
     Column(
         modifier = Modifier
@@ -65,7 +87,7 @@ fun StudentDashboardContent(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF1E232F)),
+                            .background(MaterialTheme.colorScheme.surface),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Color.White)
@@ -102,7 +124,7 @@ fun StudentDashboardContent(
         state.currentCourse?.let { course ->
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -151,13 +173,13 @@ fun StudentDashboardContent(
                 Spacer(modifier = Modifier.height(12.dp))
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Card(
-                                colors = CardDefaults.cardColors(containerColor = Color(0xFF10141D)),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
                                 shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier.size(60.dp)
                             ) {
@@ -192,7 +214,7 @@ fun StudentDashboardContent(
                             Button(
                                 onClick = { /* Check In */ },
                                 modifier = Modifier.weight(1f),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
                                 Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -257,7 +279,7 @@ fun StudentDashboardContent(
         state.notification?.let { notification ->
             Card(
                 modifier = Modifier.fillMaxWidth().clickable(onClick = { navController.navigate(Screen.Notifications.route) }),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(12.dp),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha = 0.2f))
             ) {
@@ -303,7 +325,7 @@ fun QuickActionCard(
         modifier = modifier
             .height(100.dp)
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -327,6 +349,36 @@ fun QuickActionCard(
     }
 }
 
+@Preview(showSystemUi = true)
+@Composable
+fun StudentDashboardPreview() {
+    WavesTheme {
+        StudentDashboardContent(
+            state = StudentDashboardUiState(
+                userName = "Rahul",
+                currentCourse = CourseProgress(
+                    title = "Electronic Music Production",
+                    progressPercentage = 0.65f,
+                    completedClasses = 13,
+                    totalClasses = 20
+                ),
+                nextSession = Session(
+                    day = "28",
+                    month = "OCT",
+                    title = "Sound Design Masterclass",
+                    time = "06:00 PM - 08:00 PM",
+                    location = "Studio A, Waves Academy"
+                ),
+                notification = "New masterclass scheduled for next week!"
+            ),
+            navController = NavController(LocalContext.current),
+            onNavigateToSchedule = {},
+            onNavigateToLibrary = {},
+            onNavigateToProfile = {}
+        )
+    }
+}
+
 @Composable
 fun StudentBottomBar(
     navController: NavController
@@ -341,7 +393,7 @@ fun StudentBottomBar(
     )
 
     NavigationBar(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         contentColor = Color.White
     ) {
         items.forEach { screen ->

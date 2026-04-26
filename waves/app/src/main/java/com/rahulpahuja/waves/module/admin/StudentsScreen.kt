@@ -20,10 +20,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.tooling.preview.Preview
+import com.rahulpahuja.waves.ui.theme.WavesTheme
 
 @Composable
 fun StudentsScreen(
+    onAddStudentClick: () -> Unit
+) {
+    StudentsContent(onAddStudentClick = onAddStudentClick)
+}
+
+@Composable
+fun StudentsContent(
     onAddStudentClick: () -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
@@ -40,7 +48,7 @@ fun StudentsScreen(
     )
 
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             Row(
                 modifier = Modifier
@@ -83,7 +91,7 @@ fun StudentsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF1E232F)),
+                    .background(MaterialTheme.colorScheme.surface),
                 placeholder = { Text("Search students or courses...", color = Color.Gray) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
                 colors = TextFieldDefaults.colors(
@@ -91,7 +99,8 @@ fun StudentsScreen(
                     unfocusedContainerColor = Color(0xFF1E232F),
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
-                    focusedTextColor = Color.White
+                    focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
                 )
             )
 
@@ -109,7 +118,7 @@ fun StudentsScreen(
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = Color(0xFF2962FF),
                             selectedLabelColor = Color.White,
-                            containerColor = Color(0xFF1E232F),
+                            containerColor = MaterialTheme.colorScheme.surface,
                             labelColor = Color.Gray
                         ),
                         border = null
@@ -131,10 +140,18 @@ fun StudentsScreen(
     }
 }
 
+@Preview(showSystemUi = true)
+@Composable
+fun StudentsPreview() {
+    WavesTheme {
+        StudentsContent(onAddStudentClick = {})
+    }
+}
+
 @Composable
 fun StudentItem(student: Student) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.fillMaxWidth()
     ) {

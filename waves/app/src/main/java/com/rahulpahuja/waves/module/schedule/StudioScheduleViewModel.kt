@@ -91,7 +91,11 @@ class StudioScheduleViewModel @Inject constructor(
             status = "PENDING"
         )
         viewModelScope.launch {
-            repository.createBookingRequest(request)
+            try {
+                repository.createBookingRequest(request)
+            } catch (e: Exception) {
+                android.util.Log.e("StudioScheduleVM", "Failed to request booking: ${e.message}", e)
+            }
         }
     }
 

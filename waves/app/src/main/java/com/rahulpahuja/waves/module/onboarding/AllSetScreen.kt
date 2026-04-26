@@ -23,7 +23,7 @@ fun AllSetScreen(
     onStartLearningClick: () -> Unit
 ) {
     Scaffold(
-        containerColor = Color(0xFF10141D)
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -94,7 +94,7 @@ fun AllSetScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(28.dp)
             ) {
                 Text(

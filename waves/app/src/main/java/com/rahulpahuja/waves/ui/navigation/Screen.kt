@@ -35,6 +35,8 @@ sealed class Screen(val route: String) {
     object ProfileSetup : Screen("profile_setup")
     object AdminWelcome : Screen("admin_welcome")
     
+    object ManageCourses : Screen("manage_courses")
+
     // Auth & Approval Flow
     object RoleSelection : Screen("role_selection")
     object WaitingApproval : Screen("waiting_approval")

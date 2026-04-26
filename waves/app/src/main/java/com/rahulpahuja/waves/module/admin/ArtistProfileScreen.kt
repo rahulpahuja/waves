@@ -47,7 +47,7 @@ fun ArtistProfileScreen(
     var facebook by remember { mutableStateOf("") }
 
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { 
@@ -61,7 +61,7 @@ fun ArtistProfileScreen(
                     }
                 },
                 actions = { Spacer(modifier = Modifier.width(48.dp)) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         bottomBar = {
@@ -71,7 +71,7 @@ fun ArtistProfileScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
                     .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(Icons.Filled.Save, contentDescription = null, tint = Color.White)
@@ -128,14 +128,15 @@ fun ArtistProfileScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF1E232F)),
+                        .background(MaterialTheme.colorScheme.surface),
                     leadingIcon = { Icon(Icons.Filled.GraphicEq, contentDescription = null, tint = Color.Gray) }, // Using graphic eq as placeholder for 'Un' icon
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF1E232F),
                         unfocusedContainerColor = Color(0xFF1E232F),
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedTextColor = Color.White
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
                     )
                 )
             }
@@ -157,13 +158,14 @@ fun ArtistProfileScreen(
                         .fillMaxWidth()
                         .height(120.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF1E232F)),
+                        .background(MaterialTheme.colorScheme.surface),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF1E232F),
                         unfocusedContainerColor = Color(0xFF1E232F),
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedTextColor = Color.White
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
                     )
                 )
             }
@@ -207,7 +209,7 @@ fun ArtistProfileScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Row(
@@ -267,7 +269,7 @@ fun SocialLinkInput(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFF1E232F)),
+            .background(MaterialTheme.colorScheme.surface),
         leadingIcon = { 
             Icon(
                 icon, 
@@ -285,7 +287,8 @@ fun SocialLinkInput(
             unfocusedContainerColor = Color(0xFF1E232F),
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            focusedTextColor = Color.White
+            focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
         ),
         singleLine = true
     )

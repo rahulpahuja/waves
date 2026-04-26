@@ -44,7 +44,7 @@ fun StudioScheduleScreen(
     val state by viewModel.uiState.collectAsState()
 
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { 
@@ -62,7 +62,7 @@ fun StudioScheduleScreen(
                         Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
     ) { paddingValues ->
@@ -157,7 +157,7 @@ fun StudioScheduleScreen(
 fun SlotItem(slot: Slot, onBook: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable { if(slot.isAvailable) onBook() },
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(
@@ -214,7 +214,7 @@ fun BookingItem(booking: BookingRequest) {
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {

@@ -1,24 +1,26 @@
 package com.rahulpahuja.waves.module.admin
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.rahulpahuja.waves.module.auth.LoginViewModel
 import com.rahulpahuja.waves.module.schedule.StudioScheduleScreen
 import com.rahulpahuja.waves.ui.navigation.Screen
 
 @Composable
 fun AdminNavigation(navController: NavController) {
     val adminNavController = rememberNavController()
-    val backgroundColor = Color(0xFF10141D)
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val loginViewModel: LoginViewModel = hiltViewModel()
     val viewModel: AdminDashboardViewModel = hiltViewModel()
     val adminDashboardUiState by viewModel.uiState.collectAsState()
 
@@ -69,11 +71,18 @@ fun AdminNavigation(navController: NavController) {
                 AdminSettingsScreen(
                     onNavigateBack = { adminNavController.popBackStack() },
                     onLogout = {
-                        navController.navigate(Screen.Login.route) {
-                            popUpTo(0)
+                        loginViewModel.logout {
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(0)
+                            }
                         }
                     },
                     onArtistProfileClick = { navController.navigate(Screen.ArtistProfile.route) }
+                )
+            }
+            composable(Screen.ManageCourses.route) {
+                ManageCoursesScreen(
+                    onCreateCourse = { navController.navigate(Screen.CreateSession.route) }
                 )
             }
         }

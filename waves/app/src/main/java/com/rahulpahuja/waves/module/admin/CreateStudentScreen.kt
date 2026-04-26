@@ -44,7 +44,7 @@ fun CreateStudentScreen(
     var startDate by remember { mutableStateOf("") }
 
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { 
@@ -61,7 +61,7 @@ fun CreateStudentScreen(
                     // Empty action to balance the title centering
                     Spacer(modifier = Modifier.width(48.dp))
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         bottomBar = {
@@ -71,7 +71,7 @@ fun CreateStudentScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
                     .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text("Complete Enrollment", fontSize = 16.sp, fontWeight = FontWeight.Bold)
@@ -230,13 +230,14 @@ fun CustomTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFF1E232F)),
+                .background(MaterialTheme.colorScheme.surface),
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color(0xFF1E232F),
                 unfocusedContainerColor = Color(0xFF1E232F),
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                focusedTextColor = Color.White
+                focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
             ),
             keyboardOptions = keyboardOptions
         )
@@ -257,7 +258,7 @@ fun ProgramCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1E232F)
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         border = if (isSelected) androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF2962FF)) else null
     ) {

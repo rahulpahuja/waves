@@ -48,7 +48,7 @@ fun ChatScreen(
     }
 
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { 
@@ -83,14 +83,14 @@ fun ChatScreen(
                         Icon(Icons.Filled.CalendarToday, contentDescription = "Schedule", tint = Color(0xFF2962FF))
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         bottomBar = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF10141D))
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(16.dp)
             ) {
                 Row(
@@ -115,13 +115,14 @@ fun ChatScreen(
                             .weight(1f)
                             .height(56.dp)
                             .clip(RoundedCornerShape(28.dp))
-                            .background(Color(0xFF1E232F)),
+                            .background(MaterialTheme.colorScheme.surface),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color(0xFF1E232F),
                             unfocusedContainerColor = Color(0xFF1E232F),
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
-                            focusedTextColor = Color.White
+                            focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
                         ),
                         trailingIcon = {
                             Icon(Icons.Filled.Mic, contentDescription = "Voice", tint = Color.Gray)

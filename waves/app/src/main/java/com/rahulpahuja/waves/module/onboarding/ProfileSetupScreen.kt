@@ -29,7 +29,7 @@ fun ProfileSetupScreen(onContinueClick: () -> Unit, onSkipClick: () -> Unit) {
     var selectedRole by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text("Profile Setup", color = Color.White, fontWeight = FontWeight.Bold) },
@@ -38,7 +38,7 @@ fun ProfileSetupScreen(onContinueClick: () -> Unit, onSkipClick: () -> Unit) {
                         Text("Skip", color = Color.Gray)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
     ) { paddingValues ->
@@ -120,7 +120,7 @@ fun ProfileSetupScreen(onContinueClick: () -> Unit, onSkipClick: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(28.dp)
             ) {
                 Text(

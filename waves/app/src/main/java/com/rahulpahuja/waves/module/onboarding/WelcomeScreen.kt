@@ -25,7 +25,7 @@ fun WelcomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF10141D))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // Background Placeholder (Gradient to simulate image overlay)
         Box(

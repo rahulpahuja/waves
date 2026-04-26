@@ -35,6 +35,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.rahulpahuja.waves.R
 import com.rahulpahuja.waves.ui.navigation.Screen
+import com.rahulpahuja.waves.ui.theme.WavesTheme
 import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -144,7 +145,7 @@ fun LoginScreenContent(
     onPasswordVisibilityToggle: () -> Unit
 ) {
     Scaffold(
-        containerColor = Color(0xFF10141D)
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -194,13 +195,14 @@ fun LoginScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF1E232F)),
+                        .background(MaterialTheme.colorScheme.surface),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF1E232F),
                         unfocusedContainerColor = Color(0xFF1E232F),
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedTextColor = Color.White
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
                     )
                 )
             }
@@ -235,13 +237,14 @@ fun LoginScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF1E232F)),
+                        .background(MaterialTheme.colorScheme.surface),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF1E232F),
                         unfocusedContainerColor = Color(0xFF1E232F),
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedTextColor = Color.White
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
                     )
                 )
             }
@@ -263,7 +266,7 @@ fun LoginScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 if (isLoading) {
@@ -317,17 +320,19 @@ fun LoginScreenContent(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreenContent(
-        email = "",
-        password = "",
-        passwordVisible = false,
-        isLoading = false,
-        onLoginClick = {},
-        onGoogleLoginClick = {},
-        onForgotPasswordClick = {},
-        onSignUpClick = {},
-        onEmailChange = {},
-        onPasswordChange = {},
-        onPasswordVisibilityToggle = {}
-    )
+    WavesTheme {
+        LoginScreenContent(
+            email = "",
+            password = "",
+            passwordVisible = false,
+            isLoading = false,
+            onLoginClick = {},
+            onGoogleLoginClick = {},
+            onForgotPasswordClick = {},
+            onSignUpClick = {},
+            onEmailChange = {},
+            onPasswordChange = {},
+            onPasswordVisibilityToggle = {}
+        )
+    }
 }

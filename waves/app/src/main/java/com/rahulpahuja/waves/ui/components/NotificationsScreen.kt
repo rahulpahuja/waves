@@ -95,12 +95,12 @@ fun NotificationsScreen(
     )
 
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF10141D))
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(16.dp)
             ) {
                 Row(
@@ -135,7 +135,7 @@ fun NotificationsScreen(
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Color(0xFF2962FF),
                                 selectedLabelColor = Color.White,
-                                containerColor = Color(0xFF1E232F),
+                                containerColor = MaterialTheme.colorScheme.surface,
                                 labelColor = Color.Gray
                             ),
                             border = null,
@@ -150,7 +150,7 @@ fun NotificationsScreen(
                 onClick = {
                     NotificationHelper.sendNotification(context, "Test Notification", "This is a test notification from the app.")
                 },
-                containerColor = Color(0xFF2962FF),
+                containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White,
                 icon = { Icon(Icons.Filled.Notifications, "Send Notification") },
                 text = { Text("Send Test Notification") }

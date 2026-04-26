@@ -1,14 +1,16 @@
 package com.rahulpahuja.waves.module.student
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.rahulpahuja.waves.module.auth.LoginViewModel
 import com.rahulpahuja.waves.module.gallery.MediaGalleryScreen
 import com.rahulpahuja.waves.module.schedule.StudioScheduleScreen
 import com.rahulpahuja.waves.ui.navigation.Screen
@@ -16,7 +18,8 @@ import com.rahulpahuja.waves.ui.navigation.Screen
 @Composable
 fun StudentNavigation(navController: NavController) {
     val studentNavController = rememberNavController()
-    val backgroundColor = Color(0xFF10141D)
+    val loginViewModel: LoginViewModel = hiltViewModel()
+    val backgroundColor = MaterialTheme.colorScheme.background
 
     Scaffold(
         containerColor = backgroundColor,
@@ -30,7 +33,7 @@ fun StudentNavigation(navController: NavController) {
             modifier = Modifier.padding(paddingValues)
         ) {
             composable(Screen.StudentDashboard.route) {
-                StudentDashboardContent(
+                StudentDashboardScreen(
                     navController = navController,
                     onNavigateToSchedule = { studentNavController.navigate(Screen.StudioSchedule.route) },
                     onNavigateToLibrary = { studentNavController.navigate(Screen.MediaGallery.route) },
@@ -74,8 +77,10 @@ fun StudentNavigation(navController: NavController) {
                 StudentSettingsScreen(
                     onNavigateBack = { studentNavController.popBackStack() },
                     onLogout = {
-                        navController.navigate(Screen.Login.route) {
-                            popUpTo(0)
+                        loginViewModel.logout {
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(0)
+                            }
                         }
                     }
                 )

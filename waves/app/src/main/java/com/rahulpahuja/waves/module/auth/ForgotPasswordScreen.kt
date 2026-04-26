@@ -9,10 +9,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
+import androidx.compose.ui.tooling.preview.Preview
+import com.rahulpahuja.waves.ui.theme.WavesTheme
+
 @Composable
 fun ForgotPasswordScreen(
     onNavigateBack: () -> Unit
 ) {
+    ForgotPasswordContent()
+}
+
+@Composable
+fun ForgotPasswordContent() {
     Scaffold { paddingValues ->
         Box(
             modifier = Modifier
@@ -22,5 +30,13 @@ fun ForgotPasswordScreen(
         ) {
             Text(text = "Forgot Password Screen")
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ForgotPasswordPreview() {
+    WavesTheme {
+        ForgotPasswordContent()
     }
 }

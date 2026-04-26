@@ -97,7 +97,7 @@ fun StudentSettingsContent(
     onAnnouncementsChange: (Boolean) -> Unit
 ) {
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { 
@@ -115,14 +115,14 @@ fun StudentSettingsContent(
                         Text("Done", color = Color(0xFF2962FF), fontWeight = FontWeight.Bold)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         bottomBar = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF10141D))
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -132,7 +132,7 @@ fun StudentSettingsContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(28.dp)
                 ) {
                     if (isLoading) {
@@ -224,7 +224,7 @@ fun StudentSettingsContent(
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Row(
@@ -254,7 +254,7 @@ fun StudentSettingsContent(
                 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Row(
@@ -316,6 +316,8 @@ fun StudentSettingsContent(
                     onCheckedChange = onAnnouncementsChange
                 )
             }
+            com.rahulpahuja.waves.ui.theme.ThemePicker()
+
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
@@ -332,13 +334,14 @@ fun SimpleTextField(label: String, value: String, onValueChange: (String) -> Uni
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFF1E232F)),
+                .background(MaterialTheme.colorScheme.surface),
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color(0xFF1E232F),
                 unfocusedContainerColor = Color(0xFF1E232F),
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                focusedTextColor = Color.White
+                focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
             )
         )
     }
@@ -354,7 +357,7 @@ fun NotificationToggleItem(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(

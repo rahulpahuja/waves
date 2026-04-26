@@ -2,6 +2,7 @@ package com.rahulpahuja.waves.data.remote
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.FirebaseFirestoreException
 import android.util.Log
@@ -21,7 +22,8 @@ class FirestoreRepository @Inject constructor(
         val subscription = firestore.collection("users")
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error)
+                    Log.e("FirestoreRepository", "Error fetching users: ${error.message}", error)
+                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 if (snapshot != null) {
@@ -33,7 +35,12 @@ class FirestoreRepository @Inject constructor(
     }
 
     suspend fun saveUser(user: FirestoreUser) {
-        firestore.collection("users").document(user.uid).set(user).await()
+        try {
+            firestore.collection("users").document(user.uid).set(user).await()
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error saving user (${user.uid}): ${e.message}")
+            throw e
+        }
     }
 
     suspend fun getUser(uid: String): FirestoreUser? {
@@ -47,11 +54,11 @@ class FirestoreRepository @Inject constructor(
                 firestore.collection("users").document(uid).get(Source.CACHE).await().toObject(FirestoreUser::class.java)
             } catch (cacheEx: Exception) {
                 Log.e("FirestoreRepository", "Failed to get user from cache: ${cacheEx.message}")
-                throw e // Rethrow original exception if cache also fails
+                null // Return null instead of crashing
             }
         } catch (e: Exception) {
             Log.e("FirestoreRepository", "General error getting user: ${e.message}")
-            throw e
+            null // Return null instead of crashing
         }
     }
 
@@ -60,7 +67,8 @@ class FirestoreRepository @Inject constructor(
             .whereEqualTo("status", "PENDING")
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error)
+                    Log.e("FirestoreRepository", "Error fetching pending users: ${error.message}", error)
+                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 if (snapshot != null) {
@@ -72,17 +80,26 @@ class FirestoreRepository @Inject constructor(
     }
 
     suspend fun updateUserStatus(uid: String, status: String) {
-        firestore.collection("users").document(uid).update("status", status).await()
+        try {
+            firestore.collection("users").document(uid).update("status", status).await()
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error updating user status ($uid): ${e.message}")
+        }
     }
 
     suspend fun getUserByEmail(email: String): FirestoreUser? {
-        return firestore.collection("users")
-            .whereEqualTo("email", email)
-            .limit(1)
-            .get()
-            .await()
-            .toObjects(FirestoreUser::class.java)
-            .firstOrNull()
+        return try {
+            firestore.collection("users")
+                .whereEqualTo("email", email)
+                .limit(1)
+                .get()
+                .await()
+                .toObjects(FirestoreUser::class.java)
+                .firstOrNull()
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error getting user by email ($email): ${e.message}")
+            null
+        }
     }
 
     fun getMessages(chatId: String): Flow<List<FirestoreMessage>> = callbackFlow {
@@ -91,7 +108,8 @@ class FirestoreRepository @Inject constructor(
             .orderBy("timestamp", Query.Direction.ASCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error)
+                    Log.e("FirestoreRepository", "Error fetching messages: ${error.message}", error)
+                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 if (snapshot != null) {
@@ -103,15 +121,24 @@ class FirestoreRepository @Inject constructor(
     }
 
     suspend fun sendMessage(chatId: String, message: FirestoreMessage) {
-        firestore.collection("chats").document(chatId)
-            .collection("messages").add(message).await()
+        try {
+            firestore.collection("chats").document(chatId)
+                .collection("messages").add(message).await()
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error sending message to $chatId: ${e.message}")
+        }
     }
 
     // --- Studio Management ---
 
     fun getStudioAvailability(): Flow<StudioAvailability?> = callbackFlow {
         val subscription = firestore.collection("settings").document("studio_config")
-            .addSnapshotListener { snapshot, _ ->
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("FirestoreRepository", "Error fetching studio availability: ${error.message}", error)
+                    trySend(null)
+                    return@addSnapshotListener
+                }
                 val config = snapshot?.toObject(StudioAvailability::class.java)
                 trySend(config)
             }
@@ -119,13 +146,22 @@ class FirestoreRepository @Inject constructor(
     }
 
     suspend fun updateStudioAvailability(availability: StudioAvailability) {
-        firestore.collection("settings").document("studio_config").set(availability).await()
+        try {
+            firestore.collection("settings").document("studio_config").set(availability).await()
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error updating studio availability: ${e.message}")
+        }
     }
 
     fun getBookingRequests(): Flow<List<BookingRequest>> = callbackFlow {
         val subscription = firestore.collection("bookings")
             .whereEqualTo("status", "PENDING")
-            .addSnapshotListener { snapshot, _ ->
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("FirestoreRepository", "Error fetching booking requests: ${error.message}", error)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
                 val requests = snapshot?.toObjects(BookingRequest::class.java) ?: emptyList()
                 trySend(requests)
             }
@@ -136,7 +172,12 @@ class FirestoreRepository @Inject constructor(
         val subscription = firestore.collection("bookings")
             .whereEqualTo("userId", uid)
             .orderBy("startTime", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, _ ->
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("FirestoreRepository", "Error fetching user bookings: ${error.message}", error)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
                 val bookings = snapshot?.toObjects(BookingRequest::class.java) ?: emptyList()
                 trySend(bookings)
             }
@@ -144,13 +185,21 @@ class FirestoreRepository @Inject constructor(
     }
 
     suspend fun createBookingRequest(request: BookingRequest) {
-        firestore.collection("bookings").add(request).await()
+        try {
+            firestore.collection("bookings").add(request).await()
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error creating booking request: ${e.message}")
+        }
     }
 
     suspend fun updateBookingStatus(bookingId: String, status: String, rejectionReason: String? = null) {
-        val updates = mutableMapOf<String, Any>("status" to status)
-        if (rejectionReason != null) updates["rejectionReason"] = rejectionReason
-        firestore.collection("bookings").document(bookingId).update(updates).await()
+        try {
+            val updates = mutableMapOf<String, Any>("status" to status)
+            if (rejectionReason != null) updates["rejectionReason"] = rejectionReason
+            firestore.collection("bookings").document(bookingId).update(updates).await()
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error updating booking status ($bookingId): ${e.message}")
+        }
     }
 
     // --- Payment Verification & Receipts ---
@@ -158,7 +207,12 @@ class FirestoreRepository @Inject constructor(
     fun getAllPendingPayments(): Flow<List<PaymentRecord>> = callbackFlow {
         val subscription = firestore.collection("payments")
             .whereEqualTo("status", "PENDING")
-            .addSnapshotListener { snapshot, _ ->
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("FirestoreRepository", "Error fetching pending payments: ${error.message}", error)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
                 val payments = snapshot?.toObjects(PaymentRecord::class.java) ?: emptyList()
                 trySend(payments)
             }
@@ -166,18 +220,27 @@ class FirestoreRepository @Inject constructor(
     }
 
     suspend fun verifyPayment(paymentId: String, adminId: String) {
-        val updates = mapOf(
-            "status" to "PAID",
-            "verifiedBy" to adminId,
-            "verificationDate" to System.currentTimeMillis(),
-            "receiptId" to "REC-${System.currentTimeMillis() % 1000000}"
-        )
-        firestore.collection("payments").document(paymentId).update(updates).await()
+        try {
+            val updates = mapOf(
+                "status" to "PAID",
+                "verifiedBy" to adminId,
+                "verificationDate" to System.currentTimeMillis(),
+                "receiptId" to "REC-${System.currentTimeMillis() % 1000000}"
+            )
+            firestore.collection("payments").document(paymentId).update(updates).await()
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error verifying payment ($paymentId): ${e.message}")
+        }
     }
 
     fun getStudentProgress(uid: String): Flow<StudentProgress?> = callbackFlow {
         val subscription = firestore.collection("progress").document(uid)
-            .addSnapshotListener { snapshot, _ ->
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("FirestoreRepository", "Error fetching student progress: ${error.message}", error)
+                    trySend(null)
+                    return@addSnapshotListener
+                }
                 val progress = snapshot?.toObject(StudentProgress::class.java)
                 trySend(progress)
             }
@@ -188,7 +251,12 @@ class FirestoreRepository @Inject constructor(
 
     fun getCourses(): Flow<List<Course>> = callbackFlow {
         val subscription = firestore.collection("courses")
-            .addSnapshotListener { snapshot, _ ->
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("FirestoreRepository", "Error fetching courses: ${error.message}", error)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
                 val courses = snapshot?.toObjects(Course::class.java) ?: emptyList()
                 trySend(courses)
             }
@@ -196,15 +264,24 @@ class FirestoreRepository @Inject constructor(
     }
 
     suspend fun saveCourse(course: Course) {
-        val docRef = if (course.id.isEmpty()) firestore.collection("courses").document() else firestore.collection("courses").document(course.id)
-        docRef.set(course.copy(id = docRef.id)).await()
+        try {
+            val docRef = if (course.id.isEmpty()) firestore.collection("courses").document() else firestore.collection("courses").document(course.id)
+            docRef.set(course.copy(id = docRef.id)).await()
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error saving course: ${e.message}")
+        }
     }
 
     fun getUserPayments(uid: String): Flow<List<PaymentRecord>> = callbackFlow {
         val subscription = firestore.collection("payments")
             .whereEqualTo("userId", uid)
             .orderBy("timestamp", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, _ ->
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("FirestoreRepository", "Error fetching user payments: ${error.message}", error)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
                 val payments = snapshot?.toObjects(PaymentRecord::class.java) ?: emptyList()
                 trySend(payments)
             }
@@ -212,14 +289,75 @@ class FirestoreRepository @Inject constructor(
     }
 
     suspend fun sendPaymentNotification(userId: String, message: String) {
-        val notification = mapOf(
-            "userId" to userId,
-            "message" to message,
-            "type" to "PAYMENT_DUE",
-            "timestamp" to System.currentTimeMillis(),
-            "read" to false
-        )
-        firestore.collection("notifications").add(notification).await()
+        try {
+            val notification = mapOf(
+                "userId" to userId,
+                "message" to message,
+                "type" to "PAYMENT_DUE",
+                "timestamp" to System.currentTimeMillis(),
+                "read" to false
+            )
+            firestore.collection("notifications").add(notification).await()
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error sending payment notification to $userId: ${e.message}")
+        }
+    }
+
+    fun getUserEnrollments(uid: String): Flow<List<Enrollment>> = callbackFlow {
+        val subscription = firestore.collection("enrollments")
+            .whereEqualTo("userId", uid)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("FirestoreRepository", "Error fetching enrollments: ${error.message}", error)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+                trySend(snapshot?.toObjects(Enrollment::class.java) ?: emptyList())
+            }
+        awaitClose { subscription.remove() }
+    }
+
+    suspend fun saveEnrollment(enrollment: Enrollment) {
+        try {
+            val docRef = if (enrollment.id.isEmpty()) firestore.collection("enrollments").document()
+                         else firestore.collection("enrollments").document(enrollment.id)
+            docRef.set(enrollment.copy(id = docRef.id)).await()
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error saving enrollment: ${e.message}")
+        }
+    }
+
+    suspend fun saveFcmToken(uid: String, token: String) {
+        try {
+            firestore.collection("users").document(uid)
+                .set(mapOf("fcmToken" to token), SetOptions.merge()).await()
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error saving FCM token for $uid: ${e.message}")
+        }
+    }
+
+    suspend fun addAnnouncement(announcement: Announcement) {
+        try {
+            val docRef = firestore.collection("announcements").document()
+            docRef.set(announcement.copy(id = docRef.id)).await()
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error adding announcement: ${e.message}")
+        }
+    }
+
+    fun getAnnouncements(): Flow<List<Announcement>> = callbackFlow {
+        val subscription = firestore.collection("announcements")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .limit(20)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("FirestoreRepository", "Error fetching announcements: ${error.message}", error)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+                trySend(snapshot?.toObjects(Announcement::class.java) ?: emptyList())
+            }
+        awaitClose { subscription.remove() }
     }
 }
 
@@ -228,7 +366,26 @@ data class Course(
     val name: String = "",
     val description: String = "",
     val fee: Double = 0.0,
-    val durationWeeks: Int = 8
+    val durationWeeks: Int = 8,
+    val topics: List<String> = emptyList(),
+    val category: String = "DJing"
+)
+
+data class Enrollment(
+    val id: String = "",
+    val userId: String = "",
+    val courseId: String = "",
+    val courseName: String = "",
+    val completedTopics: List<String> = emptyList(),
+    val enrolledAt: Long = System.currentTimeMillis()
+)
+
+data class Announcement(
+    val id: String = "",
+    val title: String = "",
+    val body: String = "",
+    val courseId: String = "",
+    val timestamp: Long = System.currentTimeMillis()
 )
 
 data class PaymentRecord(

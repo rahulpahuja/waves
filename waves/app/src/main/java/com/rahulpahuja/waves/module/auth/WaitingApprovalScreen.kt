@@ -18,6 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 
+import androidx.compose.ui.tooling.preview.Preview
+import com.rahulpahuja.waves.ui.theme.WavesTheme
+
 @Composable
 fun WaitingApprovalScreen(
     onLogout: () -> Unit,
@@ -33,8 +36,15 @@ fun WaitingApprovalScreen(
         }
     }
 
+    WaitingApprovalContent(onLogout = onLogout)
+}
+
+@Composable
+fun WaitingApprovalContent(
+    onLogout: () -> Unit
+) {
     Scaffold(
-        containerColor = Color(0xFF10141D)
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -68,11 +78,19 @@ fun WaitingApprovalScreen(
             Spacer(modifier = Modifier.height(48.dp))
             Button(
                 onClick = onLogout,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E232F)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
                 modifier = Modifier.fillMaxWidth().height(56.dp)
             ) {
                 Text("Log Out", color = Color.White, fontWeight = FontWeight.Bold)
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WaitingApprovalPreview() {
+    WavesTheme {
+        WaitingApprovalContent(onLogout = {})
     }
 }

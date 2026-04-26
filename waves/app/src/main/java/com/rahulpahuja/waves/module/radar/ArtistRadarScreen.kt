@@ -39,7 +39,7 @@ fun ArtistRadarScreen(
     val state by viewModel.uiState.collectAsState()
 
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(
@@ -71,7 +71,7 @@ fun ArtistRadarScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(24.dp))
-                        .background(Color(0xFF1E232F)),
+                        .background(MaterialTheme.colorScheme.surface),
                     placeholder = { Text("Search events, artists, or venues...", color = Color.Gray) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
                     colors = TextFieldDefaults.colors(
@@ -79,7 +79,8 @@ fun ArtistRadarScreen(
                         unfocusedContainerColor = Color(0xFF1E232F),
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedTextColor = Color.White
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
                     )
                 )
             }
@@ -114,7 +115,7 @@ fun ArtistRadarScreen(
                 ) {
                     Button(
                         onClick = { /* Community Radar */ },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10141D)),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background),
                         shape = RoundedCornerShape(20.dp),
                         modifier = Modifier.weight(1f)
                     ) {
@@ -184,7 +185,7 @@ fun ArtistRadarScreen(
 fun GigCard(gig: Gig) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(24.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -305,7 +306,7 @@ fun GigCard(gig: Gig) {
 @Composable
 fun RadarBottomBar() {
     NavigationBar(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         contentColor = Color.White
     ) {
         NavigationBarItem(

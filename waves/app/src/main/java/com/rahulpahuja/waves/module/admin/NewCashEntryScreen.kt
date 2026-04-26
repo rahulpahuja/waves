@@ -43,7 +43,7 @@ fun NewCashEntryScreen(
     var memo by remember { mutableStateOf("") }
 
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { 
@@ -57,11 +57,11 @@ fun NewCashEntryScreen(
                     }
                 },
                 actions = { Spacer(modifier = Modifier.width(48.dp)) }, // Balance title
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         bottomBar = {
-            Column(modifier = Modifier.background(Color(0xFF10141D))) {
+            Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -77,7 +77,7 @@ fun NewCashEntryScreen(
                         .fillMaxWidth()
                         .padding(16.dp)
                         .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(Icons.Filled.Check, contentDescription = null, tint = Color.White)
@@ -142,7 +142,7 @@ fun NewCashEntryScreen(
                         .fillMaxWidth()
                         .height(56.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF1E232F))
+                        .background(MaterialTheme.colorScheme.surface)
                         .padding(horizontal = 16.dp),
                     contentAlignment = Alignment.CenterStart
                 ) {
@@ -166,7 +166,7 @@ fun NewCashEntryScreen(
                         .fillMaxWidth()
                         .height(48.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF1E232F))
+                        .background(MaterialTheme.colorScheme.surface)
                 ) {
                     Box(
                         modifier = Modifier
@@ -204,7 +204,7 @@ fun NewCashEntryScreen(
                         .fillMaxWidth()
                         .height(56.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF1E232F))
+                        .background(MaterialTheme.colorScheme.surface)
                         .padding(horizontal = 16.dp),
                     contentAlignment = Alignment.CenterStart
                 ) {
@@ -231,13 +231,14 @@ fun NewCashEntryScreen(
                         .fillMaxWidth()
                         .height(100.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF1E232F)),
+                        .background(MaterialTheme.colorScheme.surface),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF1E232F),
                         unfocusedContainerColor = Color(0xFF1E232F),
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedTextColor = Color.White
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
                     )
                 )
             }

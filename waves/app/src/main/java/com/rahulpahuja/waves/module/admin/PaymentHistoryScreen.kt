@@ -52,7 +52,7 @@ fun PaymentHistoryScreen(
     var selectedFilter by remember { mutableStateOf("All Time") }
 
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { 
@@ -70,13 +70,13 @@ fun PaymentHistoryScreen(
                         Icon(Icons.Filled.Download, contentDescription = "Export", tint = Color(0xFF2962FF))
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { /* Generate PDF */ },
-                containerColor = Color(0xFF2962FF),
+                containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White,
                 shape = CircleShape
             ) {
@@ -93,7 +93,7 @@ fun PaymentHistoryScreen(
             // Total Investment Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -200,7 +200,7 @@ fun FilterButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
 fun TransactionItem(transaction: Transaction, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(

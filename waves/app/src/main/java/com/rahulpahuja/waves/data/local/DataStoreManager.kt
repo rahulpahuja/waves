@@ -16,16 +16,23 @@ class DataStoreManager @Inject constructor(private val context: Context) {
 
     companion object {
         val USER_TOKEN_KEY = stringPreferencesKey("user_token")
+        val THEME_KEY      = stringPreferencesKey("selected_theme")
+        val ROLE_KEY       = stringPreferencesKey("user_role")
     }
 
     suspend fun saveUserToken(token: String) {
-        context.dataStore.edit { preferences ->
-            preferences[USER_TOKEN_KEY] = token
-        }
+        context.dataStore.edit { it[USER_TOKEN_KEY] = token }
     }
 
-    val userToken: Flow<String?> = context.dataStore.data
-        .map { preferences ->
-            preferences[USER_TOKEN_KEY]
-        }
+    suspend fun saveTheme(themeName: String) {
+        context.dataStore.edit { it[THEME_KEY] = themeName }
+    }
+
+    suspend fun saveRole(role: String) {
+        context.dataStore.edit { it[ROLE_KEY] = role }
+    }
+
+    val userToken: Flow<String?> = context.dataStore.data.map { it[USER_TOKEN_KEY] }
+    val selectedTheme: Flow<String?> = context.dataStore.data.map { it[THEME_KEY] }
+    val userRole: Flow<String?> = context.dataStore.data.map { it[ROLE_KEY] }
 }

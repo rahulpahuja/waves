@@ -22,11 +22,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import android.widget.Toast
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.flow.collectLatest
 import com.rahulpahuja.waves.ui.navigation.Screen
+import com.rahulpahuja.waves.ui.theme.WavesTheme
 
 @Composable
 fun RoleSelectionScreen(
@@ -52,8 +54,17 @@ fun RoleSelectionScreen(
         }
     }
 
+    RoleSelectionContent(
+        onRoleSelect = { viewModel.selectRole(it) }
+    )
+}
+
+@Composable
+fun RoleSelectionContent(
+    onRoleSelect: (String) -> Unit
+) {
     Scaffold(
-        containerColor = Color(0xFF10141D)
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -80,19 +91,34 @@ fun RoleSelectionScreen(
             Spacer(modifier = Modifier.height(48.dp))
 
             RoleCard(
-                title = "DJ Student",
-                subtitle = "I want to learn and produce music.",
+                title = "Student",
+                subtitle = "I'm here to learn music production.",
                 icon = Icons.Default.Headphones,
-                onClick = { viewModel.selectRole("student") }
+                onClick = { onRoleSelect("student") }
             )
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            RoleCard(
+                title = "DJ",
+                subtitle = "I'm a DJ looking to sharpen my skills.",
+                icon = Icons.Default.Headphones,
+                onClick = { onRoleSelect("dj") }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             RoleCard(
                 title = "Admin",
-                subtitle = "I want to manage classes and students.",
+                subtitle = "I manage classes and students.",
                 icon = Icons.Default.Settings,
-                onClick = { viewModel.selectRole("admin") }
+                onClick = { onRoleSelect("admin") }
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RoleSelectionPreview() {
+    WavesTheme {
+        RoleSelectionContent(onRoleSelect = {})
     }
 }
 
@@ -107,7 +133,7 @@ fun RoleCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(16.dp)
     ) {
         Row(

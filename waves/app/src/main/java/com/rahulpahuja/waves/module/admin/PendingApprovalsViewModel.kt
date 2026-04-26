@@ -1,5 +1,6 @@
 package com.rahulpahuja.waves.module.admin
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rahulpahuja.waves.data.remote.FirestoreRepository
@@ -7,6 +8,7 @@ import com.rahulpahuja.waves.data.remote.FirestoreUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,6 +19,10 @@ class PendingApprovalsViewModel @Inject constructor(
 ) : ViewModel() {
 
     val pendingUsers: StateFlow<List<FirestoreUser>> = repository.getPendingUsers()
+        .catch { e -> 
+            Log.e("PendingApprovalsVM", "Error loading pending users: ${e.message}", e)
+            emit(emptyList()) 
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun approveUser(uid: String) {

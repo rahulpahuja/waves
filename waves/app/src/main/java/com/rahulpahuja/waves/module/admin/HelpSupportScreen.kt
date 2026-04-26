@@ -32,7 +32,7 @@ fun HelpSupportScreen(onNavigateBack: () -> Unit) {
     var searchQuery by remember { mutableStateOf("") }
 
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text("Help & Support", color = Color.White, fontWeight = FontWeight.Bold) },
@@ -45,7 +45,7 @@ fun HelpSupportScreen(onNavigateBack: () -> Unit) {
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
     ) { paddingValues ->
@@ -66,7 +66,7 @@ fun HelpSupportScreen(onNavigateBack: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF1E232F)),
+                    .background(MaterialTheme.colorScheme.surface),
                 placeholder = { Text("Search for answers, guides...", color = Color.Gray) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
                 colors = TextFieldDefaults.colors(
@@ -74,7 +74,8 @@ fun HelpSupportScreen(onNavigateBack: () -> Unit) {
                     unfocusedContainerColor = Color(0xFF1E232F),
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
-                    focusedTextColor = Color.White
+                    focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
                 )
             )
 
@@ -168,7 +169,7 @@ fun SupportCard(
 ) {
     Card(
         modifier = modifier.height(120.dp).clickable { /* TODO */ },
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -201,7 +202,7 @@ fun GuideCard(
 ) {
     Card(
         modifier = modifier.height(120.dp).clickable { /* TODO */ },
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -230,7 +231,7 @@ fun GuideCard(
 fun FAQItem(question: String) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable { /* TODO */ },
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(

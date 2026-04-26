@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Prompt Cheatsheet — LinkedIn Carousel</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1a1a1a;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  padding: 48px 24px;
+}
+
+.page-label {
+  color: #555;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.slide {
+  width: 540px;
+  height: 540px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 16px;
+}
+
+/* ── Claude Logo SVG reused inline ── */
+.claude-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.claude-logo svg {
+  width: 22px;
+  height: 22px;
+}
+.claude-logo-text {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* ══════════════════════════════════════
+   SLIDE 0 — COVER
+══════════════════════════════════════ */
+.s0 {
+  background: #F5F0E8;
+  display: flex;
+  flex-direction: column;
+  padding: 48px 52px;
+}
+.s0 .top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: auto;
+}
+.s0 .top-bar .claude-logo-text { color: #1a1a1a; }
+.s0 .tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: #888;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: #E8E2D8;
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+.s0 .main {
+  margin-top: auto;
+  margin-bottom: 0;
+}
+.s0 .num-big {
+  font-size: 120px;
+  font-weight: 800;
+  color: #E8E2D8;
+  line-height: 1;
+  margin-bottom: -16px;
+  letter-spacing: -0.04em;
+}
+.s0 h1 {
+  font-size: 44px;
+  font-weight: 800;
+  color: #1a1a1a;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin-bottom: 18px;
+}
+.s0 h1 em {
+  font-style: normal;
+  background: #1a1a1a;
+  color: #F5F0E8;
+  padding: 2px 10px;
+  border-radius: 6px;
+  display: inline-block;
+}
+.s0 .sub {
+  font-size: 15px;
+  color: #777;
+  line-height: 1.65;
+  font-weight: 400;
+  max-width: 360px;
+}
+.s0 .slide-count {
+  position: absolute;
+  bottom: 48px;
+  right: 52px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #bbb;
+}
+
+/* ══════════════════════════════════════
+   CONTENT SLIDES — shared base
+══════════════════════════════════════ */
+.cs {
+  display: flex;
+  flex-direction: column;
+  padding: 36px 44px 36px;
+}
+
+.cs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.cs-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cs-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.1em;
+}
+
+.cs-cat {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cs-logo .claude-logo-text {
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+}
+.cs-logo svg { width: 18px; height: 18px; opacity: 0.4; }
+
+.cs-headline {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 22px;
+}
+
+.divider {
+  height: 1px;
+  margin-bottom: 18px;
+  opacity: 0.08;
+  background: #fff;
+}
+
+.cmd-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.cmd-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.cmd-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 5px 11px;
+  border-radius: 6px;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+.cmd-desc {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.55;
+  padding-top: 5px;
+  color: rgba(255,255,255,0.6);
+}
+
+.cs-footer {
+  margin-top: auto;
+  padding-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.progress {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.pip {
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.15);
+  width: 14px;
+}
+.pip.done { background: rgba(255,255,255,0.4); }
+.pip.active { background: #fff; width: 22px; }
+
+.cs-page {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.08em;
+}
+
+/* ── Accent stripe ── */
+.stripe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 4px;
+  border-radius: 16px 16px 0 0;
+}
+
+/* ── Per-slide colors ── */
+.s1 { background: #0F1B2D; }
+.s1 .cs-cat { color: #60A5FA; }
+.s1 .stripe { background: #60A5FA; }
+.s1 .cmd-pill { background: rgba(96,165,250,0.12); color: #93C5FD; border: 1px solid rgba(96,165,250,0.25); }
+
+.s2 { background: #0D1F17; }
+.s2 .cs-cat { color: #4ADE80; }
+.s2 .stripe { background: #4ADE80; }
+.s2 .cmd-pill { background: rgba(74,222,128,0.1); color: #86EFAC; border: 1px solid rgba(74,222,128,0.22); }
+
+.s3 { background: #1E1508; }
+.s3 .cs-cat { color: #FBBF24; }
+.s3 .stripe { background: #FBBF24; }
+.s3 .cmd-pill { background: rgba(251,191,36,0.1); color: #FCD34D; border: 1px solid rgba(251,191,36,0.22); }
+
+.s4 { background: #1E0D0D; }
+.s4 .cs-cat { color: #F87171; }
+.s4 .stripe { background: #F87171; }
+.s4 .cmd-pill { background: rgba(248,113,113,0.1); color: #FCA5A5; border: 1px solid rgba(248,113,113,0.22); }
+
+.s5 { background: #130D22; }
+.s5 .cs-cat { color: #C084FC; }
+.s5 .stripe { background: #C084FC; }
+.s5 .cmd-pill { background: rgba(192,132,252,0.1); color: #D8B4FE; border: 1px solid rgba(192,132,252,0.22); }
+
+.s6 { background: #051E20; }
+.s6 .cs-cat { color: #2DD4BF; }
+.s6 .stripe { background: #2DD4BF; }
+.s6 .cmd-pill { background: rgba(45,212,191,0.1); color: #5EEAD4; border: 1px solid rgba(45,212,191,0.22); }
+
+.s7 { background: #1C0D18; }
+.s7 .cs-cat { color: #F472B6; }
+.s7 .stripe { background: #F472B6; }
+.s7 .cmd-pill { background: rgba(244,114,182,0.1); color: #F9A8D4; border: 1px solid rgba(244,114,182,0.22); }
+
+.s8 { background: #111111; }
+.s8 .cs-cat { color: #D4FF00; }
+.s8 .stripe { background: #D4FF00; }
+.s8 .cmd-pill { background: rgba(212,255,0,0.08); color: #E4FF4D; border: 1px solid rgba(212,255,0,0.2); }
+
+/* ══════════════════════════════════════
+   SLIDE 9 — CTA
+══════════════════════════════════════ */
+.s9 {
+  background: #F5F0E8;
+  display: flex;
+  flex-direction: column;
+  padding: 48px 52px;
+}
+.s9 .top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+.s9 .top-bar .claude-logo-text { color: #1a1a1a; }
+.s9 .eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #aaa;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.s9 h2 {
+  font-size: 36px;
+  font-weight: 800;
+  color: #1a1a1a;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 28px;
+}
+.s9 h2 em {
+  font-style: normal;
+  background: #1a1a1a;
+  color: #F5F0E8;
+  padding: 0 10px;
+  border-radius: 6px;
+}
+.s9 .formula {
+  background: #1a1a1a;
+  border-radius: 12px;
+  padding: 20px 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  color: #D4FF00;
+  line-height: 2;
+  margin-bottom: 28px;
+}
+.s9 .formula .muted { color: #555; }
+.s9 .cta {
+  font-size: 14px;
+  color: #888;
+  line-height: 1.6;
+  margin-top: auto;
+}
+.s9 .cta strong { color: #1a1a1a; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<p class="page-label">Claude Prompt Cheatsheet — LinkedIn Carousel v2</p>
+
+<!-- Claude logo SVG snippet (reused inline) -->
+<!-- Using Anthropic's official Claude mark shape approximation via SVG paths -->
+
+<!-- ════════════════════ SLIDE 0: COVER ════════════════════ -->
+<div class="slide s0">
+  <div class="top-bar">
+    <div class="claude-logo">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.678 10.07 13.436 29.927h3.553l1.826-4.259h9.094l1.826 4.259h3.553L24.044 10.07h-1.366Zm-3.013 12.642 3.37-7.856 3.37 7.856h-6.74Z" fill="#1a1a1a"/>
+      </svg>
+      <span class="claude-logo-text">Claude</span>
+    </div>
+    <span class="tag">Prompt Guide</span>
+  </div>
+  <div class="main">
+    <div class="num-big">8</div>
+    <h1>Prompts that get <em>100x</em> better outputs</h1>
+    <p class="sub">Techniques that separate average Claude users from power users. Swipe through.</p>
+  </div>
+  <span class="slide-count">01 / 10</span>
+</div>
+
+<!-- ════════════════════ SLIDE 1: Role & Persona ════════════════════ -->
+<div class="slide s1 cs">
+  <div class="stripe"></div>
+  <div class="cs-header">
+    <div class="cs-meta">
+      <span class="cs-num">02 / 10</span>
+      <span class="cs-cat">Role &amp; Persona</span>
+    </div>
+    <div class="cs-logo claude-logo">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.678 10.07 13.436 29.927h3.553l1.826-4.259h9.094l1.826 4.259h3.553L24.044 10.07h-1.366Zm-3.013 12.642 3.37-7.856 3.37 7.856h-6.74Z" fill="white"/>
+      </svg>
+      <span class="claude-logo-text">Claude</span>
+    </div>
+  </div>
+  <div class="cs-headline">Tell Claude<br>who it is</div>
+  <div class="divider"></div>
+  <div class="cmd-list">
+    <div class="cmd-row">
+      <span class="cmd-pill">Act as [expert]</span>
+      <span class="cmd-desc">Sets the lens — "Act as a senior tax attorney" sharpens every answer</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">You are my [role]</span>
+      <span class="cmd-desc">Persistent framing — "You are my brutally honest editor"</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Audience: [type]</span>
+      <span class="cmd-desc">Who's reading — Claude adjusts vocabulary and depth automatically</span>
+    </div>
+  </div>
+  <div class="cs-footer">
+    <span class="cs-page">claude.ai</span>
+    <div class="progress">
+      <div class="pip done"></div><div class="pip active"></div>
+      <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 2: Output Format ════════════════════ -->
+<div class="slide s2 cs">
+  <div class="stripe"></div>
+  <div class="cs-header">
+    <div class="cs-meta">
+      <span class="cs-num">03 / 10</span>
+      <span class="cs-cat">Output Format</span>
+    </div>
+    <div class="cs-logo claude-logo">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.678 10.07 13.436 29.927h3.553l1.826-4.259h9.094l1.826 4.259h3.553L24.044 10.07h-1.366Zm-3.013 12.642 3.37-7.856 3.37 7.856h-6.74Z" fill="white"/>
+      </svg>
+      <span class="claude-logo-text">Claude</span>
+    </div>
+  </div>
+  <div class="cs-headline">Control the<br>shape of<br>the answer</div>
+  <div class="divider"></div>
+  <div class="cmd-list">
+    <div class="cmd-row">
+      <span class="cmd-pill">Reply in [format]</span>
+      <span class="cmd-desc">Bullets, table, JSON, markdown — be explicit or Claude will choose</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Max [N] words</span>
+      <span class="cmd-desc">Hard limit — forces Claude to prioritize and cut filler</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Use XML tags</span>
+      <span class="cmd-desc">Wrap sections in &lt;thinking&gt;, &lt;answer&gt; — great for pipelines</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">No preamble</span>
+      <span class="cmd-desc">Skip "Great question!" — get straight to the answer</span>
+    </div>
+  </div>
+  <div class="cs-footer">
+    <span class="cs-page">claude.ai</span>
+    <div class="progress">
+      <div class="pip done"></div><div class="pip done"></div><div class="pip active"></div>
+      <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 3: Reasoning ════════════════════ -->
+<div class="slide s3 cs">
+  <div class="stripe"></div>
+  <div class="cs-header">
+    <div class="cs-meta">
+      <span class="cs-num">04 / 10</span>
+      <span class="cs-cat">Reasoning &amp; Depth</span>
+    </div>
+    <div class="cs-logo claude-logo">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.678 10.07 13.436 29.927h3.553l1.826-4.259h9.094l1.826 4.259h3.553L24.044 10.07h-1.366Zm-3.013 12.642 3.37-7.856 3.37 7.856h-6.74Z" fill="white"/>
+      </svg>
+      <span class="claude-logo-text">Claude</span>
+    </div>
+  </div>
+  <div class="cs-headline">Make Claude<br>think harder</div>
+  <div class="divider"></div>
+  <div class="cmd-list">
+    <div class="cmd-row">
+      <span class="cmd-pill">Think step by step</span>
+      <span class="cmd-desc">Activates chain-of-thought — dramatically improves accuracy</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Show your work</span>
+      <span class="cmd-desc">Exposes reasoning — easy to spot errors in logic or math</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Before answering, ...</span>
+      <span class="cmd-desc">"Before answering, list your assumptions" — powerful pre-task</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Explore N options</span>
+      <span class="cmd-desc">Forces alternatives instead of jumping to first-guess answers</span>
+    </div>
+  </div>
+  <div class="cs-footer">
+    <span class="cs-page">claude.ai</span>
+    <div class="progress">
+      <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip active"></div>
+      <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 4: Constraints ════════════════════ -->
+<div class="slide s4 cs">
+  <div class="stripe"></div>
+  <div class="cs-header">
+    <div class="cs-meta">
+      <span class="cs-num">05 / 10</span>
+      <span class="cs-cat">Constraints &amp; Guardrails</span>
+    </div>
+    <div class="cs-logo claude-logo">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.678 10.07 13.436 29.927h3.553l1.826-4.259h9.094l1.826 4.259h3.553L24.044 10.07h-1.366Zm-3.013 12.642 3.37-7.856 3.37 7.856h-6.74Z" fill="white"/>
+      </svg>
+      <span class="claude-logo-text">Claude</span>
+    </div>
+  </div>
+  <div class="cs-headline">Tell Claude<br>what NOT<br>to do</div>
+  <div class="divider"></div>
+  <div class="cmd-list">
+    <div class="cmd-row">
+      <span class="cmd-pill">Do NOT [X]</span>
+      <span class="cmd-desc">Explicit negatives cut unwanted defaults — "Do NOT add disclaimers"</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Only use [source]</span>
+      <span class="cmd-desc">Limits Claude to your context — reduces hallucinations</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">If unsure, say so</span>
+      <span class="cmd-desc">Stops confident-sounding guesses — Claude flags uncertainty instead</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Stick to [scope]</span>
+      <span class="cmd-desc">Keeps Claude on topic — "Stick to Python, no other languages"</span>
+    </div>
+  </div>
+  <div class="cs-footer">
+    <span class="cs-page">claude.ai</span>
+    <div class="progress">
+      <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip active"></div>
+      <div class="pip"></div><div class="pip"></div><div class="pip"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 5: Examples ════════════════════ -->
+<div class="slide s5 cs">
+  <div class="stripe"></div>
+  <div class="cs-header">
+    <div class="cs-meta">
+      <span class="cs-num">06 / 10</span>
+      <span class="cs-cat">Examples &amp; Few-Shot</span>
+    </div>
+    <div class="cs-logo claude-logo">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.678 10.07 13.436 29.927h3.553l1.826-4.259h9.094l1.826 4.259h3.553L24.044 10.07h-1.366Zm-3.013 12.642 3.37-7.856 3.37 7.856h-6.74Z" fill="white"/>
+      </svg>
+      <span class="claude-logo-text">Claude</span>
+    </div>
+  </div>
+  <div class="cs-headline">Show, don't<br>just tell</div>
+  <div class="divider"></div>
+  <div class="cmd-list">
+    <div class="cmd-row">
+      <span class="cmd-pill">Here's an example:</span>
+      <span class="cmd-desc">One example cuts ambiguity by 80% — highest ROI prompt addition</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Good: / Bad:</span>
+      <span class="cmd-desc">Positive + negative examples calibrate the exact style you want</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Match this format:</span>
+      <span class="cmd-desc">Paste a sample output — Claude mirrors structure and tone precisely</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Like [X], not [Y]</span>
+      <span class="cmd-desc">Contrast pairs transfer style faster than any description</span>
+    </div>
+  </div>
+  <div class="cs-footer">
+    <span class="cs-page">claude.ai</span>
+    <div class="progress">
+      <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip active"></div>
+      <div class="pip"></div><div class="pip"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 6: Context ════════════════════ -->
+<div class="slide s6 cs">
+  <div class="stripe"></div>
+  <div class="cs-header">
+    <div class="cs-meta">
+      <span class="cs-num">07 / 10</span>
+      <span class="cs-cat">Context Loading</span>
+    </div>
+    <div class="cs-logo claude-logo">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.678 10.07 13.436 29.927h3.553l1.826-4.259h9.094l1.826 4.259h3.553L24.044 10.07h-1.366Zm-3.013 12.642 3.37-7.856 3.37 7.856h-6.74Z" fill="white"/>
+      </svg>
+      <span class="claude-logo-text">Claude</span>
+    </div>
+  </div>
+  <div class="cs-headline">Give Claude<br>the full<br>picture</div>
+  <div class="divider"></div>
+  <div class="cmd-list">
+    <div class="cmd-row">
+      <span class="cmd-pill">Context: [paste]</span>
+      <span class="cmd-desc">Front-load docs, code, or data before asking questions</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Goal: [end state]</span>
+      <span class="cmd-desc">State the final objective — Claude backchains and improves sub-choices</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Background: [info]</span>
+      <span class="cmd-desc">Give constraints Claude can't infer — your industry, company, limits</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Assume [X] is true</span>
+      <span class="cmd-desc">Lock in premises so Claude doesn't re-litigate your starting point</span>
+    </div>
+  </div>
+  <div class="cs-footer">
+    <span class="cs-page">claude.ai</span>
+    <div class="progress">
+      <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip active"></div>
+      <div class="pip"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 7: Iteration ════════════════════ -->
+<div class="slide s7 cs">
+  <div class="stripe"></div>
+  <div class="cs-header">
+    <div class="cs-meta">
+      <span class="cs-num">08 / 10</span>
+      <span class="cs-cat">Iteration &amp; Refinement</span>
+    </div>
+    <div class="cs-logo claude-logo">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.678 10.07 13.436 29.927h3.553l1.826-4.259h9.094l1.826 4.259h3.553L24.044 10.07h-1.366Zm-3.013 12.642 3.37-7.856 3.37 7.856h-6.74Z" fill="white"/>
+      </svg>
+      <span class="claude-logo-text">Claude</span>
+    </div>
+  </div>
+  <div class="cs-headline">Dial in the<br>output fast</div>
+  <div class="divider"></div>
+  <div class="cmd-list">
+    <div class="cmd-row">
+      <span class="cmd-pill">Make it [adj]er</span>
+      <span class="cmd-desc">"More concise / bolder / warmer" — superlatives push past safe defaults</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Critique then rewrite</span>
+      <span class="cmd-desc">Claude reviews its own output before revising — catches obvious issues</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">What's missing?</span>
+      <span class="cmd-desc">Surfaces gaps Claude noticed but left out in the first pass</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Try again, but [tweak]</span>
+      <span class="cmd-desc">One-line regeneration — fastest iteration loop you can run</span>
+    </div>
+  </div>
+  <div class="cs-footer">
+    <span class="cs-page">claude.ai</span>
+    <div class="progress">
+      <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip active"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 8: Power Combos ════════════════════ -->
+<div class="slide s8 cs">
+  <div class="stripe"></div>
+  <div class="cs-header">
+    <div class="cs-meta">
+      <span class="cs-num">09 / 10</span>
+      <span class="cs-cat">Power Combos</span>
+    </div>
+    <div class="cs-logo claude-logo">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.678 10.07 13.436 29.927h3.553l1.826-4.259h9.094l1.826 4.259h3.553L24.044 10.07h-1.366Zm-3.013 12.642 3.37-7.856 3.37 7.856h-6.74Z" fill="white"/>
+      </svg>
+      <span class="claude-logo-text">Claude</span>
+    </div>
+  </div>
+  <div class="cs-headline">Stack these<br>for 100x<br>results</div>
+  <div class="divider"></div>
+  <div class="cmd-list">
+    <div class="cmd-row">
+      <span class="cmd-pill">Role + Format + Limit</span>
+      <span class="cmd-desc">"As a VC, 5 bullet risks, max 60 words" — triple constraint = precision</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Example + No preamble</span>
+      <span class="cmd-desc">Fastest path to a clean, copy-paste-ready output</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Step-by-step + XML</span>
+      <span class="cmd-desc">Chain-of-thought in tags — perfect for automated pipelines</span>
+    </div>
+    <div class="cmd-row">
+      <span class="cmd-pill">Goal + Constraints + Audience</span>
+      <span class="cmd-desc">The holy trinity — what, how, and who. Use it every time.</span>
+    </div>
+  </div>
+  <div class="cs-footer">
+    <span class="cs-page">claude.ai</span>
+    <div class="progress">
+      <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SLIDE 9: CTA ════════════════════ -->
+<div class="slide s9">
+  <div class="top-bar">
+    <div class="claude-logo">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.678 10.07 13.436 29.927h3.553l1.826-4.259h9.094l1.826 4.259h3.553L24.044 10.07h-1.366Zm-3.013 12.642 3.37-7.856 3.37 7.856h-6.74Z" fill="#1a1a1a"/>
+      </svg>
+      <span class="claude-logo-text">Claude</span>
+    </div>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#bbb;letter-spacing:0.1em;">10 / 10</span>
+  </div>
+  <div class="eyebrow">The golden rule</div>
+  <h2>Vague input =<br><em>generic output.</em></h2>
+  <div class="formula">
+    [Role] + [Task + Format + Length]<br>
+    <span class="muted">+</span> [What to avoid]<br>
+    <span class="muted">= </span>Precision output, every time
+  </div>
+  <p class="cta">Save this. Share it.<br><strong>Your Claude outputs will never be the same.</strong></p>
+</div>
+
+</body>
+</html>

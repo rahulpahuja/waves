@@ -38,11 +38,13 @@ fun CreateSessionScreen(
     var endTime by remember { mutableStateOf("08:00 PM") }
     var capacity by remember { mutableIntStateOf(12) }
     var selectedStudio by remember { mutableStateOf("Main Room") }
+    var topics by remember { mutableStateOf(listOf<String>()) }
+    var newTopic by remember { mutableStateOf("") }
 
     val categories = listOf("DJing", "Production", "Theory")
 
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text("Create Session", color = Color.White, fontWeight = FontWeight.Bold) },
@@ -51,7 +53,7 @@ fun CreateSessionScreen(
                         Icon(Icons.Filled.Close, contentDescription = "Close", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         bottomBar = {
@@ -63,6 +65,8 @@ fun CreateSessionScreen(
                         description = "Course in $selectedCategory",
                         fee = courseFee.toDoubleOrNull() ?: 0.0,
                         duration = 8,
+                        topics = topics,
+                        category = selectedCategory,
                         onComplete = onPublish
                     )
                 },
@@ -71,7 +75,7 @@ fun CreateSessionScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
                     .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 if (isLoading) {
@@ -103,13 +107,14 @@ fun CreateSessionScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF1E232F)),
+                        .background(MaterialTheme.colorScheme.surface),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF1E232F),
                         unfocusedContainerColor = Color(0xFF1E232F),
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedTextColor = Color.White
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
                     )
                 )
             }
@@ -125,14 +130,15 @@ fun CreateSessionScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF1E232F)),
+                        .background(MaterialTheme.colorScheme.surface),
                     keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF1E232F),
                         unfocusedContainerColor = Color(0xFF1E232F),
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedTextColor = Color.White
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
                     )
                 )
             }
@@ -150,7 +156,7 @@ fun CreateSessionScreen(
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Color(0xFF2962FF),
                                 selectedLabelColor = Color.White,
-                                containerColor = Color(0xFF1E232F),
+                                containerColor = MaterialTheme.colorScheme.surface,
                                 labelColor = Color.Gray
                             ),
                             border = null
@@ -176,7 +182,7 @@ fun CreateSessionScreen(
                         .fillMaxWidth()
                         .height(200.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF1E232F)),
+                        .background(MaterialTheme.colorScheme.surface),
                     contentAlignment = Alignment.Center
                 ) {
                     Text("Calendar Placeholder", color = Color.Gray)
@@ -193,7 +199,7 @@ fun CreateSessionScreen(
                             .fillMaxWidth()
                             .height(56.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFF1E232F))
+                            .background(MaterialTheme.colorScheme.surface)
                             .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.CenterStart
                     ) {
@@ -208,7 +214,7 @@ fun CreateSessionScreen(
                             .fillMaxWidth()
                             .height(56.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFF1E232F))
+                            .background(MaterialTheme.colorScheme.surface)
                             .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.CenterStart
                     ) {
@@ -225,7 +231,7 @@ fun CreateSessionScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF1E232F))
+                        .background(MaterialTheme.colorScheme.surface)
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -257,7 +263,7 @@ fun CreateSessionScreen(
                             .fillMaxWidth()
                             .height(56.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFF1E232F))
+                            .background(MaterialTheme.colorScheme.surface)
                             .padding(horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -291,7 +297,7 @@ fun CreateSessionScreen(
                             .fillMaxWidth()
                             .height(56.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFF1E232F))
+                            .background(MaterialTheme.colorScheme.surface)
                             .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.CenterStart
                     ) {
@@ -299,6 +305,71 @@ fun CreateSessionScreen(
                     }
                 }
             }
+            // Topics
+            Column {
+                Text("TOPICS", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextField(
+                        value = newTopic,
+                        onValueChange = { newTopic = it },
+                        placeholder = { Text("e.g., Beatmatching", color = Color.Gray) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surface),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color(0xFF1E232F),
+                            unfocusedContainerColor = Color(0xFF1E232F),
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
+                        ),
+                        singleLine = true
+                    )
+                    IconButton(
+                        onClick = {
+                            if (newTopic.isNotBlank()) {
+                                topics = topics + newTopic.trim()
+                                newTopic = ""
+                            }
+                        },
+                        modifier = Modifier
+                            .size(48.dp)
+                            .background(Color(0xFF2962FF), RoundedCornerShape(12.dp))
+                    ) {
+                        Icon(Icons.Filled.Add, contentDescription = "Add topic", tint = Color.White)
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                topics.forEachIndexed { index, topic ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "${index + 1}. $topic",
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(
+                            onClick = { topics = topics.filterIndexed { i, _ -> i != index } },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(Icons.Filled.Close, contentDescription = "Remove", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(80.dp))
         }
     }

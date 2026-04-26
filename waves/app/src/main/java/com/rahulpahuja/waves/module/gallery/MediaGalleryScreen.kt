@@ -39,7 +39,7 @@ fun MediaGalleryScreen(
     onNavigateToProfile: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
-    val backgroundColor = Color(0xFF10141D)
+    val backgroundColor = MaterialTheme.colorScheme.background
 
     Column(
         modifier = Modifier
@@ -201,7 +201,7 @@ fun HighlightCard(highlight: Highlight) {
             .width(140.dp)
             .height(180.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFF1E232F))
+            .background(MaterialTheme.colorScheme.surface)
     ) {
         // Placeholder for Image
         Box(
@@ -249,7 +249,7 @@ fun UploadCard(upload: MediaUpload) {
             .fillMaxWidth()
             .height(160.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFF1E232F))
+            .background(MaterialTheme.colorScheme.surface)
     ) {
          // Placeholder for Image
         Box(

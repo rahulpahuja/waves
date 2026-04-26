@@ -9,6 +9,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,36 +28,51 @@ class StudentDashboardViewModel @Inject constructor(
     }
 
     private fun loadDashboardData() {
+        val uid = auth.currentUser?.uid ?: return
+
         viewModelScope.launch {
             val userName = try {
-                val currentUser = auth.currentUser
-                if (currentUser != null) {
-                    repository.getUser(currentUser.uid)?.displayName
-                        ?: currentUser.displayName
-                        ?: ""
-                } else ""
+                repository.getUser(uid)?.displayName ?: auth.currentUser?.displayName ?: ""
             } catch (e: Exception) {
                 Log.e("StudentDashboardVM", "Error loading user", e)
                 auth.currentUser?.displayName ?: ""
             }
+            _uiState.value = _uiState.value.copy(userName = userName)
+        }
 
-            _uiState.value = StudentDashboardUiState(
-                userName = userName,
-                currentCourse = CourseProgress(
-                    title = "Music Production 101",
-                    progressPercentage = 0.75f,
-                    completedClasses = 12,
-                    totalClasses = 16
-                ),
-                nextSession = Session(
-                    day = "24",
-                    month = "OCT",
-                    title = "Advanced Serato Tech",
-                    time = "18:00 - 20:00",
-                    location = "Studio B"
-                ),
-                notification = "Masterclass with DJ Snake confirmed for Nov 15th"
-            )
+        viewModelScope.launch {
+            combine(
+                repository.getUserEnrollments(uid),
+                repository.getCourses(),
+                repository.getAnnouncements()
+            ) { enrollments, courses, announcements ->
+                Triple(enrollments, courses, announcements)
+            }.catch { e ->
+                Log.e("StudentDashboardVM", "Error collecting dashboard data: ${e.message}")
+            }.collect { (enrollments, courses, announcements) ->
+                val latestAnnouncement = announcements.firstOrNull()?.let {
+                    "${it.title} — ${it.body}"
+                }
+
+                val courseProgress = enrollments.firstOrNull()?.let { enrollment ->
+                    val course = courses.find { it.id == enrollment.courseId }
+                    if (course != null) {
+                        val total = course.topics.size.coerceAtLeast(1)
+                        val done = enrollment.completedTopics.size
+                        CourseProgress(
+                            title = course.name,
+                            progressPercentage = done.toFloat() / total,
+                            completedClasses = done,
+                            totalClasses = total
+                        )
+                    } else null
+                }
+
+                _uiState.value = _uiState.value.copy(
+                    currentCourse = courseProgress,
+                    notification = latestAnnouncement
+                )
+            }
         }
     }
 }

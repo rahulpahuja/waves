@@ -27,7 +27,7 @@ fun TrackProgressScreen(
     onSkipClick: () -> Unit
 ) {
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             Box(modifier = Modifier
                 .fillMaxWidth()
@@ -59,7 +59,7 @@ fun TrackProgressScreen(
                     .fillMaxWidth()
                     .aspectRatio(1.5f),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F))
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 AsyncImage(
                     model = "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1000&auto=format&fit=crop", // Music Production / Analytics theme
@@ -106,7 +106,7 @@ fun TrackProgressScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(28.dp)
             ) {
                 Text(

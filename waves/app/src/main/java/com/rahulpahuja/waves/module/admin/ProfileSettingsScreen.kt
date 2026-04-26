@@ -34,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.rahulpahuja.waves.module.student.SimpleTextField
 import com.rahulpahuja.waves.module.student.NotificationToggleItem
+import com.rahulpahuja.waves.ui.theme.WavesTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,7 +116,7 @@ fun ProfileSettingsContent(
     onAutoApproveBookingsChange: (Boolean) -> Unit
 ) {
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { 
@@ -133,14 +134,14 @@ fun ProfileSettingsContent(
                         Text("Done", color = Color(0xFF2962FF), fontWeight = FontWeight.Bold)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         bottomBar = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF10141D))
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -150,7 +151,7 @@ fun ProfileSettingsContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(28.dp)
                 ) {
                     if (isLoading) {
@@ -233,13 +234,14 @@ fun ProfileSettingsContent(
                             .fillMaxWidth()
                             .height(100.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFF1E232F)),
+                            .background(MaterialTheme.colorScheme.surface),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color(0xFF1E232F),
                             unfocusedContainerColor = Color(0xFF1E232F),
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
-                            focusedTextColor = Color.White
+                            focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
                         )
                     )
                 }
@@ -251,7 +253,7 @@ fun ProfileSettingsContent(
                 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Row(
@@ -329,7 +331,7 @@ fun ProfileSettingsContent(
 
                  Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Row(
@@ -360,31 +362,33 @@ fun ProfileSettingsContent(
 @Preview(showBackground = true)
 @Composable
 fun ProfileSettingsScreenPreview() {
-    ProfileSettingsContent(
-        displayName = "Marcus Vance",
-        email = "marcus@waves.com",
-        photoUrl = "",
-        role = "admin",
-        status = "APPROVED",
-        phone = "+1 555 0123",
-        bio = "Senior Instructor at Beat Academy.",
-        faceIdLogin = true,
-        newBookingRequests = true,
-        lowAttendance = false,
-        marketingUpdates = true,
-        autoApproveBookings = false,
-        isLoading = false,
-        onNavigateBack = {},
-        onLogout = {},
-        onSaveProfile = {},
-        onDisplayNameChange = {},
-        onEmailChange = {},
-        onPhoneChange = {},
-        onBioChange = {},
-        onFaceIdLoginChange = {},
-        onNewBookingRequestsChange = {},
-        onLowAttendanceChange = {},
-        onMarketingUpdatesChange = {},
-        onAutoApproveBookingsChange = {}
-    )
+    WavesTheme {
+        ProfileSettingsContent(
+            displayName = "Marcus Vance",
+            email = "marcus@waves.com",
+            photoUrl = "",
+            role = "admin",
+            status = "APPROVED",
+            phone = "+1 555 0123",
+            bio = "Senior Instructor at Beat Academy.",
+            faceIdLogin = true,
+            newBookingRequests = true,
+            lowAttendance = false,
+            marketingUpdates = true,
+            autoApproveBookings = false,
+            isLoading = false,
+            onNavigateBack = {},
+            onLogout = {},
+            onSaveProfile = {},
+            onDisplayNameChange = {},
+            onEmailChange = {},
+            onPhoneChange = {},
+            onBioChange = {},
+            onFaceIdLoginChange = {},
+            onNewBookingRequestsChange = {},
+            onLowAttendanceChange = {},
+            onMarketingUpdatesChange = {},
+            onAutoApproveBookingsChange = {}
+        )
+    }
 }

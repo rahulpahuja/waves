@@ -43,7 +43,7 @@ fun AdminSettingsScreen(
     val notifications by viewModel.notifications.collectAsState()
 
     Scaffold(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { 
@@ -57,7 +57,7 @@ fun AdminSettingsScreen(
                     }
                 },
                 actions = { Spacer(modifier = Modifier.width(48.dp)) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF10141D))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
     ) { paddingValues ->
@@ -72,6 +72,8 @@ fun AdminSettingsScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
             
+            com.rahulpahuja.waves.ui.theme.ThemePicker()
+
             // Preferences
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("PREFERENCES", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
@@ -133,7 +135,7 @@ fun AdminSettingsScreen(
                 
                 Card(
                     modifier = Modifier.fillMaxWidth().clickable(onClick = onLogout),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Row(
@@ -157,7 +159,7 @@ fun AdminSettingsScreen(
                 
                 Card(
                     modifier = Modifier.fillMaxWidth().clickable { /* TODO: Delete Account */ },
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Row(
@@ -201,7 +203,7 @@ fun SettingsToggleItem(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(
@@ -247,7 +249,7 @@ fun SettingsNavigationItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(

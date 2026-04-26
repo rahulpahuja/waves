@@ -37,6 +37,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,13 +60,45 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.rahulpahuja.waves.R
 import com.rahulpahuja.waves.ui.navigation.Screen
+import com.rahulpahuja.waves.ui.theme.WavesTheme
 
 @Composable
 fun AdminDashboardScreen(
     navController: NavController,
     viewModel: AdminDashboardViewModel = hiltViewModel()
 ) {
-    AdminNavigation(navController = navController)
+    val state by viewModel.uiState.collectAsState()
+    
+    AdminDashboardContent(
+        navController = navController,
+        onNavigateToStudents = { navController.navigate(Screen.Students.route) },
+        onNavigateToSettings = { navController.navigate(Screen.AdminSettings.route) },
+        onNavigateToNotifications = { navController.navigate(Screen.Notifications.route) },
+        state = state
+    )
+}
+
+@Preview(showSystemUi = true)
+@Composable
+fun AdminDashboardPreview() {
+    WavesTheme {
+        AdminDashboardContent(
+            navController = NavController(LocalContext.current),
+            onNavigateToStudents = {},
+            onNavigateToSettings = {},
+            onNavigateToNotifications = {},
+            state = AdminDashboardUiState(
+                studentCount = 142,
+                studentGrowth = 12,
+                revenue = 850.0,
+                revenueGrowth = 8,
+                sessions = listOf(
+                    Session(time = "10:00 AM", title = "Basic DJing", details = "Batch A • Room 1"),
+                    Session(time = "02:00 PM", title = "Music Theory", details = "Batch C • Room 2")
+                )
+            )
+        )
+    }
 }
 
 @Composable
@@ -75,13 +109,13 @@ fun AdminDashboardContent(
     onNavigateToNotifications: () -> Unit,
     state: AdminDashboardUiState
 ) {
-     val backgroundColor = Color(0xFF10141D)
+     val backgroundColor = MaterialTheme.colorScheme.background
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { /*TODO*/ },
-                containerColor = Color(0xFF2962FF),
+                containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White,
                 shape = CircleShape
             ) {
@@ -219,7 +253,7 @@ fun OverviewCard(
 ) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -336,10 +370,22 @@ fun ManageSchoolSection(navController: NavController, onStudentsClick: () -> Uni
                     title = stringResource(R.string.media_title),
                     subtitle = stringResource(R.string.school_gallery_subtitle),
                     icon = Icons.Default.Image,
-                    colorStart = Color(0xFF2B3A42), // Dark Slate
+                    colorStart = Color(0xFF2B3A42),
                     colorEnd = Color(0xFF192226),
                     onClick = { navController.navigate(Screen.MediaGallery.route) }
                 )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                ManageCard(
+                    modifier = Modifier.weight(1f),
+                    title = "Courses",
+                    subtitle = "Manage & launch",
+                    icon = Icons.Default.School,
+                    colorStart = Color(0xFF1B4332),
+                    colorEnd = Color(0xFF0D2B1F),
+                    onClick = { navController.navigate(Screen.ManageCourses.route) }
+                )
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }
@@ -443,7 +489,7 @@ fun UpcomingSessionsSection(sessions: List<Session>) {
 fun SessionItem(session: Session) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E232F)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(
@@ -513,7 +559,7 @@ fun AdminBottomBar(
     )
 
     NavigationBar(
-        containerColor = Color(0xFF10141D),
+        containerColor = MaterialTheme.colorScheme.background,
         contentColor = Color.White
     ) {
         items.forEach { screen ->
