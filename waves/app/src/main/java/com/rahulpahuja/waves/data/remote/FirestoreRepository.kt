@@ -111,7 +111,9 @@ enum class CourseEnrollmentStatus(val value: String) {
 }
 
 enum class NotificationType(val value: String) {
-    PAYMENT_DUE("PAYMENT_DUE")
+    PAYMENT_DUE("PAYMENT_DUE"),
+    ABSENTEEISM("ABSENTEEISM"),
+    GENERAL("GENERAL")
 }
 
 enum class MessageType(val value: String) {
@@ -400,19 +402,23 @@ class FirestoreRepository @Inject constructor(
         awaitClose { subscription.remove() }
     }
 
-    suspend fun sendPaymentNotification(userId: String, message: String) {
+    suspend fun sendNotification(userId: String, message: String, type: NotificationType) {
         try {
             val notification = mapOf(
                 FIELD_USER_ID to userId,
                 FIELD_MESSAGE to message,
-                FIELD_TYPE to NotificationType.PAYMENT_DUE.value,
+                FIELD_TYPE to type.value,
                 FIELD_TIMESTAMP to System.currentTimeMillis(),
                 FIELD_READ to false
             )
             firestore.collection(COLLECTION_NOTIFICATIONS).add(notification).await()
         } catch (e: Exception) {
-            Log.e(TAG, LOG_ERROR_SEND_PAYMENT_NOTIFICATION.format(userId, e.message))
+            Log.e(TAG, "Error sending notification to $userId: ${e.message}")
         }
+    }
+
+    suspend fun sendPaymentNotification(userId: String, message: String) {
+        sendNotification(userId, message, NotificationType.PAYMENT_DUE)
     }
 
     fun getUserEnrollments(uid: String): Flow<List<Enrollment>> = callbackFlow {
@@ -560,7 +566,7 @@ data class FirestoreUser(
     val email: String = "",
     val displayName: String = "",
     val photoUrl: String = "",
-    val role: String = "", // student | admin
+    val role: String = "", // student | instructor | admin
     val status: String = UserStatus.PENDING.value // PENDING | APPROVED | REJECTED
 )
 

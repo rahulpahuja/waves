@@ -32,6 +32,7 @@ object Route {
     const val PROFILE_SETTINGS = "profile_settings"
     const val MANAGE_COURSES = "manage_courses"
     const val VERIFY_PAYMENTS = "verify_payments"
+    const val USER_MANAGEMENT = "user_management"
 
     const val STUDENT_DASHBOARD = "student_dashboard"
     const val STUDENT_SETTINGS = "student_settings"
@@ -90,6 +91,7 @@ sealed class Screen(val route: String, val group: ScreenGroup) {
     object ProfileSettings : Screen(Route.PROFILE_SETTINGS, ScreenGroup.ADMIN)
     object ManageCourses : Screen(Route.MANAGE_COURSES, ScreenGroup.ADMIN)
     object VerifyPayments : Screen(Route.VERIFY_PAYMENTS, ScreenGroup.ADMIN)
+    object UserManagement : Screen(Route.USER_MANAGEMENT, ScreenGroup.ADMIN)
 
     // Student
     object StudentDashboard : Screen(Route.STUDENT_DASHBOARD, ScreenGroup.STUDENT)

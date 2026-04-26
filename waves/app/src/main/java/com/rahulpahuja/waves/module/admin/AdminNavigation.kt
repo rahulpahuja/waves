@@ -15,6 +15,7 @@ import com.rahulpahuja.waves.module.admin.admindashboard.AdminDashboardScreen
 import com.rahulpahuja.waves.module.admin.adminsettings.AdminSettingsScreen
 import com.rahulpahuja.waves.module.admin.managecourses.ManageCoursesScreen
 import com.rahulpahuja.waves.module.admin.students.StudentsScreen
+import com.rahulpahuja.waves.module.admin.usermanagement.UserManagementScreen
 import com.rahulpahuja.waves.module.auth.login.LoginViewModel
 import com.rahulpahuja.waves.module.schedule.studioschedule.StudioScheduleScreen
 import com.rahulpahuja.waves.ui.navigation.Screen
@@ -59,6 +60,12 @@ fun AdminNavigation(navController: NavController) {
                             popUpTo(adminNavController.graph.startDestinationId)
                             launchSingleTop = true
                         }
+                    },
+                    onNavigateToUsers = {
+                        adminNavController.navigate(Screen.UserManagement.route) {
+                            popUpTo(adminNavController.graph.startDestinationId)
+                            launchSingleTop = true
+                        }
                     }
                 )
             }
@@ -89,6 +96,12 @@ fun AdminNavigation(navController: NavController) {
             composable(Screen.ManageCourses.route) {
                 ManageCoursesScreen(
                     onCreateCourse = { navController.navigate(Screen.CreateSession.route) }
+                )
+            }
+            composable(Screen.UserManagement.route) {
+                UserManagementScreen(
+                    onNavigateBack = { adminNavController.popBackStack() },
+                    onAddUserClick = { navController.navigate(Screen.CreateStudent.route) }
                 )
             }
         }

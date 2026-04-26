@@ -22,6 +22,7 @@ import com.rahulpahuja.waves.module.admin.AdminNavigation
 import com.rahulpahuja.waves.module.admin.artistprofile.ArtistProfileScreen
 import com.rahulpahuja.waves.module.admin.attendance.AttendanceScreen
 import com.rahulpahuja.waves.module.admin.createsession.CreateSessionScreen
+import com.rahulpahuja.waves.module.admin.createstudent.CreateUserScreen
 import com.rahulpahuja.waves.module.admin.helpsupport.HelpSupportScreen
 import com.rahulpahuja.waves.module.admin.newcashentry.NewCashEntryScreen
 import com.rahulpahuja.waves.module.admin.paymenthistory.PaymentHistoryScreen
@@ -180,6 +181,12 @@ fun AppNavigation() {
         // Admin Module
         composable(Screen.AdminDashboard.route) {
             AdminNavigation(navController)
+        }
+        composable(Screen.CreateStudent.route) {
+            CreateUserScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onComplete = { navController.popBackStack() }
+            )
         }
         composable(Screen.NewCashEntry.route) {
             NewCashEntryScreen(onDismiss = { navController.popBackStack() })

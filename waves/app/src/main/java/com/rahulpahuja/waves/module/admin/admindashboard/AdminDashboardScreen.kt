@@ -69,6 +69,7 @@ fun AdminDashboardScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToNotifications: () -> Unit,
     onNavigateToCourses: () -> Unit,
+    onNavigateToUsers: () -> Unit,
     viewModel: AdminDashboardViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -79,6 +80,7 @@ fun AdminDashboardScreen(
         onNavigateToSettings = onNavigateToSettings,
         onNavigateToNotifications = onNavigateToNotifications,
         onNavigateToCourses = onNavigateToCourses,
+        onNavigateToUsers = onNavigateToUsers,
         state = state
     )
 }
@@ -93,6 +95,7 @@ fun AdminDashboardPreview() {
             onNavigateToSettings = {},
             onNavigateToNotifications = {},
             onNavigateToCourses = {},
+            onNavigateToUsers = {},
             state = AdminDashboardUiState(
                 studentCount = 142,
                 studentGrowth = 12,
@@ -114,6 +117,7 @@ fun AdminDashboardContent(
     onNavigateToSettings: () -> Unit,
     onNavigateToNotifications: () -> Unit,
     onNavigateToCourses: () -> Unit,
+    onNavigateToUsers: () -> Unit,
     state: AdminDashboardUiState
 ) {
      val backgroundColor = MaterialTheme.colorScheme.background
@@ -146,7 +150,8 @@ fun AdminDashboardContent(
                     navController = navController, 
                     onStudentsClick = onNavigateToStudents,
                     onApprovalsClick = { navController.navigate(Screen.PendingApprovals.route) },
-                    onCoursesClick = onNavigateToCourses
+                    onCoursesClick = onNavigateToCourses,
+                    onUsersClick = onNavigateToUsers
                 ) 
             }
             item { UpcomingSessionsSection(state.sessions) }
@@ -317,7 +322,8 @@ fun ManageSchoolSection(
     navController: NavController, 
     onStudentsClick: () -> Unit, 
     onApprovalsClick: () -> Unit,
-    onCoursesClick: () -> Unit
+    onCoursesClick: () -> Unit,
+    onUsersClick: () -> Unit
 ) {
     Column {
         Text(
@@ -398,7 +404,15 @@ fun ManageSchoolSection(
                     colorEnd = Color(0xFF0D2B1F),
                     onClick = onCoursesClick
                 )
-                Spacer(modifier = Modifier.weight(1f))
+                ManageCard(
+                    modifier = Modifier.weight(1f),
+                    title = "Users",
+                    subtitle = "Manage & Promote",
+                    icon = Icons.Default.Person,
+                    colorStart = Color(0xFF3C1B43),
+                    colorEnd = Color(0xFF2B0D2F),
+                    onClick = onUsersClick
+                )
             }
         }
     }
