@@ -53,6 +53,12 @@ fun AdminNavigation(navController: NavController) {
                     },
                     onNavigateToNotifications = {
                         navController.navigate(Screen.Notifications.route)
+                    },
+                    onNavigateToCourses = {
+                        adminNavController.navigate(Screen.ManageCourses.route) {
+                            popUpTo(adminNavController.graph.startDestinationId)
+                            launchSingleTop = true
+                        }
                     }
                 )
             }

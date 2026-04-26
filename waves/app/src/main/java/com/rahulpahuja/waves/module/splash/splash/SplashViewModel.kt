@@ -38,7 +38,7 @@ class SplashViewModel @Inject constructor(
                                 _destination.value = if (user.role == "admin") {
                                     Screen.AdminDashboard.route
                                 } else {
-                                    Screen.Welcome.route // Or StudentDashboard
+                                    Screen.StudentDashboard.route
                                 }
                             }
                             "PENDING" -> {

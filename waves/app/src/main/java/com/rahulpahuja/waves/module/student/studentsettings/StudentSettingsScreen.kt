@@ -1,6 +1,9 @@
 package com.rahulpahuja.waves.module.student.studentsettings
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -25,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,6 +44,7 @@ fun StudentSettingsScreen(
     onLogout: () -> Unit,
     viewModel: StudentSettingsViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val fullName by viewModel.fullName.collectAsState()
     val email by viewModel.email.collectAsState()
     val phone by viewModel.phone.collectAsState()
@@ -49,6 +54,12 @@ fun StudentSettingsScreen(
     val feeDueAlerts by viewModel.feeDueAlerts.collectAsState()
     val announcements by viewModel.announcements.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let { viewModel.onPhotoSelected(context, it) }
+    }
 
     StudentSettingsContent(
         fullName = fullName,
@@ -69,7 +80,8 @@ fun StudentSettingsScreen(
         onPushNotificationsChange = { viewModel.onPushNotificationsChange(it) },
         onClassRemindersChange = { viewModel.onClassRemindersChange(it) },
         onFeeDueAlertsChange = { viewModel.onFeeDueAlertsChange(it) },
-        onAnnouncementsChange = { viewModel.onAnnouncementsChange(it) }
+        onAnnouncementsChange = { viewModel.onAnnouncementsChange(it) },
+        onPhotoClick = { photoPickerLauncher.launch("image/*") }
     )
 }
 
@@ -94,7 +106,8 @@ fun StudentSettingsContent(
     onPushNotificationsChange: (Boolean) -> Unit,
     onClassRemindersChange: (Boolean) -> Unit,
     onFeeDueAlertsChange: (Boolean) -> Unit,
-    onAnnouncementsChange: (Boolean) -> Unit
+    onAnnouncementsChange: (Boolean) -> Unit,
+    onPhotoClick: () -> Unit
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -158,7 +171,10 @@ fun StudentSettingsContent(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // Profile Header
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable(onClick = onPhotoClick)
+            ) {
                 Box(contentAlignment = Alignment.BottomEnd) {
                     if (photoUrl.isNotEmpty()) {
                         AsyncImage(
@@ -418,6 +434,7 @@ fun StudentSettingsScreenPreview() {
         onPushNotificationsChange = {},
         onClassRemindersChange = {},
         onFeeDueAlertsChange = {},
-        onAnnouncementsChange = {}
+        onAnnouncementsChange = {},
+        onPhotoClick = {}
     )
 }

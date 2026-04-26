@@ -1,11 +1,14 @@
 package com.rahulpahuja.waves.module.student.studentsettings
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.rahulpahuja.waves.data.remote.FirestoreRepository
 import com.rahulpahuja.waves.data.remote.FirestoreUser
+import com.rahulpahuja.waves.util.ImageUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -102,4 +105,18 @@ class StudentSettingsViewModel @Inject constructor(
     fun onClassRemindersChange(enabled: Boolean) { _classReminders.value = enabled }
     fun onFeeDueAlertsChange(enabled: Boolean) { _feeDueAlerts.value = enabled }
     fun onAnnouncementsChange(enabled: Boolean) { _announcements.value = enabled }
+
+    fun onPhotoSelected(context: Context, uri: Uri) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val base64 = ImageUtils.uriToBase64(context, uri)
+            if (base64 != null) {
+                // Prepend base64 header for image rendering if needed, 
+                // but usually we just store the raw data and add header during display
+                // or use a helper that handles both URL and Base64.
+                _photoUrl.value = "data:image/jpeg;base64,$base64"
+            }
+            _isLoading.value = false
+        }
+    }
 }

@@ -68,6 +68,7 @@ fun AdminDashboardScreen(
     onNavigateToStudents: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToNotifications: () -> Unit,
+    onNavigateToCourses: () -> Unit,
     viewModel: AdminDashboardViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -77,6 +78,7 @@ fun AdminDashboardScreen(
         onNavigateToStudents = onNavigateToStudents,
         onNavigateToSettings = onNavigateToSettings,
         onNavigateToNotifications = onNavigateToNotifications,
+        onNavigateToCourses = onNavigateToCourses,
         state = state
     )
 }
@@ -90,6 +92,7 @@ fun AdminDashboardPreview() {
             onNavigateToStudents = {},
             onNavigateToSettings = {},
             onNavigateToNotifications = {},
+            onNavigateToCourses = {},
             state = AdminDashboardUiState(
                 studentCount = 142,
                 studentGrowth = 12,
@@ -110,6 +113,7 @@ fun AdminDashboardContent(
     onNavigateToStudents: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToNotifications: () -> Unit,
+    onNavigateToCourses: () -> Unit,
     state: AdminDashboardUiState
 ) {
      val backgroundColor = MaterialTheme.colorScheme.background
@@ -141,7 +145,8 @@ fun AdminDashboardContent(
                 ManageSchoolSection(
                     navController = navController, 
                     onStudentsClick = onNavigateToStudents,
-                    onApprovalsClick = { navController.navigate(Screen.PendingApprovals.route) }
+                    onApprovalsClick = { navController.navigate(Screen.PendingApprovals.route) },
+                    onCoursesClick = onNavigateToCourses
                 ) 
             }
             item { UpcomingSessionsSection(state.sessions) }
@@ -308,7 +313,12 @@ fun OverviewCard(
 }
 
 @Composable
-fun ManageSchoolSection(navController: NavController, onStudentsClick: () -> Unit, onApprovalsClick: () -> Unit) {
+fun ManageSchoolSection(
+    navController: NavController, 
+    onStudentsClick: () -> Unit, 
+    onApprovalsClick: () -> Unit,
+    onCoursesClick: () -> Unit
+) {
     Column {
         Text(
             text = stringResource(R.string.manage_school_title),
@@ -386,7 +396,7 @@ fun ManageSchoolSection(navController: NavController, onStudentsClick: () -> Uni
                     icon = Icons.Default.School,
                     colorStart = Color(0xFF1B4332),
                     colorEnd = Color(0xFF0D2B1F),
-                    onClick = { navController.navigate(Screen.ManageCourses.route) }
+                    onClick = onCoursesClick
                 )
                 Spacer(modifier = Modifier.weight(1f))
             }
