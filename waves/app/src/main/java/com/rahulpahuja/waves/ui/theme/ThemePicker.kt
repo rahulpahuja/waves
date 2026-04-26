@@ -38,7 +38,7 @@ fun ThemePicker(themeVM: ThemeViewModel = hiltViewModel()) {
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(12.dp))
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             items(themes) { theme ->
                 ThemeChip(
                     theme = theme,
@@ -55,23 +55,25 @@ private fun ThemeChip(theme: AppTheme, selected: Boolean, onClick: () -> Unit) {
     val scheme = theme.colorScheme()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable(onClick = onClick)
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .padding(12.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(52.dp)
+                .size(56.dp)
                 .clip(CircleShape)
                 .background(scheme.background)
                 .then(
-                    if (selected) Modifier.border(2.dp, scheme.primary, CircleShape)
+                    if (selected) Modifier.border(2.5.dp, scheme.primary, CircleShape)
                     else Modifier.border(1.dp, Color.White.copy(alpha = 0.15f), CircleShape)
                 ),
             contentAlignment = Alignment.Center
         ) {
-            // Half-circle split showing primary on top of background
             Box(
                 modifier = Modifier
-                    .size(26.dp)
+                    .fillMaxSize(0.45f)
                     .clip(CircleShape)
                     .background(scheme.primary)
             )
@@ -80,16 +82,16 @@ private fun ThemeChip(theme: AppTheme, selected: Boolean, onClick: () -> Unit) {
                     Icons.Default.Check,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             theme.displayName,
-            color = if (selected) scheme.primary else Color.Gray,
-            fontSize = 11.sp,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+            color = if (selected) Color.White else Color.Gray,
+            fontSize = 12.sp,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
         )
     }
 }
