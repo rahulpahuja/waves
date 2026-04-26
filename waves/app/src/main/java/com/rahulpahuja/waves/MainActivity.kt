@@ -13,24 +13,38 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.rahulpahuja.waves.module.admin.*
-import com.rahulpahuja.waves.module.auth.*
-import com.rahulpahuja.waves.module.chat.ChatScreen
-import com.rahulpahuja.waves.module.gallery.MediaGalleryScreen
-import com.rahulpahuja.waves.module.onboarding.* 
-import com.rahulpahuja.waves.module.radar.ArtistRadarScreen
-import com.rahulpahuja.waves.module.radar.PublicArtistProfileScreen
-import com.rahulpahuja.waves.module.schedule.ManageBookingsScreen
-import com.rahulpahuja.waves.module.schedule.StudioScheduleScreen
-import com.rahulpahuja.waves.module.splash.SplashScreen
+import com.rahulpahuja.waves.module.admin.AdminNavigation
+import com.rahulpahuja.waves.module.admin.artistprofile.ArtistProfileScreen
+import com.rahulpahuja.waves.module.admin.attendance.AttendanceScreen
+import com.rahulpahuja.waves.module.admin.createsession.CreateSessionScreen
+import com.rahulpahuja.waves.module.admin.helpsupport.HelpSupportScreen
+import com.rahulpahuja.waves.module.admin.newcashentry.NewCashEntryScreen
+import com.rahulpahuja.waves.module.admin.paymenthistory.PaymentHistoryScreen
+import com.rahulpahuja.waves.module.admin.pendingapprovals.PendingApprovalsScreen
+import com.rahulpahuja.waves.module.admin.profilesettings.ProfileSettingsScreen
+import com.rahulpahuja.waves.module.admin.settings.SettingsScreen
+import com.rahulpahuja.waves.module.admin.verifypayments.VerifyPaymentsScreen
+import com.rahulpahuja.waves.module.auth.login.LoginScreen
+import com.rahulpahuja.waves.module.auth.login.LoginViewModel
+import com.rahulpahuja.waves.module.auth.roleselection.RoleSelectionScreen
+import com.rahulpahuja.waves.module.auth.waitingapproval.WaitingApprovalScreen
+import com.rahulpahuja.waves.module.chat.chat.ChatScreen
+import com.rahulpahuja.waves.module.gallery.mediagallery.MediaGalleryScreen
+import com.rahulpahuja.waves.module.onboarding.allset.AllSetScreen
+import com.rahulpahuja.waves.module.onboarding.createpersona.CreatePersonaScreen
+import com.rahulpahuja.waves.module.onboarding.trackprogress.TrackProgressScreen
+import com.rahulpahuja.waves.module.onboarding.welcome.WelcomeScreen
+import com.rahulpahuja.waves.module.radar.artistradar.ArtistRadarScreen
+import com.rahulpahuja.waves.module.radar.publicartistprofile.PublicArtistProfileScreen
+import com.rahulpahuja.waves.module.schedule.managebookings.ManageBookingsScreen
+import com.rahulpahuja.waves.module.schedule.studioschedule.StudioScheduleScreen
+import com.rahulpahuja.waves.module.splash.splash.SplashScreen
 import com.rahulpahuja.waves.module.student.StudentNavigation
-import com.rahulpahuja.waves.module.student.ReceiptScreen
 import com.rahulpahuja.waves.ui.components.NotificationsScreen
 import com.rahulpahuja.waves.ui.home.HomeScreen
 import com.rahulpahuja.waves.ui.navigation.Screen
@@ -165,7 +179,7 @@ fun AppNavigation() {
 
         // Admin Module
         composable(Screen.AdminDashboard.route) {
-            AdminDashboardScreen(navController)
+            AdminNavigation(navController)
         }
         composable(Screen.NewCashEntry.route) {
             NewCashEntryScreen(onDismiss = { navController.popBackStack() })
@@ -179,7 +193,7 @@ fun AppNavigation() {
         composable(Screen.ManageBookings.route) {
             ManageBookingsScreen(onNavigateBack = { navController.popBackStack() })
         }
-        composable("verify_payments") {
+        composable(Screen.VerifyPayments.route) {
             VerifyPaymentsScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(Screen.HelpSupport.route) {

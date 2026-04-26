@@ -4,16 +4,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.rahulpahuja.waves.module.auth.LoginViewModel
-import com.rahulpahuja.waves.module.schedule.StudioScheduleScreen
+import com.rahulpahuja.waves.module.admin.admindashboard.AdminBottomBar
+import com.rahulpahuja.waves.module.admin.admindashboard.AdminDashboardScreen
+import com.rahulpahuja.waves.module.admin.adminsettings.AdminSettingsScreen
+import com.rahulpahuja.waves.module.admin.managecourses.ManageCoursesScreen
+import com.rahulpahuja.waves.module.admin.students.StudentsScreen
+import com.rahulpahuja.waves.module.auth.login.LoginViewModel
+import com.rahulpahuja.waves.module.schedule.studioschedule.StudioScheduleScreen
 import com.rahulpahuja.waves.ui.navigation.Screen
 
 @Composable
@@ -21,8 +24,6 @@ fun AdminNavigation(navController: NavController) {
     val adminNavController = rememberNavController()
     val backgroundColor = MaterialTheme.colorScheme.background
     val loginViewModel: LoginViewModel = hiltViewModel()
-    val viewModel: AdminDashboardViewModel = hiltViewModel()
-    val adminDashboardUiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         containerColor = backgroundColor,
@@ -36,7 +37,7 @@ fun AdminNavigation(navController: NavController) {
             modifier = Modifier.padding(paddingValues)
         ) {
             composable(Screen.AdminDashboard.route) {
-                AdminDashboardContent(
+                AdminDashboardScreen(
                     navController = navController,
                     onNavigateToStudents = {
                         adminNavController.navigate(Screen.Students.route) {
@@ -52,8 +53,7 @@ fun AdminNavigation(navController: NavController) {
                     },
                     onNavigateToNotifications = {
                         navController.navigate(Screen.Notifications.route)
-                    },
-                    state = adminDashboardUiState
+                    }
                 )
             }
             composable(Screen.StudioSchedule.route) {
