@@ -85,7 +85,8 @@ fun StudentNavigation(navController: NavController) {
                                 popUpTo(0)
                             }
                         }
-                    }
+                    },
+                    onAppMapClick = { navController.navigate(Screen.AppMap.route) }
                 )
             }
         }

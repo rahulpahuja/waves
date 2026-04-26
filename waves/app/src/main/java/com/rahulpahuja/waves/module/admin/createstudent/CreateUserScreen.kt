@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,9 +47,12 @@ fun CreateUserScreen(
     var selectedRole by remember { mutableStateOf("student") }
     var selectedProgram by remember { mutableStateOf<String?>(null) }
     val isLoading by viewModel.isLoading.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { 
@@ -68,7 +72,17 @@ fun CreateUserScreen(
         bottomBar = {
             Button(
                 onClick = { 
-                    viewModel.createUser(fullName, email, selectedRole, onComplete)
+                    viewModel.createUser(
+                        fullName = fullName,
+                        email = email,
+                        role = selectedRole,
+                        onSuccess = onComplete,
+                        onError = { message ->
+                            scope.launch {
+                                snackbarHostState.showSnackbar(message)
+                            }
+                        }
+                    )
                 },
                 enabled = !isLoading && fullName.isNotEmpty() && email.isNotEmpty(),
                 modifier = Modifier

@@ -24,22 +24,30 @@ class CreateUserViewModel @Inject constructor(
         fullName: String,
         email: String,
         role: String,
-        onSuccess: () -> Unit
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
     ) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
+                // Check if user already exists
+                val existing = repository.getUserByEmail(email.trim().lowercase())
+                if (existing != null) {
+                    onError("A user with this email already exists.")
+                    return@launch
+                }
+
                 val newUser = FirestoreUser(
-                    uid = UUID.randomUUID().toString(), // Manual creation generates a random UID
-                    email = email,
+                    uid = UUID.randomUUID().toString(),
+                    email = email.trim().lowercase(),
                     displayName = fullName,
                     role = role,
-                    status = "APPROVED" // Manually created users are auto-approved
+                    status = "APPROVED"
                 )
                 repository.saveUser(newUser)
                 onSuccess()
             } catch (e: Exception) {
-                // Log or handle error
+                onError(e.message ?: "Failed to create user")
             } finally {
                 _isLoading.value = false
             }

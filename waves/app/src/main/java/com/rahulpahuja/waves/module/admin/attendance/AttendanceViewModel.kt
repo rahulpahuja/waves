@@ -2,6 +2,7 @@ package com.rahulpahuja.waves.module.admin.attendance
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rahulpahuja.waves.data.remote.FirestoreRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +12,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AttendanceViewModel @Inject constructor() : ViewModel() {
+class AttendanceViewModel @Inject constructor(
+    private val repository: FirestoreRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AttendanceUiState())
     val uiState: StateFlow<AttendanceUiState> = _uiState.asStateFlow()
@@ -22,23 +25,25 @@ class AttendanceViewModel @Inject constructor() : ViewModel() {
 
     private fun loadAttendanceData() {
         viewModelScope.launch {
-            // Simulate data loading
-            val students = listOf(
-                AttendanceStudent("1", "Alex 'Reverb' Smith", "ID: DJ-102 • Level 1", true, true),
-                AttendanceStudent("2", "Sarah 'Spin' Jones", "ID: DJ-105 • Level 2", false, true),
-                AttendanceStudent("3", "Mike 'Drop' Davis", "ID: DJ-108 • Level 1", false, false),
-                AttendanceStudent("4", "Jessica 'Beat' Lee", "ID: DJ-112 • Level 3", true, true),
-                AttendanceStudent("5", "David 'Fader' Wilson", "ID: DJ-115 • Level 2", false, false),
-                AttendanceStudent("6", "Emily 'Mix' Clark", "ID: DJ-120 • Level 1", true, true)
-            )
-            _uiState.update { 
-                it.copy(
-                    sessionTitle = "Advanced Scratching Techniques",
-                    sessionDate = "Oct 24, 18:00 - 20:00",
-                    sessionLocation = "Studio B • Instr. Grandmaster Flash",
-                    students = students,
-                    filteredStudents = students
-                ) 
+            repository.getUsers().collect { users ->
+                val students = users.filter { it.role == "student" }.map { 
+                    AttendanceStudent(
+                        id = it.uid,
+                        name = it.displayName,
+                        details = "Student • ${it.email}",
+                        isOnline = false,
+                        isPresent = false
+                    )
+                }
+                _uiState.update { 
+                    it.copy(
+                        sessionTitle = "Today's Session",
+                        sessionDate = "Oct 25, 2023",
+                        sessionLocation = "Main Studio",
+                        students = students,
+                        filteredStudents = students
+                    ) 
+                }
             }
         }
     }

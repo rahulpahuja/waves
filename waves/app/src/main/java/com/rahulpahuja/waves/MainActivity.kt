@@ -49,6 +49,7 @@ import com.rahulpahuja.waves.module.student.StudentNavigation
 import com.rahulpahuja.waves.ui.components.NotificationsScreen
 import com.rahulpahuja.waves.ui.home.HomeScreen
 import com.rahulpahuja.waves.ui.navigation.Screen
+import com.rahulpahuja.waves.ui.navigation.map.AppMapScreen
 import com.rahulpahuja.waves.ui.theme.WavesTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -271,6 +272,11 @@ fun AppNavigation() {
         // Schedule
         composable(Screen.StudioSchedule.route) {
             StudioScheduleScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        // Project Map
+        composable(Screen.AppMap.route) {
+            AppMapScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }

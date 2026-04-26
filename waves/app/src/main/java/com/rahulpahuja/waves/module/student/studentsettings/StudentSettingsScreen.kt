@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.DateRange
@@ -42,6 +43,7 @@ import com.rahulpahuja.waves.module.admin.createstudent.CustomTextField
 fun StudentSettingsScreen(
     onNavigateBack: () -> Unit,
     onLogout: () -> Unit,
+    onAppMapClick: () -> Unit = {},
     viewModel: StudentSettingsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -81,7 +83,8 @@ fun StudentSettingsScreen(
         onClassRemindersChange = { viewModel.onClassRemindersChange(it) },
         onFeeDueAlertsChange = { viewModel.onFeeDueAlertsChange(it) },
         onAnnouncementsChange = { viewModel.onAnnouncementsChange(it) },
-        onPhotoClick = { photoPickerLauncher.launch("image/*") }
+        onPhotoClick = { photoPickerLauncher.launch("image/*") },
+        onAppMapClick = onAppMapClick
     )
 }
 
@@ -107,7 +110,8 @@ fun StudentSettingsContent(
     onClassRemindersChange: (Boolean) -> Unit,
     onFeeDueAlertsChange: (Boolean) -> Unit,
     onAnnouncementsChange: (Boolean) -> Unit,
-    onPhotoClick: () -> Unit
+    onPhotoClick: () -> Unit,
+    onAppMapClick: () -> Unit = {}
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -333,6 +337,21 @@ fun StudentSettingsContent(
                 )
             }
             com.rahulpahuja.waves.ui.theme.ThemePicker()
+
+            Card(
+                modifier = Modifier.fillMaxWidth().clickable(onClick = onAppMapClick),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Filled.Map, contentDescription = null, tint = Color(0xFF2962FF), modifier = Modifier.size(24.dp))
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text("App Architecture Map", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                }
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
         }

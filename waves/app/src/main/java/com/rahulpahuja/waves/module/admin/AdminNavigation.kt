@@ -90,7 +90,8 @@ fun AdminNavigation(navController: NavController) {
                             }
                         }
                     },
-                    onArtistProfileClick = { navController.navigate(Screen.ArtistProfile.route) }
+                    onArtistProfileClick = { navController.navigate(Screen.ArtistProfile.route) },
+                    onAppMapClick = { navController.navigate(Screen.AppMap.route) }
                 )
             }
             composable(Screen.ManageCourses.route) {

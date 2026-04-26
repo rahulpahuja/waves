@@ -74,8 +74,6 @@ private const val LOG_ERROR_FETCH_STUDENT_PROGRESS = "Error fetching student pro
 private const val LOG_ERROR_FETCH_COURSES = "Error fetching courses: %s"
 private const val LOG_ERROR_SAVE_COURSE = "Error saving course: %s"
 private const val LOG_ERROR_FETCH_USER_PAYMENTS = "Error fetching user payments: %s"
-private const val LOG_ERROR_SEND_PAYMENT_NOTIFICATION =
-    "Error sending payment notification to %s: %s"
 private const val LOG_ERROR_FETCH_ENROLLMENTS = "Error fetching enrollments: %s"
 private const val LOG_ERROR_SAVE_ENROLLMENT = "Error saving enrollment: %s"
 private const val LOG_ERROR_SAVE_FCM_TOKEN = "Error saving FCM token for %s: %s"

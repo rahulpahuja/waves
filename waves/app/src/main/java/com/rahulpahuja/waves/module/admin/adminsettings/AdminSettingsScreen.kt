@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.ReportProblem
 import androidx.compose.material3.*
@@ -36,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 fun AdminSettingsScreen(
     onNavigateBack: () -> Unit,
     onLogout: () -> Unit,
+    onAppMapClick: () -> Unit,
     viewModel: AdminSettingsViewModel = hiltViewModel(),
     onArtistProfileClick: () -> Unit
 ) {
@@ -74,6 +76,17 @@ fun AdminSettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
             
             com.rahulpahuja.waves.ui.theme.ThemePicker()
+
+            // Project Info
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text("PROJECT INFO", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                SettingsNavigationItem(
+                    title = "App Architecture Map",
+                    icon = Icons.Default.Map,
+                    iconColor = Color(0xFF2962FF),
+                    onClick = onAppMapClick
+                )
+            }
 
             // Preferences
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -278,13 +291,13 @@ fun SettingsNavigationItem(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun AdminSettingsScreenPreview() {
-    AdminSettingsScreen(
-        onNavigateBack = {},
-        onLogout = {},
-        viewModel = AdminSettingsViewModel(),
-        onArtistProfileClick = {}
-    )
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun AdminSettingsScreenPreview() {
+//    AdminSettingsScreen(
+//        onNavigateBack = {},
+//        onLogout = {},
+//        viewModel = AdminSettingsViewModel(),
+//        onArtistProfileClick = {}
+//    )
+//}
