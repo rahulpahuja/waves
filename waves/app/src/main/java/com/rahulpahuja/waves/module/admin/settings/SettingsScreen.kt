@@ -1,14 +1,10 @@
 package com.rahulpahuja.waves.module.admin.settings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
@@ -24,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,8 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rahulpahuja.waves.R
-import com.rahulpahuja.waves.module.admin.adminsettings.SettingsNavigationItem
-import com.rahulpahuja.waves.module.admin.adminsettings.SettingsToggleItem
+import com.rahulpahuja.waves.ui.components.SettingsNavigationItem
+import com.rahulpahuja.waves.ui.components.SettingsSection
+import com.rahulpahuja.waves.ui.components.SettingsToggleItem
+import com.rahulpahuja.waves.ui.theme.AppTheme
+import com.rahulpahuja.waves.ui.theme.WavesTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,16 +71,13 @@ fun SettingsScreenContent(
         topBar = {
             TopAppBar(
                 title = { 
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Text(stringResource(R.string.settings_title), color = Color.White, fontWeight = FontWeight.Bold)
-                    }
+                    Text(stringResource(R.string.settings_title), color = Color.White, fontWeight = FontWeight.Bold)
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back_content_description), tint = Color.White)
                     }
                 },
-                actions = { Spacer(modifier = Modifier.width(48.dp)) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
@@ -98,10 +93,8 @@ fun SettingsScreenContent(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
             
-            // Preferences
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text(stringResource(R.string.preferences_section_title), color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                
+            // Preferences Section
+            SettingsSection(title = stringResource(R.string.preferences_section_title)) {
                 SettingsToggleItem(
                     title = stringResource(R.string.dark_mode_title),
                     icon = Icons.Filled.DarkMode,
@@ -109,7 +102,7 @@ fun SettingsScreenContent(
                     checked = darkMode,
                     onCheckedChange = onDarkModeChange
                 )
-                
+                HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
                 SettingsNavigationItem(
                     title = stringResource(R.string.language_title),
                     value = language,
@@ -117,7 +110,7 @@ fun SettingsScreenContent(
                     iconColor = Color(0xFF00E676),
                     onClick = { /* TODO */ }
                 )
-                
+                HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
                 SettingsToggleItem(
                     title = stringResource(R.string.notifications_title),
                     icon = Icons.Filled.Notifications,
@@ -127,24 +120,22 @@ fun SettingsScreenContent(
                 )
             }
             
-            // Support
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text(stringResource(R.string.support_section_title), color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                
+            // Support Section
+            SettingsSection(title = stringResource(R.string.support_section_title)) {
                 SettingsNavigationItem(
                     title = stringResource(R.string.help_center_title),
                     icon = Icons.Filled.Help,
                     iconColor = Color(0xFF2962FF),
                     onClick = { /* TODO */ }
                 )
-                
+                HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
                 SettingsNavigationItem(
                     title = stringResource(R.string.report_bug_title),
                     icon = Icons.Filled.ReportProblem,
                     iconColor = Color(0xFFFFC107),
                     onClick = { /* TODO */ }
                 )
-                
+                HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
                 SettingsNavigationItem(
                     title = stringResource(R.string.contact_us_title),
                     icon = Icons.Filled.Email,
@@ -153,57 +144,24 @@ fun SettingsScreenContent(
                 )
             }
             
-            // Account
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text(stringResource(R.string.account_section_title), color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                
-                Card(
-                    modifier = Modifier.fillMaxWidth().clickable(onClick = onLogout),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .background(Color(0xFF607D8B).copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Filled.Logout, contentDescription = null, tint = Color(0xFF607D8B), modifier = Modifier.size(20.dp))
-                        }
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(stringResource(R.string.logout_title), color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                    }
-                }
-                
-                Card(
-                    modifier = Modifier.fillMaxWidth().clickable { /* TODO: Delete Account */ },
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .background(Color.Red.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Filled.Delete, contentDescription = null, tint = Color.Red, modifier = Modifier.size(20.dp))
-                        }
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(stringResource(R.string.delete_account_title), color = Color.Red, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                    }
-                }
+            // Account Section
+            SettingsSection(title = stringResource(R.string.account_section_title)) {
+                SettingsNavigationItem(
+                    title = stringResource(R.string.logout_title),
+                    icon = Icons.Filled.Logout,
+                    iconColor = Color(0xFF607D8B),
+                    onClick = onLogout,
+                    showChevron = false
+                )
+                HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
+                SettingsNavigationItem(
+                    title = stringResource(R.string.delete_account_title),
+                    icon = Icons.Filled.Delete,
+                    iconColor = Color.Red,
+                    onClick = { /* TODO */ },
+                    showChevron = false,
+                    titleColor = Color.Red
+                )
             }
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -217,16 +175,18 @@ fun SettingsScreenContent(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun SettingsScreenPreview() {
-    SettingsScreenContent(
-        darkMode = false,
-        language = "English",
-        notifications = true,
-        onNavigateBack = {},
-        onLogout = {},
-        onDarkModeChange = {},
-        onNotificationsChange = {}
-    )
+    WavesTheme(colorScheme = AppTheme.ADMIN_SLATE.colorScheme()) {
+        SettingsScreenContent(
+            darkMode = false,
+            language = "English",
+            notifications = true,
+            onNavigateBack = {},
+            onLogout = {},
+            onDarkModeChange = {},
+            onNotificationsChange = {}
+        )
+    }
 }

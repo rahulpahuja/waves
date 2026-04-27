@@ -1,14 +1,13 @@
 package com.rahulpahuja.waves.module.admin.adminsettings
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
@@ -17,6 +16,7 @@ import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ReportProblem
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -24,13 +24,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.rahulpahuja.waves.ui.components.SettingsNavigationItem
+import com.rahulpahuja.waves.ui.components.SettingsSection
+import com.rahulpahuja.waves.ui.components.SettingsToggleItem
 import com.rahulpahuja.waves.ui.theme.AppTheme
 import com.rahulpahuja.waves.ui.theme.ThemePicker
 import com.rahulpahuja.waves.ui.theme.ThemePickerContent
@@ -57,6 +60,7 @@ fun AdminSettingsScreen(
         onAppMapClick = onAppMapClick,
         onDarkModeChange = { viewModel.onDarkModeChange(it) },
         onNotificationsChange = { viewModel.onNotificationsChange(it) },
+        onArtistProfileClick = onArtistProfileClick,
         themePicker = { ThemePicker() }
     )
 }
@@ -72,6 +76,7 @@ fun AdminSettingsContent(
     onAppMapClick: () -> Unit,
     onDarkModeChange: (Boolean) -> Unit,
     onNotificationsChange: (Boolean) -> Unit,
+    onArtistProfileClick: () -> Unit,
     themePicker: @Composable () -> Unit
 ) {
     Scaffold(
@@ -79,16 +84,13 @@ fun AdminSettingsContent(
         topBar = {
             TopAppBar(
                 title = { 
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Text("Settings", color = Color.White, fontWeight = FontWeight.Bold)
-                    }
+                    Text("Settings", color = Color.White, fontWeight = FontWeight.Bold)
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
                 },
-                actions = { Spacer(modifier = Modifier.width(48.dp)) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
@@ -97,223 +99,160 @@ fun AdminSettingsContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            themePicker()
+            // Profile Header
+            ProfileHeader(onArtistProfileClick)
 
-            // Project Info
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("PROJECT INFO", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                SettingsNavigationItem(
-                    title = "App Architecture Map",
-                    icon = Icons.Default.Map,
-                    iconColor = Color(0xFF2962FF),
-                    onClick = onAppMapClick
-                )
-            }
-
-            // Preferences
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("PREFERENCES", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                
-                SettingsToggleItem(
-                    title = "Dark Mode",
-                    icon = Icons.Filled.DarkMode,
-                    iconColor = Color(0xFF2962FF),
-                    checked = darkMode,
-                    onCheckedChange = onDarkModeChange
-                )
-                
-                SettingsNavigationItem(
-                    title = "Language",
-                    value = language,
-                    icon = Icons.Filled.Language,
-                    iconColor = Color(0xFF00E676),
-                    onClick = { /* TODO */ }
-                )
-                
-                SettingsToggleItem(
-                    title = "Notifications",
-                    icon = Icons.Filled.Notifications,
-                    iconColor = Color(0xFFE91E63),
-                    checked = notifications,
-                    onCheckedChange = onNotificationsChange
-                )
-            }
-            
-            // Support
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("SUPPORT", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                
-                SettingsNavigationItem(
-                    title = "Help Center",
-                    icon = Icons.Filled.Help,
-                    iconColor = Color(0xFF2962FF),
-                    onClick = { /* TODO */ }
-                )
-                
-                SettingsNavigationItem(
-                    title = "Report a Bug",
-                    icon = Icons.Filled.ReportProblem,
-                    iconColor = Color(0xFFFFC107),
-                    onClick = { /* TODO */ }
-                )
-                
-                SettingsNavigationItem(
-                    title = "Contact Us",
-                    icon = Icons.Filled.Email,
-                    iconColor = Color(0xFF9C27B0),
-                    onClick = { /* TODO */ }
-                )
-            }
-            
-            // Account
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("ACCOUNT", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                
-                Card(
-                    modifier = Modifier.fillMaxWidth().clickable(onClick = onLogout),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .background(Color(0xFF607D8B).copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Filled.Logout, contentDescription = null, tint = Color(0xFF607D8B), modifier = Modifier.size(20.dp))
-                        }
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text("Log Out", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                    }
-                }
-                
-                Card(
-                    modifier = Modifier.fillMaxWidth().clickable { /* TODO: Delete Account */ },
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .background(Color.Red.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Filled.Delete, contentDescription = null, tint = Color.Red, modifier = Modifier.size(20.dp))
-                        }
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text("Delete Account", color = Color.Red, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                    }
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Version 2.4.1 (Build 8902)",
-                color = Color.Gray,
-                fontSize = 12.sp
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-        }
-    }
-}
-
-@Composable
-fun SettingsToggleItem(
-    title: String,
-    icon: ImageVector,
-    iconColor: Color,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
+            Column(
                 modifier = Modifier
-                    .size(32.dp),
-                contentAlignment = Alignment.Center
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(20.dp))
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-            Switch(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color.White,
-                    checkedTrackColor = Color(0xFF2962FF),
-                    uncheckedThumbColor = Color.LightGray,
-                    uncheckedTrackColor = Color.DarkGray,
-                    uncheckedBorderColor = Color.Transparent
+                // Appearance Section
+                SettingsSection(title = "APPEARANCE") {
+                    Box(modifier = Modifier.padding(vertical = 8.dp)) {
+                        themePicker()
+                    }
+                }
+
+                // Preferences Section
+                SettingsSection(title = "PREFERENCES") {
+                    SettingsToggleItem(
+                        title = "Dark Mode",
+                        icon = Icons.Filled.DarkMode,
+                        iconColor = Color(0xFF2962FF),
+                        checked = darkMode,
+                        onCheckedChange = onDarkModeChange
+                    )
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
+                    SettingsNavigationItem(
+                        title = "Language",
+                        value = language,
+                        icon = Icons.Filled.Language,
+                        iconColor = Color(0xFF00E676),
+                        onClick = { /* TODO */ }
+                    )
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
+                    SettingsToggleItem(
+                        title = "Notifications",
+                        icon = Icons.Filled.Notifications,
+                        iconColor = Color(0xFFE91E63),
+                        checked = notifications,
+                        onCheckedChange = onNotificationsChange
+                    )
+                }
+
+                // Project Info Section
+                SettingsSection(title = "PROJECT INFO") {
+                    SettingsNavigationItem(
+                        title = "App Architecture Map",
+                        icon = Icons.Default.Map,
+                        iconColor = Color(0xFFFFD700),
+                        onClick = onAppMapClick
+                    )
+                }
+
+                // Support Section
+                SettingsSection(title = "SUPPORT") {
+                    SettingsNavigationItem(
+                        title = "Help Center",
+                        icon = Icons.Filled.Help,
+                        iconColor = Color(0xFF2962FF),
+                        onClick = { /* TODO */ }
+                    )
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
+                    SettingsNavigationItem(
+                        title = "Report a Bug",
+                        icon = Icons.Filled.ReportProblem,
+                        iconColor = Color(0xFFFFC107),
+                        onClick = { /* TODO */ }
+                    )
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
+                    SettingsNavigationItem(
+                        title = "Contact Us",
+                        icon = Icons.Filled.Email,
+                        iconColor = Color(0xFF9C27B0),
+                        onClick = { /* TODO */ }
+                    )
+                }
+
+                // Account Section
+                SettingsSection(title = "ACCOUNT") {
+                    SettingsNavigationItem(
+                        title = "Log Out",
+                        icon = Icons.Filled.Logout,
+                        iconColor = Color(0xFF607D8B),
+                        onClick = onLogout,
+                        showChevron = false
+                    )
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
+                    SettingsNavigationItem(
+                        title = "Delete Account",
+                        icon = Icons.Filled.Delete,
+                        iconColor = Color.Red,
+                        onClick = { /* TODO */ },
+                        showChevron = false,
+                        titleColor = Color.Red
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Version 2.4.1 (Build 8902)",
+                    color = Color.Gray,
+                    fontSize = 12.sp,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
-            )
+                Spacer(modifier = Modifier.height(32.dp))
+            }
         }
     }
 }
 
 @Composable
-fun SettingsNavigationItem(
-    title: String,
-    value: String? = null,
-    icon: ImageVector,
-    iconColor: Color,
-    onClick: () -> Unit
-) {
-    Card(
+fun ProfileHeader(onArtistProfileClick: () -> Unit) {
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(12.dp)
+            .padding(vertical = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .size(100.dp)
+                .clip(CircleShape)
+                .background(Color(0xFFE0C9A6)),
+            contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .size(32.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(20.dp))
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-            if (value != null) {
-                Text(value, color = Color.Gray, fontSize = 14.sp)
-                Spacer(modifier = Modifier.width(8.dp))
-            }
-            Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Color.Gray)
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(48.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Admin User",
+            color = Color.White,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = "admin@waves.com",
+            color = Color.Gray,
+            fontSize = 14.sp
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = onArtistProfileClick,
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
+            shape = RoundedCornerShape(20.dp)
+        ) {
+            Text("Edit Profile", color = MaterialTheme.colorScheme.primary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -331,6 +270,7 @@ fun AdminSettingsPreview() {
             onAppMapClick = {},
             onDarkModeChange = {},
             onNotificationsChange = {},
+            onArtistProfileClick = {},
             themePicker = {
                 ThemePickerContent(
                     themes = AppTheme.forRole("admin"),

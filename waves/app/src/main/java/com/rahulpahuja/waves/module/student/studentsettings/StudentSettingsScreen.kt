@@ -11,15 +11,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Payment
-import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,7 +34,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.rahulpahuja.waves.module.admin.createstudent.CustomTextField
+import com.rahulpahuja.waves.ui.components.SettingsNavigationItem
+import com.rahulpahuja.waves.ui.components.SettingsSection
+import com.rahulpahuja.waves.ui.components.SettingsToggleItem
+import com.rahulpahuja.waves.ui.theme.AppTheme
+import com.rahulpahuja.waves.ui.theme.ThemePicker
+import com.rahulpahuja.waves.ui.theme.WavesTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -118,9 +121,7 @@ fun StudentSettingsContent(
         topBar = {
             TopAppBar(
                 title = { 
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Text("Settings", color = Color.White, fontWeight = FontWeight.Bold)
-                    }
+                    Text("Settings", color = Color.White, fontWeight = FontWeight.Bold)
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -129,55 +130,26 @@ fun StudentSettingsContent(
                 },
                 actions = { 
                     TextButton(onClick = onSaveProfile) {
-                        Text("Done", color = Color(0xFF2962FF), fontWeight = FontWeight.Bold)
+                        Text("Done", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
-        },
-        bottomBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Button(
-                    onClick = onSaveProfile,
-                    enabled = !isLoading,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                    shape = RoundedCornerShape(28.dp)
-                ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-                    } else {
-                        Text("Save Changes", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                TextButton(onClick = onLogout) {
-                    Text("Log Out", color = Color.Red, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                }
-            }
         }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // Profile Header
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.clickable(onClick = onPhotoClick)
+                modifier = Modifier
+                    .padding(vertical = 32.dp)
+                    .clickable(onClick = onPhotoClick)
             ) {
                 Box(contentAlignment = Alignment.BottomEnd) {
                     if (photoUrl.isNotEmpty()) {
@@ -202,7 +174,7 @@ fun StudentSettingsContent(
                     Box(
                         modifier = Modifier
                             .size(32.dp)
-                            .background(Color(0xFF2962FF), CircleShape)
+                            .background(MaterialTheme.colorScheme.primary, CircleShape)
                             .padding(4.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -214,146 +186,120 @@ fun StudentSettingsContent(
                 Text("Student", color = Color.Gray, fontSize = 12.sp)
             }
 
-            // Personal Information
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("Personal Information", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                
-                CustomTextField(
-                    value = fullName,
-                    onValueChange = onFullNameChange,
-                    label = "Full Name",
-                    placeholder = "Full Name",
-                    icon = Icons.Filled.Person
-                )
-                
-                CustomTextField(
-                    value = email,
-                    onValueChange = onEmailChange,
-                    label = "Email Address",
-                    placeholder = "Email Address",
-                    icon = Icons.Filled.Person // or Email if available
-                )
-
-                CustomTextField(
-                    value = phone,
-                    onValueChange = onPhoneChange,
-                    label = "Phone Number",
-                    placeholder = "Phone Number",
-                    icon = Icons.Filled.Person // or Phone if available
-                )
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .background(Color(0xFF2962FF).copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Filled.Lock, contentDescription = null, tint = Color(0xFF2962FF), modifier = Modifier.size(16.dp))
-                        }
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text("Change Password", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
-                        Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Color.Gray)
-                    }
-                }
-            }
-
-            // Artist Persona
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("Artist Persona", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("Edit Artist Profile", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .background(Color(0xFF2962FF), RoundedCornerShape(4.dp))
-                                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                                ) {
-                                    Text("PUBLIC", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text("Update bio, social links & genres", color = Color.Gray, fontSize = 12.sp)
-                        }
-                        Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Color.Gray)
-                    }
-                }
-            }
-
-            // Notifications
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("Notifications", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                
-                NotificationToggleItem(
-                    title = "Push Notifications",
-                    subtitle = null,
-                    checked = pushNotifications,
-                    icon = Icons.Filled.Notifications,
-                    onCheckedChange = onPushNotificationsChange
-                )
-                NotificationToggleItem(
-                    title = "Class Reminders",
-                    subtitle = "Alerts 1 hour before start",
-                    checked = classReminders,
-                    icon = Icons.Filled.DateRange,
-                    onCheckedChange = onClassRemindersChange
-                )
-                NotificationToggleItem(
-                    title = "Fee Due Alerts",
-                    subtitle = null,
-                    checked = feeDueAlerts,
-                    icon = Icons.Filled.Payment,
-                    onCheckedChange = onFeeDueAlertsChange
-                )
-                NotificationToggleItem(
-                    title = "Announcements",
-                    subtitle = "New courses and school news",
-                    checked = announcements,
-                    icon = Icons.Filled.Campaign,
-                    onCheckedChange = onAnnouncementsChange
-                )
-            }
-            com.rahulpahuja.waves.ui.theme.ThemePicker()
-
-            Card(
-                modifier = Modifier.fillMaxWidth().clickable(onClick = onAppMapClick),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                shape = RoundedCornerShape(12.dp)
+            Column(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Filled.Map, contentDescription = null, tint = Color(0xFF2962FF), modifier = Modifier.size(24.dp))
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Text("App Architecture Map", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                // Personal Information
+                SettingsSection(title = "PERSONAL INFORMATION") {
+                    Box(modifier = Modifier.padding(16.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            SimpleTextField("Full Name", fullName) { onFullNameChange(it) }
+                            SimpleTextField("Email Address", email) { onEmailChange(it) }
+                            SimpleTextField("Phone Number", phone) { onPhoneChange(it) }
+                        }
+                    }
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
+                    SettingsNavigationItem(
+                        title = "Change Password",
+                        icon = Icons.Filled.Lock,
+                        iconColor = Color(0xFF2962FF),
+                        onClick = { /* TODO */ }
+                    )
                 }
-            }
 
-            Spacer(modifier = Modifier.height(32.dp))
+                // Artist Persona
+                SettingsSection(title = "ARTIST PERSONA") {
+                    SettingsNavigationItem(
+                        title = "Edit Artist Profile",
+                        subtitle = "Update bio, social links & genres",
+                        value = "PUBLIC",
+                        icon = Icons.Filled.Person,
+                        iconColor = Color(0xFFFFD700),
+                        onClick = { /* TODO */ }
+                    )
+                }
+
+                // Notifications
+                SettingsSection(title = "NOTIFICATIONS") {
+                    SettingsToggleItem(
+                        title = "Push Notifications",
+                        checked = pushNotifications,
+                        icon = Icons.Filled.Notifications,
+                        iconColor = Color(0xFFE91E63),
+                        onCheckedChange = onPushNotificationsChange
+                    )
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
+                    SettingsToggleItem(
+                        title = "Class Reminders",
+                        subtitle = "Alerts 1 hour before start",
+                        checked = classReminders,
+                        icon = Icons.Filled.DateRange,
+                        iconColor = Color(0xFF00E676),
+                        onCheckedChange = onClassRemindersChange
+                    )
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
+                    SettingsToggleItem(
+                        title = "Fee Due Alerts",
+                        checked = feeDueAlerts,
+                        icon = Icons.Filled.Payment,
+                        iconColor = Color(0xFFFFC107),
+                        onCheckedChange = onFeeDueAlertsChange
+                    )
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
+                    SettingsToggleItem(
+                        title = "Announcements",
+                        subtitle = "New courses and school news",
+                        checked = announcements,
+                        icon = Icons.Filled.Campaign,
+                        iconColor = Color(0xFF9C27B0),
+                        onCheckedChange = onAnnouncementsChange
+                    )
+                }
+
+                // Appearance
+                SettingsSection(title = "APPEARANCE") {
+                    Box(modifier = Modifier.padding(vertical = 8.dp)) {
+                        ThemePicker()
+                    }
+                }
+
+                // Project Info
+                SettingsSection(title = "PROJECT INFO") {
+                    SettingsNavigationItem(
+                        title = "App Architecture Map",
+                        icon = Icons.Filled.Map,
+                        iconColor = Color(0xFFFFD700),
+                        onClick = onAppMapClick
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = onSaveProfile,
+                    enabled = !isLoading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text("Save Changes", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+                
+                TextButton(
+                    onClick = onLogout,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text("Log Out", color = Color.Red, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                }
+                
+                Spacer(modifier = Modifier.height(32.dp))
+            }
         }
     }
 }
@@ -376,84 +322,34 @@ fun SimpleTextField(label: String, value: String, onValueChange: (String) -> Uni
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                unfocusedTextColor = Color.White
             )
         )
     }
 }
 
-@Composable
-fun NotificationToggleItem(
-    title: String,
-    subtitle: String?,
-    checked: Boolean,
-    icon: ImageVector,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            
-            Box(
-                modifier = Modifier
-                    .size(32.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(icon, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
-            }
-            
-            Spacer(modifier = Modifier.width(16.dp))
-            
-            Column(modifier = Modifier.weight(1f)) {
-                Text(title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                if (subtitle != null) {
-                    Text(subtitle, color = Color.Gray, fontSize = 12.sp)
-                }
-            }
-            
-            Switch(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color.White,
-                    checkedTrackColor = Color(0xFF2962FF),
-                    uncheckedThumbColor = Color.LightGray,
-                    uncheckedTrackColor = Color.DarkGray,
-                    uncheckedBorderColor = Color.Transparent
-                )
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun StudentSettingsScreenPreview() {
-    StudentSettingsContent(
-        fullName = "DJ Mandy",
-        email = "dj.mandy@gmail.com",
-        phone = "+1 555 012-3456",
-        pushNotifications = true,
-        classReminders = true,
-        feeDueAlerts = true,
-        announcements = false,
-        onNavigateBack = {},
-        onLogout = {},
-        onFullNameChange = {},
-        onEmailChange = {},
-        onPhoneChange = {},
-        onPushNotificationsChange = {},
-        onClassRemindersChange = {},
-        onFeeDueAlertsChange = {},
-        onAnnouncementsChange = {},
-        onPhotoClick = {}
-    )
+    WavesTheme(colorScheme = AppTheme.STUDENT_OCEAN.colorScheme()) {
+        StudentSettingsContent(
+            fullName = "DJ Mandy",
+            email = "dj.mandy@gmail.com",
+            phone = "+1 555 012-3456",
+            pushNotifications = true,
+            classReminders = true,
+            feeDueAlerts = true,
+            announcements = false,
+            onNavigateBack = {},
+            onLogout = {},
+            onFullNameChange = {},
+            onEmailChange = {},
+            onPhoneChange = {},
+            onPushNotificationsChange = {},
+            onClassRemindersChange = {},
+            onFeeDueAlertsChange = {},
+            onAnnouncementsChange = {},
+            onPhotoClick = {}
+        )
+    }
 }

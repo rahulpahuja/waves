@@ -10,12 +10,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
@@ -32,8 +30,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.rahulpahuja.waves.module.student.studentsettings.NotificationToggleItem
 import com.rahulpahuja.waves.module.student.studentsettings.SimpleTextField
+import com.rahulpahuja.waves.ui.components.SettingsNavigationItem
+import com.rahulpahuja.waves.ui.components.SettingsSection
+import com.rahulpahuja.waves.ui.components.SettingsToggleItem
+import com.rahulpahuja.waves.ui.theme.AppTheme
 import com.rahulpahuja.waves.ui.theme.WavesTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -120,9 +121,7 @@ fun ProfileSettingsContent(
         topBar = {
             TopAppBar(
                 title = { 
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Text("Profile Settings", color = Color.White, fontWeight = FontWeight.Bold)
-                    }
+                    Text("Profile Settings", color = Color.White, fontWeight = FontWeight.Bold)
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -131,55 +130,25 @@ fun ProfileSettingsContent(
                 },
                 actions = {
                     TextButton(onClick = onSaveProfile) {
-                        Text("Done", color = Color(0xFF2962FF), fontWeight = FontWeight.Bold)
+                        Text("Done", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
-        },
-        bottomBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Button(
-                    onClick = onSaveProfile,
-                    enabled = !isLoading,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                    shape = RoundedCornerShape(28.dp)
-                ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-                    } else {
-                        Text("Save Changes", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                TextButton(onClick = onLogout) {
-                    Text("Log Out", color = Color.Red, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Beat Academy App v2.4.1", color = Color.Gray, fontSize = 10.sp)
-            }
         }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // Profile Header
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier.padding(vertical = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Box(contentAlignment = Alignment.BottomEnd) {
                     if (photoUrl.isNotEmpty()) {
                         AsyncImage(
@@ -203,7 +172,7 @@ fun ProfileSettingsContent(
                     Box(
                         modifier = Modifier
                             .size(32.dp)
-                            .background(Color(0xFF2962FF), CircleShape)
+                            .background(MaterialTheme.colorScheme.primary, CircleShape)
                             .padding(4.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -215,154 +184,151 @@ fun ProfileSettingsContent(
                 Text("${role.replaceFirstChar { it.uppercase() }} / $status", color = Color.Gray, fontSize = 12.sp)
             }
 
-            // Personal Info
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("PERSONAL INFO", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                
-                SimpleTextField("Display Name", displayName) { onDisplayNameChange(it) }
-                SimpleTextField("Email", email) { onEmailChange(it) }
-                SimpleTextField("Phone", phone) { onPhoneChange(it) }
-                
-                // Bio Field (Multi-line)
-                Column {
-                    Text("Bio", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    TextField(
-                        value = bio,
-                        onValueChange = onBioChange,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surface),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFF1E232F),
-                            unfocusedContainerColor = Color(0xFF1E232F),
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
-                        )
+            Column(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                // Personal Info
+                SettingsSection(title = "PERSONAL INFO") {
+                    Box(modifier = Modifier.padding(16.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            SimpleTextField("Display Name", displayName) { onDisplayNameChange(it) }
+                            SimpleTextField("Email", email) { onEmailChange(it) }
+                            SimpleTextField("Phone", phone) { onPhoneChange(it) }
+                            
+                            // Bio Field (Multi-line)
+                            Column {
+                                Text("Bio", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Spacer(modifier = Modifier.height(8.dp))
+                                TextField(
+                                    value = bio,
+                                    onValueChange = onBioChange,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(100.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(MaterialTheme.colorScheme.surface),
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = Color(0xFF1E232F),
+                                        unfocusedContainerColor = Color(0xFF1E232F),
+                                        focusedIndicatorColor = Color.Transparent,
+                                        unfocusedIndicatorColor = Color.Transparent,
+                                        focusedTextColor = Color.White,
+                                        unfocusedTextColor = Color.White
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Security
+                SettingsSection(title = "SECURITY") {
+                    SettingsNavigationItem(
+                        title = "Change Password",
+                        icon = Icons.Filled.Lock,
+                        iconColor = Color(0xFF2962FF),
+                        onClick = { /* TODO */ }
+                    )
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
+                    SettingsToggleItem(
+                        title = "Face ID Login",
+                        checked = faceIdLogin,
+                        icon = Icons.Filled.Face,
+                        iconColor = Color(0xFF00E676),
+                        onCheckedChange = onFaceIdLoginChange
                     )
                 }
-            }
 
-            // Security
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("SECURITY", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                // Notifications
+                SettingsSection(title = "NOTIFICATIONS") {
+                    SettingsToggleItem(
+                        title = "New Booking Requests",
+                        subtitle = "Notify when a student books a slot",
+                        checked = newBookingRequests,
+                        icon = Icons.Filled.DateRange,
+                        iconColor = Color(0xFFE91E63),
+                        onCheckedChange = onNewBookingRequestsChange
+                    )
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
+                    SettingsToggleItem(
+                        title = "Low Attendance",
+                        subtitle = "Alert if class is under 50% capacity",
+                        checked = lowAttendance,
+                        icon = Icons.Filled.Warning,
+                        iconColor = Color(0xFFFFC107),
+                        onCheckedChange = onLowAttendanceChange
+                    )
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
+                    SettingsToggleItem(
+                        title = "Marketing Updates",
+                        subtitle = "News about app features",
+                        checked = marketingUpdates,
+                        icon = Icons.Filled.Campaign,
+                        iconColor = Color(0xFF9C27B0),
+                        onCheckedChange = onMarketingUpdatesChange
+                    )
+                }
                 
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .background(Color(0xFF2962FF).copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Filled.Lock, contentDescription = null, tint = Color(0xFF2962FF), modifier = Modifier.size(16.dp))
-                        }
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text("Change Password", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
-                        Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Color.Gray)
-                    }
+                // School Defaults
+                SettingsSection(title = "SCHOOL DEFAULTS") {
+                    SettingsNavigationItem(
+                        title = "Default Class Duration",
+                        value = "60 mins",
+                        icon = Icons.Filled.DateRange, // Placeholder icon
+                        iconColor = Color(0xFF03A9F4),
+                        onClick = { /* TODO */ }
+                    )
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(start = 56.dp))
+                    SettingsToggleItem(
+                        title = "Auto-Approve Bookings",
+                        checked = autoApproveBookings,
+                        icon = Icons.Filled.CheckCircle,
+                        iconColor = Color(0xFF4CAF50),
+                        onCheckedChange = onAutoApproveBookingsChange
+                    )
                 }
 
-                 NotificationToggleItem(
-                     title = "Face ID Login",
-                     subtitle = null,
-                     checked = faceIdLogin,
-                     icon = Icons.Filled.Face,
-                     onCheckedChange = onFaceIdLoginChange
-                 )
-            }
-
-            // Notifications
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("NOTIFICATIONS", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                
-                NotificationToggleItem(
-                    title = "New Booking Requests",
-                    subtitle = "Notify when a student books a slot",
-                    checked = newBookingRequests,
-                    icon = Icons.Filled.DateRange,
-                    onCheckedChange = onNewBookingRequestsChange
-                )
-                NotificationToggleItem(
-                    title = "Low Attendance",
-                    subtitle = "Alert if class is under 50% capacity",
-                    checked = lowAttendance,
-                    icon = Icons.Filled.Warning,
-                    onCheckedChange = onLowAttendanceChange
-                )
-                NotificationToggleItem(
-                    title = "Marketing Updates",
-                    subtitle = "News about app features",
-                    checked = marketingUpdates,
-                    icon = Icons.Filled.Campaign,
-                    onCheckedChange = onMarketingUpdatesChange
-                )
-            }
-            
-            // School Defaults
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                 Row(
-                     modifier = Modifier.fillMaxWidth(),
-                     horizontalArrangement = Arrangement.SpaceBetween,
-                     verticalAlignment = Alignment.CenterVertically
-                 ) {
-                     Text("SCHOOL DEFAULTS", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                     Box(
-                         modifier = Modifier
-                             .background(Color(0xFF2962FF), RoundedCornerShape(4.dp))
-                             .padding(horizontal = 6.dp, vertical = 2.dp)
-                     ) {
-                         Text("ADMIN", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                     }
-                 }
-
-                 Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = onSaveProfile,
+                    enabled = !isLoading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Default Class Duration", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                        Text("60 mins", color = Color.Gray, fontSize = 14.sp)
-                        Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Color.Gray)
+                    if (isLoading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text("Save Changes", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
                 }
                 
-                NotificationToggleItem(
-                    title = "Auto-Approve Bookings",
-                    subtitle = null,
-                    checked = autoApproveBookings,
-                    icon = Icons.Filled.CheckCircle,
-                    onCheckedChange = onAutoApproveBookingsChange
+                TextButton(
+                    onClick = onLogout,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text("Log Out", color = Color.Red, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                }
+                
+                Text(
+                    text = "Beat Academy App v2.4.1",
+                    color = Color.Gray,
+                    fontSize = 10.sp,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
+                Spacer(modifier = Modifier.height(32.dp))
             }
-            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun ProfileSettingsScreenPreview() {
-    WavesTheme {
+    WavesTheme(colorScheme = AppTheme.ADMIN_SLATE.colorScheme()) {
         ProfileSettingsContent(
             displayName = "Marcus Vance",
             email = "marcus@waves.com",

@@ -21,10 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rahulpahuja.waves.ui.navigation.Screen
 import com.rahulpahuja.waves.ui.navigation.ScreenGroup
+import com.rahulpahuja.waves.ui.theme.AppTheme
+import com.rahulpahuja.waves.ui.theme.WavesTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -173,5 +176,13 @@ fun MapGroupSection(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun AppMapScreenPreview() {
+    WavesTheme(colorScheme = AppTheme.ADMIN_SLATE.colorScheme()) {
+        AppMapScreen(onNavigateBack = {})
     }
 }

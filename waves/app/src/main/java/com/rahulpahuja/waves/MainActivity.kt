@@ -30,6 +30,7 @@ import com.rahulpahuja.waves.module.admin.pendingapprovals.PendingApprovalsScree
 import com.rahulpahuja.waves.module.admin.profilesettings.ProfileSettingsScreen
 import com.rahulpahuja.waves.module.admin.settings.SettingsScreen
 import com.rahulpahuja.waves.module.admin.verifypayments.VerifyPaymentsScreen
+import com.rahulpahuja.waves.module.auth.forgotpassword.ForgotPasswordScreen
 import com.rahulpahuja.waves.module.auth.login.LoginScreen
 import com.rahulpahuja.waves.module.auth.login.LoginViewModel
 import com.rahulpahuja.waves.module.auth.roleselection.RoleSelectionScreen
@@ -116,6 +117,9 @@ fun AppNavigation() {
                 onForgotPasswordClick = { navController.navigate(Screen.ForgotPassword.route) },
                 onSignUpClick = { /* TODO: Navigate to Sign Up */ }
             )
+        }
+        composable(Screen.ForgotPassword.route) {
+            ForgotPasswordScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(Screen.RoleSelection.route) {
             RoleSelectionScreen(navController = navController)
