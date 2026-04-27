@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AttendanceViewModel @Inject constructor(
-    private val repository: FirestoreRepository
+    private val repository: FirestoreRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AttendanceUiState())
@@ -26,23 +26,26 @@ class AttendanceViewModel @Inject constructor(
     private fun loadAttendanceData() {
         viewModelScope.launch {
             repository.getUsers().collect { users ->
-                val students = users.filter { it.role == "student" }.map { 
-                    AttendanceStudent(
-                        id = it.uid,
-                        name = it.displayName,
-                        details = "Student • ${it.email}",
-                        isOnline = false,
-                        isPresent = false
-                    )
-                }
-                _uiState.update { 
+                val students = users.asSequence()
+                    .filter { it.role == "student" }
+                    .map {
+                        AttendanceStudent(
+                            id = it.uid,
+                            name = it.displayName,
+                            details = "Student • ${it.email}",
+                            isOnline = false,
+                            isPresent = false,
+                        )
+                    }
+                    .toList()
+                _uiState.update {
                     it.copy(
                         sessionTitle = "Today's Session",
                         sessionDate = "Oct 25, 2023",
                         sessionLocation = "Main Studio",
                         students = students,
-                        filteredStudents = students
-                    ) 
+                        filteredStudents = filterStudents(students, it.searchQuery)
+                    )
                 }
             }
         }
@@ -50,23 +53,22 @@ class AttendanceViewModel @Inject constructor(
 
     fun onSearchQueryChanged(query: String) {
         _uiState.update { state ->
-            val filtered = state.students.filter { 
-                it.name.contains(query, ignoreCase = true) || it.details.contains(query, ignoreCase = true)
-            }
-            state.copy(searchQuery = query, filteredStudents = filtered)
+            state.copy(
+                searchQuery = query,
+                filteredStudents = filterStudents(state.students, query)
+            )
         }
     }
 
     fun toggleAttendance(studentId: String) {
         _uiState.update { state ->
-            val updatedStudents = state.students.map { 
-                if (it.id == studentId) it.copy(isPresent = !it.isPresent) else it 
+            val updatedStudents = state.students.map {
+                if (it.id == studentId) it.copy(isPresent = !it.isPresent) else it
             }
-            // Re-apply filter if needed, or just update the source list and re-filter
-            val filtered = updatedStudents.filter { 
-                it.name.contains(state.searchQuery, ignoreCase = true) 
-            }
-            state.copy(students = updatedStudents, filteredStudents = filtered)
+            state.copy(
+                students = updatedStudents,
+                filteredStudents = filterStudents(updatedStudents, state.searchQuery)
+            )
         }
     }
 
@@ -75,10 +77,17 @@ class AttendanceViewModel @Inject constructor(
             val allSelected = state.students.all { it.isPresent }
             val newValue = !allSelected
             val updatedStudents = state.students.map { it.copy(isPresent = newValue) }
-             val filtered = updatedStudents.filter { 
-                it.name.contains(state.searchQuery, ignoreCase = true) 
-            }
-            state.copy(students = updatedStudents, filteredStudents = filtered)
+            state.copy(
+                students = updatedStudents,
+                filteredStudents = filterStudents(updatedStudents, state.searchQuery)
+            )
+        }
+    }
+
+    private fun filterStudents(students: List<AttendanceStudent>, query: String): List<AttendanceStudent> {
+        if (query.isBlank()) return students
+        return students.filter {
+            it.name.contains(query, ignoreCase = true) || it.details.contains(query, ignoreCase = true)
         }
     }
 
@@ -99,7 +108,7 @@ data class AttendanceUiState(
 ) {
     val presentCount: Int
         get() = students.count { it.isPresent }
-    
+
     val totalCount: Int
         get() = students.size
 }

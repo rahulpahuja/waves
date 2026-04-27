@@ -20,13 +20,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rahulpahuja.waves.data.remote.FirestoreUser
 import com.rahulpahuja.waves.data.remote.NotificationType
+import com.rahulpahuja.waves.ui.theme.AppTheme
+import com.rahulpahuja.waves.ui.theme.WavesTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserManagementScreen(
     onNavigateBack: () -> Unit,
@@ -35,6 +37,27 @@ fun UserManagementScreen(
 ) {
     val users by viewModel.users.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+
+    UserManagementContent(
+        users = users,
+        isLoading = isLoading,
+        onNavigateBack = onNavigateBack,
+        onAddUserClick = onAddUserClick,
+        onPromoteToInstructor = { viewModel.promoteToInstructor(it) },
+        onNotifyUser = { userId, message, type -> viewModel.notifyUser(userId, message, type) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UserManagementContent(
+    users: List<FirestoreUser>,
+    isLoading: Boolean,
+    onNavigateBack: () -> Unit,
+    onAddUserClick: () -> Unit,
+    onPromoteToInstructor: (FirestoreUser) -> Unit,
+    onNotifyUser: (String, String, NotificationType) -> Unit
+) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("All") }
     val filters = listOf("All", "Student", "Instructor", "Admin")
@@ -51,7 +74,7 @@ fun UserManagementScreen(
             user = selectedUserForNotification!!,
             onDismiss = { selectedUserForNotification = null },
             onSend = { message, type ->
-                viewModel.notifyUser(selectedUserForNotification!!.uid, message, type)
+                onNotifyUser(selectedUserForNotification!!.uid, message, type)
                 selectedUserForNotification = null
             }
         )
@@ -133,7 +156,7 @@ fun UserManagementScreen(
                     items(filteredUsers) { user ->
                         UserItem(
                             user = user,
-                            onPromote = { viewModel.promoteToInstructor(user) },
+                            onPromote = { onPromoteToInstructor(user) },
                             onNotify = { selectedUserForNotification = user }
                         )
                     }
@@ -258,4 +281,23 @@ fun NotificationTypeChip(label: String, selected: Boolean, onClick: () -> Unit) 
             selectedLabelColor = Color.White
         )
     )
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun UserManagementPreview() {
+    WavesTheme(colorScheme = AppTheme.ADMIN_SLATE.colorScheme()) {
+        UserManagementContent(
+            users = listOf(
+                FirestoreUser(uid = "1", displayName = "Rahul Pahuja", email = "rahul@example.com", role = "admin"),
+                FirestoreUser(uid = "2", displayName = "John Doe", email = "john@example.com", role = "student"),
+                FirestoreUser(uid = "3", displayName = "Jane Smith", email = "jane@example.com", role = "instructor")
+            ),
+            isLoading = false,
+            onNavigateBack = {},
+            onAddUserClick = {},
+            onPromoteToInstructor = {},
+            onNotifyUser = { _, _, _ -> }
+        )
+    }
 }

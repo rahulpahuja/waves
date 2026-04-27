@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import com.rahulpahuja.waves.ui.theme.AppTheme
 import com.rahulpahuja.waves.ui.theme.WavesTheme
 
 @Composable
@@ -143,7 +144,7 @@ fun StudentsContent(
 @Preview(showSystemUi = true)
 @Composable
 fun StudentsPreview() {
-    WavesTheme {
+    WavesTheme(colorScheme = AppTheme.ADMIN_SLATE.colorScheme()) {
         StudentsContent(onAddStudentClick = {})
     }
 }

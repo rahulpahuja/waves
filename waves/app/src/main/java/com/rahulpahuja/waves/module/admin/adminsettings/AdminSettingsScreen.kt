@@ -31,8 +31,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.rahulpahuja.waves.ui.theme.AppTheme
+import com.rahulpahuja.waves.ui.theme.ThemePicker
+import com.rahulpahuja.waves.ui.theme.ThemePickerContent
+import com.rahulpahuja.waves.ui.theme.WavesTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminSettingsScreen(
     onNavigateBack: () -> Unit,
@@ -45,6 +48,32 @@ fun AdminSettingsScreen(
     val language by viewModel.language.collectAsState()
     val notifications by viewModel.notifications.collectAsState()
 
+    AdminSettingsContent(
+        darkMode = darkMode,
+        language = language,
+        notifications = notifications,
+        onNavigateBack = onNavigateBack,
+        onLogout = onLogout,
+        onAppMapClick = onAppMapClick,
+        onDarkModeChange = { viewModel.onDarkModeChange(it) },
+        onNotificationsChange = { viewModel.onNotificationsChange(it) },
+        themePicker = { ThemePicker() }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdminSettingsContent(
+    darkMode: Boolean,
+    language: String,
+    notifications: Boolean,
+    onNavigateBack: () -> Unit,
+    onLogout: () -> Unit,
+    onAppMapClick: () -> Unit,
+    onDarkModeChange: (Boolean) -> Unit,
+    onNotificationsChange: (Boolean) -> Unit,
+    themePicker: @Composable () -> Unit
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -75,7 +104,7 @@ fun AdminSettingsScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
             
-            com.rahulpahuja.waves.ui.theme.ThemePicker()
+            themePicker()
 
             // Project Info
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -97,7 +126,7 @@ fun AdminSettingsScreen(
                     icon = Icons.Filled.DarkMode,
                     iconColor = Color(0xFF2962FF),
                     checked = darkMode,
-                    onCheckedChange = { viewModel.onDarkModeChange(it) }
+                    onCheckedChange = onDarkModeChange
                 )
                 
                 SettingsNavigationItem(
@@ -113,7 +142,7 @@ fun AdminSettingsScreen(
                     icon = Icons.Filled.Notifications,
                     iconColor = Color(0xFFE91E63),
                     checked = notifications,
-                    onCheckedChange = { viewModel.onNotificationsChange(it) }
+                    onCheckedChange = onNotificationsChange
                 )
             }
             
@@ -228,9 +257,8 @@ fun SettingsToggleItem(
         ) {
             Box(
                 modifier = Modifier
-                    .size(32.dp)
-                    // .background(iconColor.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
-                ,contentAlignment = Alignment.Center
+                    .size(32.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(20.dp))
             }
@@ -274,9 +302,8 @@ fun SettingsNavigationItem(
         ) {
             Box(
                 modifier = Modifier
-                    .size(32.dp)
-                    //.background(iconColor.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
-                ,contentAlignment = Alignment.Center
+                    .size(32.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(20.dp))
             }
@@ -291,13 +318,26 @@ fun SettingsNavigationItem(
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun AdminSettingsScreenPreview() {
-//    AdminSettingsScreen(
-//        onNavigateBack = {},
-//        onLogout = {},
-//        viewModel = AdminSettingsViewModel(),
-//        onArtistProfileClick = {}
-//    )
-//}
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun AdminSettingsPreview() {
+    WavesTheme(colorScheme = AppTheme.ADMIN_SLATE.colorScheme()) {
+        AdminSettingsContent(
+            darkMode = true,
+            language = "English",
+            notifications = true,
+            onNavigateBack = {},
+            onLogout = {},
+            onAppMapClick = {},
+            onDarkModeChange = {},
+            onNotificationsChange = {},
+            themePicker = {
+                ThemePickerContent(
+                    themes = AppTheme.forRole("admin"),
+                    currentTheme = AppTheme.ADMIN_SLATE,
+                    onThemeSelected = {}
+                )
+            }
+        )
+    }
+}

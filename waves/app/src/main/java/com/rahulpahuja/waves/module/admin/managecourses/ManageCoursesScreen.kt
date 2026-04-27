@@ -25,6 +25,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rahulpahuja.waves.data.remote.Course
 import com.rahulpahuja.waves.data.remote.FirestoreRepository
+import com.rahulpahuja.waves.ui.theme.AppTheme
+import com.rahulpahuja.waves.ui.theme.WavesTheme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -54,10 +56,21 @@ fun ManageCoursesScreen(
 ) {
     val courses by viewModel.courses.collectAsState()
 
+    ManageCoursesContent(
+        courses = courses,
+        onCreateCourse = onCreateCourse
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ManageCoursesContent(
+    courses: List<Course>,
+    onCreateCourse: () -> Unit
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            @OptIn(ExperimentalMaterial3Api::class)
             TopAppBar(
                 title = { Text("Manage Courses", color = Color.White, fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
@@ -126,8 +139,16 @@ private fun CourseCard(course: Course) {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun ManageCoursesScreenPreview() {
-    ManageCoursesScreen(onCreateCourse = {})
+    WavesTheme(colorScheme = AppTheme.ADMIN_SLATE.colorScheme()) {
+        ManageCoursesContent(
+            courses = listOf(
+                Course(id = "1", name = "Basic DJing", category = "DJing", fee = 5000.0, topics = listOf("1", "2")),
+                Course(id = "2", name = "Advanced Production", category = "Production", fee = 10000.0, topics = listOf("1", "2", "3"))
+            ),
+            onCreateCourse = {}
+        )
+    }
 }

@@ -50,8 +50,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.rahulpahuja.waves.ui.theme.AppTheme
+import com.rahulpahuja.waves.ui.theme.WavesTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AttendanceScreen(
     onNavigateBack: () -> Unit,
@@ -59,6 +60,26 @@ fun AttendanceScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
 
+    AttendanceContent(
+        state = state,
+        onNavigateBack = onNavigateBack,
+        onToggleSelectAll = { viewModel.toggleSelectAll() },
+        onSubmitAttendance = { viewModel.submitAttendance() },
+        onSearchQueryChanged = { viewModel.onSearchQueryChanged(it) },
+        onToggleAttendance = { viewModel.toggleAttendance(it) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AttendanceContent(
+    state: AttendanceUiState,
+    onNavigateBack: () -> Unit,
+    onToggleSelectAll: () -> Unit,
+    onSubmitAttendance: () -> Unit,
+    onSearchQueryChanged: (String) -> Unit,
+    onToggleAttendance: (String) -> Unit
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -76,10 +97,10 @@ fun AttendanceScreen(
                 actions = {
                     Text(
                         text = "Select All",
-                        color = Color(0xFF2962FF),
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
-                            .clickable { viewModel.toggleSelectAll() }
+                            .clickable { onToggleSelectAll() }
                             .padding(end = 16.dp)
                     )
                 },
@@ -110,7 +131,7 @@ fun AttendanceScreen(
 
                 // Submit Button
                 Button(
-                    onClick = { viewModel.submitAttendance() },
+                    onClick = onSubmitAttendance,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
@@ -156,20 +177,19 @@ fun AttendanceScreen(
             // Search Bar
             TextField(
                 value = state.searchQuery,
-                onValueChange = { viewModel.onSearchQueryChanged(it) },
+                onValueChange = onSearchQueryChanged,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surface),
+                    .clip(RoundedCornerShape(12.dp)),
                 placeholder = { Text("Search students...", color = Color.Gray) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFF1E232F),
-                    unfocusedContainerColor = Color(0xFF1E232F),
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                    unfocusedTextColor = Color.White
                 )
             )
 
@@ -183,21 +203,12 @@ fun AttendanceScreen(
                 items(state.filteredStudents) { student ->
                     AttendanceItem(
                         student = student,
-                        onToggle = { viewModel.toggleAttendance(student.id) }
+                        onToggle = { onToggleAttendance(student.id) }
                     )
                 }
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AttendanceScreenPreview() {
-    AttendanceScreen(
-        onNavigateBack = {},
-        viewModel = AttendanceViewModel()
-    )
 }
 
 @Composable
@@ -249,12 +260,39 @@ fun AttendanceItem(
                 onCheckedChange = onToggle,
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
-                    checkedTrackColor = Color(0xFF2962FF),
+                    checkedTrackColor = MaterialTheme.colorScheme.primary,
                     uncheckedThumbColor = Color.LightGray,
                     uncheckedTrackColor = Color.DarkGray,
                     uncheckedBorderColor = Color.Transparent
                 )
             )
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun AttendancePreview() {
+    WavesTheme(colorScheme = AppTheme.ADMIN_SLATE.colorScheme()) {
+        AttendanceContent(
+            state = AttendanceUiState(
+                sessionTitle = "Today's Session",
+                sessionDate = "Oct 25, 2023",
+                sessionLocation = "Main Studio",
+                students = listOf(
+                    AttendanceStudent("1", "Rahul Pahuja", "Student • rahul@example.com", true, false),
+                    AttendanceStudent("2", "John Doe", "Student • john@example.com", false, true)
+                ),
+                filteredStudents = listOf(
+                    AttendanceStudent("1", "Rahul Pahuja", "Student • rahul@example.com", true, false),
+                    AttendanceStudent("2", "John Doe", "Student • john@example.com", false, true)
+                )
+            ),
+            onNavigateBack = {},
+            onToggleSelectAll = {},
+            onSubmitAttendance = {},
+            onSearchQueryChanged = {},
+            onToggleAttendance = {}
+        )
     }
 }

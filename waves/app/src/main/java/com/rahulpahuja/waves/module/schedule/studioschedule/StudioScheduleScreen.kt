@@ -3,28 +3,22 @@ package com.rahulpahuja.waves.module.schedule.studioschedule
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,11 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rahulpahuja.waves.data.remote.BookingRequest
+import com.rahulpahuja.waves.ui.theme.AppTheme
+import com.rahulpahuja.waves.ui.theme.WavesTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StudioScheduleScreen(
     onNavigateBack: () -> Unit,
@@ -44,6 +39,20 @@ fun StudioScheduleScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
 
+    StudioScheduleContent(
+        state = state,
+        onNavigateBack = onNavigateBack,
+        onBookSlot = { viewModel.requestBooking(it) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StudioScheduleContent(
+    state: StudioScheduleUiState,
+    onNavigateBack: () -> Unit,
+    onBookSlot: (Slot) -> Unit
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -125,7 +134,7 @@ fun StudioScheduleScreen(
                 Text("Available Slots (9 AM - 5 PM)", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 
                 state.availableSlots.forEach { slot ->
-                    SlotItem(slot, onBook = { viewModel.requestBooking(slot) })
+                    SlotItem(slot, onBook = { onBookSlot(slot) })
                 }
             }
 
@@ -154,10 +163,26 @@ fun StudioScheduleScreen(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun StudioScheduleScreenPreview() {
-    StudioScheduleScreen(onNavigateBack = {})
+    WavesTheme(colorScheme = AppTheme.ADMIN_SLATE.colorScheme()) {
+        StudioScheduleContent(
+            state = StudioScheduleUiState(
+                selectedDate = 5,
+                availableSlots = listOf(
+                    Slot("1", "Studio 1", "Main Booth", "09:00", "AM", true),
+                    Slot("2", "Studio 2", "Secondary Booth", "11:00", "AM", false)
+                ),
+                myBookings = listOf(
+                    BookingRequest(id = "1", userId = "1", startTime = System.currentTimeMillis(), status = "APPROVED", type = "CHECKIN"),
+                    BookingRequest(id = "2", userId = "1", startTime = System.currentTimeMillis() + 86400000, status = "PENDING", type = "BOOKING")
+                )
+            ),
+            onNavigateBack = {},
+            onBookSlot = {}
+        )
+    }
 }
 
 @Composable

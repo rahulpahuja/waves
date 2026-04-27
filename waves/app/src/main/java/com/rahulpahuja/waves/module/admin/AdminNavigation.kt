@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.rahulpahuja.waves.module.admin.admindashboard.AdminBottomBar
 import com.rahulpahuja.waves.module.admin.admindashboard.AdminDashboardScreen
 import com.rahulpahuja.waves.module.admin.adminsettings.AdminSettingsScreen
+import com.rahulpahuja.waves.module.admin.attendance.AttendanceScreen
 import com.rahulpahuja.waves.module.admin.managecourses.ManageCoursesScreen
 import com.rahulpahuja.waves.module.admin.students.StudentsScreen
 import com.rahulpahuja.waves.module.admin.usermanagement.UserManagementScreen
@@ -30,7 +31,7 @@ fun AdminNavigation(navController: NavController) {
         containerColor = backgroundColor,
         bottomBar = {
             AdminBottomBar(navController = adminNavController)
-        }
+        },
     ) { paddingValues ->
         NavHost(
             navController = adminNavController,
@@ -70,15 +71,19 @@ fun AdminNavigation(navController: NavController) {
                 )
             }
             composable(Screen.StudioSchedule.route) {
-                StudioScheduleScreen(onNavigateBack = {
-                    adminNavController.navigate(Screen.AdminDashboard.route) {
-                        popUpTo(adminNavController.graph.startDestinationId)
-                        launchSingleTop = true
+                StudioScheduleScreen(
+                    onNavigateBack = {
+                        adminNavController.navigate(Screen.AdminDashboard.route) {
+                            popUpTo(adminNavController.graph.startDestinationId)
+                            launchSingleTop = true
+                        }
                     }
-                })
+                )
             }
             composable(Screen.Students.route) {
-                StudentsScreen(onAddStudentClick = { navController.navigate(Screen.CreateStudent.route) })
+                StudentsScreen {
+                    navController.navigate(Screen.CreateStudent.route)
+                }
             }
             composable(Screen.AdminSettings.route) {
                 AdminSettingsScreen(
@@ -103,6 +108,11 @@ fun AdminNavigation(navController: NavController) {
                 UserManagementScreen(
                     onNavigateBack = { adminNavController.popBackStack() },
                     onAddUserClick = { navController.navigate(Screen.CreateStudent.route) }
+                )
+            }
+            composable(Screen.Attendance.route) {
+                AttendanceScreen(
+                    onNavigateBack = { adminNavController.popBackStack() }
                 )
             }
         }

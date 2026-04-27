@@ -30,6 +30,19 @@ fun ThemePicker(themeVM: ThemeViewModel = hiltViewModel()) {
     val role by themeVM.userRole.collectAsState()
     val themes = AppTheme.forRole(role)
 
+    ThemePickerContent(
+        themes = themes,
+        currentTheme = currentTheme,
+        onThemeSelected = { themeVM.setTheme(it) }
+    )
+}
+
+@Composable
+fun ThemePickerContent(
+    themes: List<AppTheme>,
+    currentTheme: AppTheme,
+    onThemeSelected: (AppTheme) -> Unit
+) {
     Column {
         Text(
             "APPEARANCE",
@@ -43,7 +56,7 @@ fun ThemePicker(themeVM: ThemeViewModel = hiltViewModel()) {
                 ThemeChip(
                     theme = theme,
                     selected = theme == currentTheme,
-                    onClick = { themeVM.setTheme(theme) }
+                    onClick = { onThemeSelected(theme) }
                 )
             }
         }
