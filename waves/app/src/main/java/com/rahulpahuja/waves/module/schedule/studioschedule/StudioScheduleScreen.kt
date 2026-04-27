@@ -76,89 +76,95 @@ fun StudioScheduleContent(
             )
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            // Calendar Strip
-            Column {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = { /* Prev Month */ }) {
-                        Icon(Icons.Filled.ChevronLeft, contentDescription = null, tint = Color.Gray)
-                    }
-                    Text("September 2023", color = Color.White, fontWeight = FontWeight.Bold)
-                    IconButton(onClick = { /* Next Month */ }) {
-                        Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Color.Gray)
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                // Simple Date Row Placeholder
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                     val days = listOf("S", "M", "T", "W", "T", "F", "S")
-                     for (i in 0..6) {
-                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                             Text(days[i], color = Color.Gray, fontSize = 12.sp)
-                             Spacer(modifier = Modifier.height(8.dp))
-                             if (i == 3) {
-                                 Box(
-                                     modifier = Modifier
-                                         .size(32.dp)
-                                         .background(Color(0xFF2962FF), CircleShape),
-                                     contentAlignment = Alignment.Center
-                                 ) {
-                                     Text("${state.selectedDate}", color = Color.White, fontWeight = FontWeight.Bold)
-                                 }
-                             } else {
-                                 Text("${2 + i}", color = Color.White)
-                             }
-                         }
-                     }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Box(modifier = Modifier.fillMaxWidth().height(4.dp).background(Color(0xFF1E232F), RoundedCornerShape(2.dp)))
+        if (state.isLoading) {
+            Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
-
-            // Available Slots
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Available Slots (9 AM - 5 PM)", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                
-                state.availableSlots.forEach { slot ->
-                    SlotItem(slot, onBook = { onBookSlot(slot) })
-                }
-            }
-
-            // My Bookings
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("My Requests & History", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    if (state.myBookings.isNotEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .background(Color(0xFF2962FF), CircleShape)
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
-                        ) {
-                            Text("${state.myBookings.size}", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                // Calendar Strip
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { /* Prev Month */ }) {
+                            Icon(Icons.Filled.ChevronLeft, contentDescription = null, tint = Color.Gray)
+                        }
+                        Text("September 2023", color = Color.White, fontWeight = FontWeight.Bold)
+                        IconButton(onClick = { /* Next Month */ }) {
+                            Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Color.Gray)
                         }
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    // Simple Date Row Placeholder
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                         val days = listOf("S", "M", "T", "W", "T", "F", "S")
+                         for (i in 0..6) {
+                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                 Text(days[i], color = Color.Gray, fontSize = 12.sp)
+                                 Spacer(modifier = Modifier.height(8.dp))
+                                 if (i == 3) {
+                                     Box(
+                                         modifier = Modifier
+                                             .size(32.dp)
+                                             .background(MaterialTheme.colorScheme.primary, CircleShape),
+                                         contentAlignment = Alignment.Center
+                                     ) {
+                                         Text("${state.selectedDate}", color = Color.White, fontWeight = FontWeight.Bold)
+                                     }
+                                 } else {
+                                     Text("${2 + i}", color = Color.White)
+                                 }
+                             }
+                         }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Box(modifier = Modifier.fillMaxWidth().height(4.dp).background(Color(0xFF1E232F), RoundedCornerShape(2.dp)))
                 }
 
-                state.myBookings.forEach { booking ->
-                    BookingItem(booking)
+                // Available Slots
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Available Slots (9 AM - 5 PM)", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    
+                    state.availableSlots.forEach { slot ->
+                        SlotItem(slot, onBook = { onBookSlot(slot) })
+                    }
                 }
+
+                // My Bookings
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("My Requests & History", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        if (state.myBookings.isNotEmpty()) {
+                            Box(
+                                modifier = Modifier
+                                    .background(MaterialTheme.colorScheme.primary, CircleShape)
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text("${state.myBookings.size}", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+
+                    state.myBookings.forEach { booking ->
+                        BookingItem(booking)
+                    }
+                }
+                Spacer(modifier = Modifier.height(80.dp))
             }
-            Spacer(modifier = Modifier.height(80.dp))
         }
     }
 }
@@ -169,6 +175,7 @@ fun StudioScheduleScreenPreview() {
     WavesTheme(colorScheme = AppTheme.ADMIN_SLATE.colorScheme()) {
         StudioScheduleContent(
             state = StudioScheduleUiState(
+                isLoading = false,
                 selectedDate = 5,
                 availableSlots = listOf(
                     Slot("1", "Studio 1", "Main Booth", "09:00", "AM", true),
@@ -199,8 +206,8 @@ fun SlotItem(slot: Slot, onBook: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(slot.time, color = if(slot.isAvailable) Color(0xFF2962FF) else Color.Gray, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                Text(slot.period, color = if(slot.isAvailable) Color(0xFF2962FF) else Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(slot.time, color = if(slot.isAvailable) MaterialTheme.colorScheme.primary else Color.Gray, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(slot.period, color = if(slot.isAvailable) MaterialTheme.colorScheme.primary else Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(modifier = Modifier.width(16.dp))
             Box(
@@ -223,7 +230,7 @@ fun SlotItem(slot: Slot, onBook: () -> Unit) {
                 Box(
                     modifier = Modifier
                         .size(32.dp)
-                        .background(Color(0xFF2962FF), CircleShape),
+                        .background(MaterialTheme.colorScheme.primary, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(Icons.Filled.Add, contentDescription = "Book", tint = Color.White, modifier = Modifier.size(20.dp))

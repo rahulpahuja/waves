@@ -42,9 +42,16 @@ class ManageCoursesViewModel @Inject constructor(
     private val _courses = MutableStateFlow<List<Course>>(emptyList())
     val courses: StateFlow<List<Course>> = _courses.asStateFlow()
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
     init {
         viewModelScope.launch {
-            repository.getCourses().collect { _courses.value = it }
+            _isLoading.value = true
+            repository.getCourses().collect { 
+                _courses.value = it 
+                _isLoading.value = false
+            }
         }
     }
 }
@@ -55,9 +62,11 @@ fun ManageCoursesScreen(
     viewModel: ManageCoursesViewModel = hiltViewModel()
 ) {
     val courses by viewModel.courses.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     ManageCoursesContent(
         courses = courses,
+        isLoading = isLoading,
         onCreateCourse = onCreateCourse
     )
 }
@@ -66,6 +75,7 @@ fun ManageCoursesScreen(
 @Composable
 fun ManageCoursesContent(
     courses: List<Course>,
+    isLoading: Boolean,
     onCreateCourse: () -> Unit
 ) {
     Scaffold(
@@ -87,7 +97,11 @@ fun ManageCoursesContent(
             }
         }
     ) { padding ->
-        if (courses.isEmpty()) {
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
+        } else if (courses.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentAlignment = Alignment.Center
@@ -148,6 +162,7 @@ fun ManageCoursesScreenPreview() {
                 Course(id = "1", name = "Basic DJing", category = "DJing", fee = 5000.0, topics = listOf("1", "2")),
                 Course(id = "2", name = "Advanced Production", category = "Production", fee = 10000.0, topics = listOf("1", "2", "3"))
             ),
+            isLoading = false,
             onCreateCourse = {}
         )
     }

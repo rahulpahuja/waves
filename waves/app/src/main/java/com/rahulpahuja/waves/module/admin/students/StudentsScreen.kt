@@ -21,32 +21,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.rahulpahuja.waves.ui.theme.AppTheme
 import com.rahulpahuja.waves.ui.theme.WavesTheme
 
 @Composable
 fun StudentsScreen(
-    onAddStudentClick: () -> Unit
+    onAddStudentClick: () -> Unit,
+    viewModel: StudentsViewModel = hiltViewModel()
 ) {
-    StudentsContent(onAddStudentClick = onAddStudentClick)
+    val state by viewModel.uiState.collectAsState()
+    
+    StudentsContent(
+        state = state,
+        onAddStudentClick = onAddStudentClick,
+        onSearchQueryChanged = { viewModel.onSearchQueryChanged(it) },
+        onFilterSelected = { viewModel.onFilterSelected(it) }
+    )
 }
 
 @Composable
 fun StudentsContent(
-    onAddStudentClick: () -> Unit
+    state: StudentsUiState,
+    onAddStudentClick: () -> Unit,
+    onSearchQueryChanged: (String) -> Unit,
+    onFilterSelected: (String) -> Unit
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedFilter by remember { mutableStateOf("All") }
     val filters = listOf("All", "DJ 101", "Production", "Mixing")
-
-    val students = listOf(
-        Student("Alex \"DJ Orbit\" Rivera", "Advanced Mixing & Mastering", true),
-        Student("Sarah Jenkins", "DJ 101 - Intro to Vinyl", false),
-        Student("Marcus Chen", "Production Level II", true),
-        Student("Jessica Davis", "Logic Pro Essentials", false),
-        Student("David Miller", "Sound Design", false),
-        Student("Elena Rodriguez", "Ableton Live Masterclass", false)
-    )
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -68,7 +69,7 @@ fun StudentsContent(
                     onClick = onAddStudentClick,
                     modifier = Modifier
                         .size(40.dp)
-                        .background(Color(0xFF2962FF), CircleShape)
+                        .background(MaterialTheme.colorScheme.primary, CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
@@ -79,62 +80,69 @@ fun StudentsContent(
             }
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp)
-        ) {
-            // Search Bar
-            TextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surface),
-                placeholder = { Text("Search students or courses...", color = Color.Gray) },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFF1E232F),
-                    unfocusedContainerColor = Color(0xFF1E232F),
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
-                )
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Filters
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                filters.forEach { filter ->
-                    FilterChip(
-                        selected = selectedFilter == filter,
-                        onClick = { selectedFilter = filter },
-                        label = { Text(filter) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = Color(0xFF2962FF),
-                            selectedLabelColor = Color.White,
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            labelColor = Color.Gray
-                        ),
-                        border = null
-                    )
-                }
+        if (state.isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Student List
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp)
             ) {
-                items(students) { student ->
-                    StudentItem(student)
+                // Search Bar
+                TextField(
+                    value = state.searchQuery,
+                    onValueChange = onSearchQueryChanged,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surface),
+                    placeholder = { Text("Search students or courses...", color = Color.Gray) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFF1E232F),
+                        unfocusedContainerColor = Color(0xFF1E232F),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Filters
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    filters.forEach { filter ->
+                        FilterChip(
+                            selected = state.selectedFilter == filter,
+                            onClick = { onFilterSelected(filter) },
+                            label = { Text(filter) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = Color.White,
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                labelColor = Color.Gray
+                            ),
+                            border = null
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Student List
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(state.filteredStudents) { student ->
+                        StudentItem(student)
+                    }
                 }
             }
         }
@@ -145,7 +153,22 @@ fun StudentsContent(
 @Composable
 fun StudentsPreview() {
     WavesTheme(colorScheme = AppTheme.ADMIN_SLATE.colorScheme()) {
-        StudentsContent(onAddStudentClick = {})
+        StudentsContent(
+            state = StudentsUiState(
+                isLoading = false,
+                students = listOf(
+                    Student("Alex \"DJ Orbit\" Rivera", "Advanced Mixing & Mastering", true),
+                    Student("Sarah Jenkins", "DJ 101 - Intro to Vinyl", false)
+                ),
+                filteredStudents = listOf(
+                    Student("Alex \"DJ Orbit\" Rivera", "Advanced Mixing & Mastering", true),
+                    Student("Sarah Jenkins", "DJ 101 - Intro to Vinyl", false)
+                )
+            ),
+            onAddStudentClick = {},
+            onSearchQueryChanged = {},
+            onFilterSelected = {}
+        )
     }
 }
 

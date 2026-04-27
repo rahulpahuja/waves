@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -135,27 +136,33 @@ fun AdminDashboardContent(
         },
         containerColor = backgroundColor
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            item { Spacer(modifier = Modifier.height(16.dp)) }
-            item { HeaderSection(onProfileClick = onNavigateToSettings, onNotificationsClick = onNavigateToNotifications) }
-            item { OverviewSection(state) }
-            item { 
-                ManageSchoolSection(
-                    navController = navController, 
-                    onStudentsClick = onNavigateToStudents,
-                    onApprovalsClick = { navController.navigate(Screen.PendingApprovals.route) },
-                    onCoursesClick = onNavigateToCourses,
-                    onUsersClick = onNavigateToUsers
-                ) 
+        if (state.isLoading) {
+            Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
-            item { UpcomingSessionsSection(state.sessions) }
-            item { Spacer(modifier = Modifier.height(80.dp)) } // Bottom padding for FAB/Nav
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+                item { HeaderSection(onProfileClick = onNavigateToSettings, onNotificationsClick = onNavigateToNotifications) }
+                item { OverviewSection(state) }
+                item { 
+                    ManageSchoolSection(
+                        navController = navController, 
+                        onStudentsClick = onNavigateToStudents,
+                        onApprovalsClick = { navController.navigate(Screen.PendingApprovals.route) },
+                        onCoursesClick = onNavigateToCourses,
+                        onUsersClick = onNavigateToUsers
+                    ) 
+                }
+                item { UpcomingSessionsSection(state.sessions) }
+                item { Spacer(modifier = Modifier.height(80.dp)) } // Bottom padding for FAB/Nav
+            }
         }
     }
 }

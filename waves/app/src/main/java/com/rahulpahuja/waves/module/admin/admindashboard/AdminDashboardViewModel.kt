@@ -20,9 +20,12 @@ class AdminDashboardViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun loadDashboardData() {
+        _uiState.value = _uiState.value.copy(isLoading = true)
         viewModelScope.launch {
-            // Simulate data loading
+            // Simulate data loading with a slight delay for realism in premium feel
+            kotlinx.coroutines.delay(300)
             _uiState.value = AdminDashboardUiState(
+                isLoading = false,
                 studentCount = 142,
                 studentGrowth = 5,
                 revenue = 12.5,
@@ -38,6 +41,7 @@ class AdminDashboardViewModel @Inject constructor() : ViewModel() {
 }
 
 data class AdminDashboardUiState(
+    val isLoading: Boolean = false,
     val studentCount: Int = 0,
     val studentGrowth: Int = 0,
     val revenue: Double = 0.0,

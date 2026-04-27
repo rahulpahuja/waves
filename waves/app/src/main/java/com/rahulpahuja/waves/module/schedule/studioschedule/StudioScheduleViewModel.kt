@@ -33,10 +33,14 @@ class StudioScheduleViewModel @Inject constructor(
 
     private fun observeData() {
         val uid = auth.currentUser?.uid ?: return
+        _uiState.value = _uiState.value.copy(isLoading = true)
         viewModelScope.launch {
             // Observe availability
             repository.getStudioAvailability().collectLatest { availability ->
-                _uiState.value = _uiState.value.copy(studioAvailability = availability ?: StudioAvailability())
+                _uiState.value = _uiState.value.copy(
+                    studioAvailability = availability ?: StudioAvailability(),
+                    isLoading = false
+                )
                 generateSlots()
             }
         }
@@ -105,6 +109,7 @@ class StudioScheduleViewModel @Inject constructor(
 }
 
 data class StudioScheduleUiState(
+    val isLoading: Boolean = false,
     val selectedDate: Int = Calendar.getInstance().get(Calendar.DAY_OF_MONTH),
     val studioAvailability: StudioAvailability = StudioAvailability(),
     val availableSlots: List<Slot> = emptyList(),
