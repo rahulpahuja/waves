@@ -41,6 +41,7 @@ import com.rahulpahuja.waves.module.onboarding.allset.AllSetScreen
 import com.rahulpahuja.waves.module.onboarding.createpersona.CreatePersonaScreen
 import com.rahulpahuja.waves.module.onboarding.trackprogress.TrackProgressScreen
 import com.rahulpahuja.waves.module.onboarding.welcome.WelcomeScreen
+import com.rahulpahuja.waves.module.player.MusicPlayerScreen
 import com.rahulpahuja.waves.module.radar.artistradar.ArtistRadarScreen
 import com.rahulpahuja.waves.module.radar.publicartistprofile.PublicArtistProfileScreen
 import com.rahulpahuja.waves.module.schedule.managebookings.ManageBookingsScreen
@@ -276,6 +277,11 @@ fun AppNavigation() {
         // Schedule
         composable(Screen.StudioSchedule.route) {
             StudioScheduleScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        // Local Music Player
+        composable(Screen.LocalPlayer.route) {
+            MusicPlayerScreen(onNavigateBack = { navController.popBackStack() })
         }
 
         // Project Map

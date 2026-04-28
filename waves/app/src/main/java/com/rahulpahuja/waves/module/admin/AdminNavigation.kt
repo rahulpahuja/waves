@@ -95,6 +95,9 @@ fun AdminNavigation(navController: NavController) {
                                 popUpTo(adminNavController.graph.startDestinationId)
                                 launchSingleTop = true
                             }
+                        },
+                        onNavigateToLocalPlayer = {
+                            navController.navigate(Screen.LocalPlayer.route)
                         }
                     )
                 }

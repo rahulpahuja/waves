@@ -16,10 +16,14 @@
         tools:ignore="PhotoAndVideoPolicy" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"
         tools:ignore="PhotoAndVideoPolicy,SelectedPhotoAccess" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"
         tools:ignore="SelectedPhotoAccess" />
-    
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+
     <!-- Camera for profile pictures or scanning if needed -->
     <uses-permission android:name="android.permission.CAMERA" />
     
@@ -54,6 +58,15 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".module.player.PlaybackService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
             </intent-filter>
         </service>
     </application>

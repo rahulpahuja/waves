@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
@@ -71,6 +72,7 @@ fun AdminDashboardScreen(
     onNavigateToNotifications: () -> Unit,
     onNavigateToCourses: () -> Unit,
     onNavigateToUsers: () -> Unit,
+    onNavigateToLocalPlayer: () -> Unit,
     viewModel: AdminDashboardViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -82,6 +84,7 @@ fun AdminDashboardScreen(
         onNavigateToNotifications = onNavigateToNotifications,
         onNavigateToCourses = onNavigateToCourses,
         onNavigateToUsers = onNavigateToUsers,
+        onNavigateToLocalPlayer = onNavigateToLocalPlayer,
         state = state
     )
 }
@@ -97,6 +100,7 @@ fun AdminDashboardPreview() {
             onNavigateToNotifications = {},
             onNavigateToCourses = {},
             onNavigateToUsers = {},
+            onNavigateToLocalPlayer = {},
             state = AdminDashboardUiState(
                 studentCount = 142,
                 studentGrowth = 12,
@@ -119,6 +123,7 @@ fun AdminDashboardContent(
     onNavigateToNotifications: () -> Unit,
     onNavigateToCourses: () -> Unit,
     onNavigateToUsers: () -> Unit,
+    onNavigateToLocalPlayer: () -> Unit,
     state: AdminDashboardUiState
 ) {
      val backgroundColor = MaterialTheme.colorScheme.background
@@ -157,7 +162,8 @@ fun AdminDashboardContent(
                         onStudentsClick = onNavigateToStudents,
                         onApprovalsClick = { navController.navigate(Screen.PendingApprovals.route) },
                         onCoursesClick = onNavigateToCourses,
-                        onUsersClick = onNavigateToUsers
+                        onUsersClick = onNavigateToUsers,
+                        onLocalPlayerClick = onNavigateToLocalPlayer
                     ) 
                 }
                 item { UpcomingSessionsSection(state.sessions) }
@@ -330,7 +336,8 @@ fun ManageSchoolSection(
     onStudentsClick: () -> Unit, 
     onApprovalsClick: () -> Unit,
     onCoursesClick: () -> Unit,
-    onUsersClick: () -> Unit
+    onUsersClick: () -> Unit,
+    onLocalPlayerClick: () -> Unit
 ) {
     Column {
         Text(
@@ -373,12 +380,12 @@ fun ManageSchoolSection(
                 )
                 ManageCard(
                     modifier = Modifier.weight(1f),
-                    title = stringResource(R.string.finances_title),
-                    subtitle = "Verify & Logs",
-                    icon = Icons.Default.AttachMoney,
+                    title = "Local Player",
+                    subtitle = "Play device music",
+                    icon = Icons.Default.PlayArrow,
                     colorStart = Color(0xFF2E3B3B), // Greenish Grey
                     colorEnd = Color(0xFF1B2424),
-                    onClick = { navController.navigate(Screen.NewCashEntry.route) }
+                    onClick = onLocalPlayerClick
                 )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {

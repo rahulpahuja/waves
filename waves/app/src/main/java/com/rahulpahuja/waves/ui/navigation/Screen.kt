@@ -48,6 +48,7 @@ object Route {
     const val ARTIST_RADAR = "artist_radar"
     const val PUBLIC_ARTIST_PROFILE = "public_artist_profile"
     const val STUDIO_SCHEDULE = "studio_schedule"
+    const val LOCAL_PLAYER = "local_player"
 }
 
 /**
@@ -110,4 +111,5 @@ sealed class Screen(val route: String, val group: ScreenGroup) {
     object ArtistRadar : Screen(Route.ARTIST_RADAR, ScreenGroup.SHARED)
     object PublicArtistProfile : Screen(Route.PUBLIC_ARTIST_PROFILE, ScreenGroup.SHARED)
     object StudioSchedule : Screen(Route.STUDIO_SCHEDULE, ScreenGroup.SHARED)
+    object LocalPlayer : Screen(Route.LOCAL_PLAYER, ScreenGroup.SHARED)
 }
